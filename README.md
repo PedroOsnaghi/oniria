@@ -54,7 +54,7 @@ npm run dev            # levanta en http://localhost:5173
 
 Cuando quieras empezar a trabajar en una nueva funcionalidad, **crea una rama a partir de `dev`** siguiendo la convención definida para el nombre de ramas.
 
-<h4>📝 cómo llamamos nuestras ramas...</h4>
+### 📝 cómo llamamos nuestras ramas...
 
 Usamos prefijos que indican el tipo de trabajo:
 
@@ -83,6 +83,62 @@ git checkout -b feature/login-usuario
 ```
 
 y listo!, ya podes empezar a trabajar..
+
+## 🧑‍💻 Flujo de trabajo para nuevas funcionalidades
+
+Cuando termines de desarrollar una funcionalidad:
+
+### 1. Commit de tus cambios
+```bash
+git add .
+git commit -m "feat: agregar interpretación con OPENAI"
+```
+### 2. Subir la rama al remoto
+```bash
+Copiar código
+git push -u origin feature/interpretacion-openai
+```
+### 3. Crear Pull Request (PR)
+
+ - Venite al repo y anda a la pestaña `Pull request`
+
+ - Base branch: dev
+
+ - Compare branch: feature/...
+
+⚠️ Importante: la PR siempre apunta a dev, nunca a main.
+
+### 4. Completar la plantilla de PR
+
+- Explicá qué hace la PR
+
+- Marcá el checklist (tests, lint, docs)
+
+- Señalá qué áreas se modificaron
+
+- Agregá notas/screenshots si aplica
+
+### 5. Asignar revisores
+
+- Asigná 2 revisores del equipo
+
+- Ellos deben aprobar la PR
+
+### 6. Verificación automática
+
+- Al abrir la PR se ejecutan los tests automáticos (CI)
+
+- Si fallan ❌ → corregí y volvé a pushear
+
+- Si todo pasa ✅ y hay 2 aprobaciones → se puede mergear
+
+### 7. Merge a dev
+
+- Usar Squash & Merge para mantener el historial limpio
+
+- El código queda integrado en dev
+
+---
 
 <h2>El equipo de Oniria 😎</h2>
 
