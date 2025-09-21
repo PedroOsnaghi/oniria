@@ -9,5 +9,4 @@ export class UsuarioController {
         res.send(saludo);
     }
 
-
 }

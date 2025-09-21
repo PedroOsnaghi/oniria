@@ -13,4 +13,3 @@ export class UsuarioDTO {
     // @MinLength(6, { message: 'La password debe tener al menos 6 caracteres' })
     password!: string;
 }
-
