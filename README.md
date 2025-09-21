@@ -84,9 +84,10 @@ git checkout -b feature/login-usuario
 
 y listo!, ya podes empezar a trabajar..
 
-<div style="margin: 0px auto; width:80%;">
-<div style="display:flex;flex-direction:column;">
-<img src="https://github.com/PedroOsnaghi.png" width="100" style="border-radius:50%;">
-<strong>Pedro Osnaghi</strong>
-<div>
-<div>
+<h2>El equipo de Oniria 😎</h2>
+
+| [<img src="https://github.com/moavalos.png" width="100" style="border-radius:50%"><br/>Mora Avalos](https://github.com/moavalos)     | [<img src="https://github.com/ClarisaR.png" width="100" style="border-radius:50%"><br/>Clarisa R](https://github.com/ClarisaR)                     | [<img src="https://github.com/PedroOsnaghi.png" width="100" style="border-radius:50%"><br/>Pedro Osnaghi](https://github.com/PedroOsnaghi) | [<img src="https://github.com/KevinLlombart.png" width="100" style="border-radius:50%"><br/>Kevin Llombart](https://github.com/KevinLlombart) |
+| ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| [<img src="https://github.com/tomycernik.png" width="100" style="border-radius:50%"><br/>Tomy Cernik](https://github.com/tomycernik) | [<img src="https://github.com/MilagrosChavezz.png" width="100" style="border-radius:50%"><br/>Milagros Chavez](https://github.com/MilagrosChavezz) | [<img src="https://github.com/ma3rtin.png" width="100" style="border-radius:50%"><br/>Martin Mutuverria](https://github.com/ma3rtin)       | [<img src="https://github.com/usuario8.png" width="100" style="border-radius:50%"><br/>Pedro Cartez](https://github.com/usuario8)             |
+
+---
