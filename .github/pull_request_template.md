@@ -20,7 +20,7 @@ Explicá brevemente qué hace esta PR.
 ## 🔍 Qué se probó
 
 - [ ] Tests unitarios/locales
-- [ ] Flujo de la funcionalidad en el frontend
+- [ ] funcionalidad en el frontend
 - [ ] Endpoint(s) en el backend
 
 ---
@@ -48,3 +48,4 @@ Recordá: **todas las conversaciones deben resolverse antes del merge.**
 - Screenshots, GIFs o ejemplos de uso si es UI
 - Consideraciones técnicas
 - TODOs pendientes
+
