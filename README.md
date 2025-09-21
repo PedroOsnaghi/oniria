@@ -54,7 +54,7 @@ npm run dev            # levanta en http://localhost:5173
 
 Cuando quieras empezar a trabajar en una nueva funcionalidad, **crea una rama a partir de `dev`** siguiendo la convención definida para el nombre de ramas.
 
-<h4>📝 cómo llamamos nuestras ramas...</h4>
+### 📝 cómo llamamos nuestras ramas...
 
 Usamos prefijos que indican el tipo de trabajo:
 
@@ -84,10 +84,70 @@ git checkout -b feature/login-usuario
 
 y listo!, ya podes empezar a trabajar..
 
+## 🧑‍💻 Flujo de trabajo para nuevas funcionalidades
+
+Cuando termines de desarrollar una funcionalidad:
+
+### 1. Commit de tus cambios
+```bash
+git add .
+git commit -m "feat: agregar interpretación con OPENAI"
+```
+### 2. Subir la rama al remoto
+```bash
+Copiar código
+git push -u origin feature/interpretacion-openai
+```
+### 3. Crear Pull Request (PR)
+
+ - Venite al repo y anda a la pestaña `Pull request` y selecciona `New Pull Request`
+   
+ <img width="224" height="145" alt="Image" src="https://github.com/user-attachments/assets/a5cee9bb-ee2c-403d-ac3d-492f781766b7" />
+
+ - Base branch: dev
+
+ - Compare branch: feature/...
+
+⚠️ Importante: la PR siempre apunta a dev, nunca a main.
+
+### 4. Completar la plantilla de PR
+
+- Explicá qué hace la PR
+
+- Marcá el checklist (tests, lint, docs)
+
+- Señalá qué áreas se modificaron
+
+- Agregá notas/screenshots si aplica
+
+### 5. Asignar revisores
+
+- Asigná 2 revisores del equipo (a la derecha `reviewers`)
+  
+<img width="272" height="287" alt="Image" src="https://github.com/user-attachments/assets/8ea11b7b-933e-4c01-b34d-29e2dd6ef7d6" />
+
+- Ellos deben aprobar la PR
+
+### 6. Verificación automática
+
+- Al abrir la PR se ejecutan los tests automáticos (CI)
+
+- Si fallan ❌ → corregí y volvé a pushear
+
+- Si todo pasa ✅ y hay 2 aprobaciones → se puede mergear
+
+### 7. Merge a dev
+
+- Usar Squash & Merge para mantener el historial limpio
+
+- El código queda integrado en dev
+
+---
+
 <h2>El equipo de Oniria 😎</h2>
 
 | [<img src="https://github.com/moavalos.png" width="100" style="border-radius:50%"><br/>Mora Avalos](https://github.com/moavalos)     | [<img src="https://github.com/ClarisaR.png" width="100" style="border-radius:50%"><br/>Clarisa R](https://github.com/ClarisaR)                     | [<img src="https://github.com/PedroOsnaghi.png" width="100" style="border-radius:50%"><br/>Pedro Osnaghi](https://github.com/PedroOsnaghi) | [<img src="https://github.com/KevinLlombart.png" width="100" style="border-radius:50%"><br/>Kevin Llombart](https://github.com/KevinLlombart) |
 | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| [<img src="https://github.com/tomycernik.png" width="100" style="border-radius:50%"><br/>Tomy Cernik](https://github.com/tomycernik) | [<img src="https://github.com/MilagrosChavezz.png" width="100" style="border-radius:50%"><br/>Milagros Chavez](https://github.com/MilagrosChavezz) | [<img src="https://github.com/ma3rtin.png" width="100" style="border-radius:50%"><br/>Martin Mutuverria](https://github.com/ma3rtin)       | [<img src="https://github.com/ricartes123.png" width="100" style="border-radius:50%"><br/>Pedro Cartes](https://github.com/ricartes123)             |
+| [<img src="https://github.com/tomycernik.png" width="100" style="border-radius:50%"><br/>Tomy Cernik](https://github.com/tomycernik) | [<img src="https://github.com/MilagrosChavezz.png" width="100" style="border-radius:50%"><br/>Milagros Chavez](https://github.com/MilagrosChavezz) | [<img src="https://github.com/ma3rtin.png" width="100" style="border-radius:50%"><br/>Martin Mutuverria](https://github.com/ma3rtin)       | [<img src="https://github.com/usuario8.png" width="100" style="border-radius:50%"><br/>Pedro Cartez](https://github.com/usuario8)             |
 
 ---
