@@ -2,6 +2,6 @@ export class UsuarioService {
   constructor() { }
 
   async saludar() {
-    return "hola oniria-api";
+    return "usuario end-point works nice!";
   }
 }
