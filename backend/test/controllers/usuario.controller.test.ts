@@ -8,7 +8,7 @@ import { UsuarioController } from '../../src/controllers/usuario.controller';
 // 🔧 Creamos un mock del UsuarioService
 class MockUsuarioService {
     async saludar() {
-        return 'Hola desde el mock!';
+        return 'Hola desde el Servicio !';
     }
 }
 
@@ -24,5 +24,5 @@ test('GET /saludo debe devolver saludo desde el service', async () => {
     const response = await request(app).get('/saludo');
 
     assert.equal(response.status, 200);
-    assert.equal(response.text, 'Hola desde el mock!');
+    assert.equal(response.text, 'Hola desde el Servicio !');
 });
