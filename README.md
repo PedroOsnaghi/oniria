@@ -100,7 +100,9 @@ git push -u origin feature/interpretacion-openai
 ```
 ### 3. Crear Pull Request (PR)
 
- - Venite al repo y anda a la pestaña `Pull request`
+ - Venite al repo y anda a la pestaña `Pull request` y selecciona `New Pull Request`
+   
+ <img width="224" height="145" alt="Image" src="https://github.com/user-attachments/assets/a5cee9bb-ee2c-403d-ac3d-492f781766b7" />
 
  - Base branch: dev
 
