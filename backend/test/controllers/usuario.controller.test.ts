@@ -8,7 +8,7 @@ import { UsuarioController } from '../../src/controllers/usuario.controller';
 // 🔧 Creamos un mock del UsuarioService
 class MockUsuarioService {
     async saludar() {
-        return 'Hola desde el mock!';
+        return 'Hola desde el Servicio !';
     }
 }
 
