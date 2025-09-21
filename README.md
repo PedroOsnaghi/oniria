@@ -17,8 +17,8 @@ Oniria es una aplicación web que permite interpretar sueños utilizando intelig
 
 | Servicio | Tecnología           | URL                                                                      |
 | -------- | -------------------- | ------------------------------------------------------------------------ |
-| Frontend | Vite + React + R3F   | [https://oniria-frontend.vercel.app](https://oniria-frontend.vercel.app) |
-| Backend  | Express + TypeScript | [https://oniria-backend.vercel.app](https://oniria-backend.vercel.app)   |
+| Frontend | Vite + React + R3F   | [https://oniria-frontend.vercel.app](https://oniria-one.vercel.app/) |
+| Backend  | Express + TypeScript | [https://oniria-backend.vercel.app](https://oniria-6pou.vercel.app/)   |
 
 ---
 
@@ -27,7 +27,7 @@ Oniria es una aplicación web que permite interpretar sueños utilizando intelig
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/<org-o-usuario>/oniria.git
+git clone git@github.com:PedroOsnaghi/oniria.git
 cd oniria
 ```
 
