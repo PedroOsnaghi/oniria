@@ -1,0 +1,29 @@
+name: Backend CI
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configurando Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Instalando dependencias
+        working-directory: backend
+        run: npm install
+
+      - name: Ejecutando pruebas del backend
+        working-directory: backend
+        run: npm test
+
+      - name: Ejecutando linter del backend
+        working-directory: backend
+        run: npm run lint:fix
