@@ -120,7 +120,9 @@ git push -u origin feature/interpretacion-openai
 
 ### 5. Asignar revisores
 
-- Asigná 2 revisores del equipo
+- Asigná 2 revisores del equipo (a la derecha `reviewers`)
+  
+<img width="272" height="287" alt="Image" src="https://github.com/user-attachments/assets/8ea11b7b-933e-4c01-b34d-29e2dd6ef7d6" />
 
 - Ellos deben aprobar la PR
 
