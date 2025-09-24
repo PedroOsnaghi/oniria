@@ -24,7 +24,7 @@ Podes acceder a ella desde: 👉 [oniria-backend.vercel.app](https://oniria-back
 ## 📖 Documentación
 
 La documentación completa sobre la arquitectura y el funcionamiento del backend está disponible en la **Wiki**:  
-👉 [Sección Backend en la Wiki]([../../wiki/Backend](https://github.com/PedroOsnaghi/oniria/wiki#%EF%B8%8F-backend))
+👉 [Sección Backend en la Wiki](https://github.com/PedroOsnaghi/oniria/wiki#-backend)
 
 ---
 
