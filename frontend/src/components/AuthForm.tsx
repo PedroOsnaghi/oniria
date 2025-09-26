@@ -8,9 +8,9 @@ export function AuthForm() {
   async function handleSignup() {
     try {
       const user = await signUp(email, password);
-      console.log("Usuario registrado:", user);
+      console.log("Sign up successful:", user);
     } catch (err) {
-      console.error("Error en signup:", err);
+      console.error("Sign up error:", err);
     }
   }
 
@@ -18,16 +18,16 @@ export function AuthForm() {
     try {
       await signInWithGoogle();
     } catch (err) {
-      console.error("Error en login con Google:", err);
+      console.error("Google login error:", err);
     }
   }
 
   async function handleLogin() {
     try {
       const user = await signIn(email, password);
-      console.log("Usuario logueado:", user);
+      console.log("Login successful:", user);
     } catch (err) {
-      console.error("Error en login:", err);
+      console.error("Login error:", err);
     }
   }
 
