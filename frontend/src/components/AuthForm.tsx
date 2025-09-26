@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { signIn, signUp } from "../services/authService";
+import { signIn, signUp, signInWithGoogle } from "../services/authService";
 
 export function AuthForm() {
   const [email, setEmail] = useState("");
@@ -11,6 +11,14 @@ export function AuthForm() {
       console.log("Usuario registrado:", user);
     } catch (err) {
       console.error("Error en signup:", err);
+    }
+  }
+
+  async function handleGoogleLogin() {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      console.error("Error en login con Google:", err);
     }
   }
 
@@ -39,6 +47,7 @@ export function AuthForm() {
       />
       <button onClick={handleSignup}>Registrarse</button>
       <button onClick={handleLogin}>Iniciar sesión</button>
+      <button onClick={handleGoogleLogin}>Iniciar sesión con Google</button>
     </div>
   );
 }
