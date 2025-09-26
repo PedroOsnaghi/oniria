@@ -18,7 +18,7 @@ export async function authMiddleware(
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ error: "No se encontró el token" });
+    return res.status(401).json({ error: "Token not found" });
   }
 
   try {
@@ -27,9 +27,8 @@ export async function authMiddleware(
       new TextEncoder().encode(envs.SUPABASE_JWT_SECRET)
     );
     req.user = payload;
-    console.log("payload: ", payload);
     next();
   } catch (error) {
-    return res.status(401).json({ error: "Token invalido" });
+    return res.status(401).json({ error: "Invalid token" });
   }
 }
