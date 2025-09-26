@@ -1,7 +1,7 @@
-/// <reference types="jest" />
+/// <reference types="node" />
+import { test } from "node:test";
+import assert from "node:assert/strict";
 
-describe("Always passing CI test", () => {
-  it("should always pass", () => {
-    expect(true).toBe(true);
-  });
+test("Always passing CI test", () => {
+  assert.equal(true, true);
 });
