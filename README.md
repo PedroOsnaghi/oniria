@@ -11,7 +11,7 @@
 - Este es el **backend de Oniria**, desarrollado en **Node.js + Express**.  
 Se conecta a **Supabase** para manejar autenticación, base de datos y almacenamiento, y expone una **API REST** que permite analizar, guardar e interpretar sueños mediante IA.  
 
-Podes acceder a ella desde: 👉 [oniria-backend.vercel.app](https://oniria-backend.vercel.app) 
+Podes acceder a ella desde: 👉 [oniria-api](https://oniria-api.vercel.app/)
 
 ## 🚀 Funcionalidades principales
 - Autenticación de usuarios (integrada con Supabase Auth).  
