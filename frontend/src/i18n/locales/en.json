@@ -1,0 +1,16 @@
+{
+  "home": {
+    "link": "Home",
+    "title": "Welcome to Oniria",
+    "description": "Explore the world of dreams with Oniria."
+  },
+  "login": {
+    "link": "Login",
+    "title": "Login",
+    "username": "Username",
+    "password": "Password"
+  },
+  "notFound": {
+    "message": "Page not found"
+  }
+}

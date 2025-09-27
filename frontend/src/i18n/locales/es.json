@@ -1,0 +1,17 @@
+{
+  "home": {
+    "link": "Inicio",
+    "title": "Bienvenido a Oniria",
+    "description": "Explora el mundo de los sueños con Oniria."
+  },
+  "login": {
+    "link": "Iniciar Sesión",
+    "title": "Iniciar Sesión",
+    "username": "Nombre de usuario",
+    "password": "Contraseña"
+  },
+  "notFound": {
+    "link": "404",
+    "message": "Página no encontrada"
+  }
+}
