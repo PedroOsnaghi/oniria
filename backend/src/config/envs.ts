@@ -5,7 +5,5 @@ dotenv.config();
 
 export const envs = {
     PORT: get('PORT').default(3000).asInt(),
-    SUPABASE_URL: get('SUPABASE_URL').required().asString(),
-    SUPABASE_KEY: get('SUPABASE_KEY').required().asString(),
-    SUPABASE_JWT_SECRET: get('SUPABASE_JWT_SECRET').required().asString
+    // Acá también van las credenciales de la base de datos y claves privadas
 };
