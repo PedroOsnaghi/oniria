@@ -29,11 +29,11 @@ Responde EXACTAMENTE en este formato JSON:
                 model: "gpt-3.5-turbo",
                 messages: [
                     {
-                        role: "system", 
+                        role: "system",
                         content: "Eres un psicólogo especialista en interpretación de sueños. Debes responder SIEMPRE en formato JSON válido con 'interpretation' y 'emotion'. Las emociones válidas son: felicidad, tristeza, miedo, enojo. Proporciona interpretaciones claras y útiles en español."
                     },
                     {
-                        role: "user", 
+                        role: "user",
                         content: prompt
                     }
                 ],
@@ -42,10 +42,10 @@ Responde EXACTAMENTE en este formato JSON:
             });
 
             const responseContent = response.choices[0]?.message?.content || "{}";
-            
+
             try {
                 const aiResult = JSON.parse(responseContent);
-                
+
                 return {
                     id: crypto.randomUUID(),
                     title: dto.title,
@@ -54,7 +54,7 @@ Responde EXACTAMENTE en este formato JSON:
                     emotion: aiResult.emotion || "tristeza",
                     creationDate: new Date()
                 };
-                
+
             } catch (parseError) {
                 console.error("Error parseando JSON de OpenAI:", parseError);
                 return {
