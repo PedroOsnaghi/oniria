@@ -1,15 +1,12 @@
 import { Router } from "express";
-import { usuarioRouter } from "./modules/usuario.routes";
+import { dreamNodeRouter } from "./modules/dream-node.routes";
+
 export class AppRoutes {
-  static get routes(): Router {
-    const router = Router();
+    static get routes(): Router {
+        const router = Router();
 
-    router.get("/", (req, res) => {
-      res.send("API Oniria v1 funcionando correctamente");
-    });
+        router.use("/api/dream-node", dreamNodeRouter);
 
-    router.use("/usuario", usuarioRouter);
-
-    return router;
-  }
+        return router;
+    }
 }
