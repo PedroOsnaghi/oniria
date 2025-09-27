@@ -17,10 +17,10 @@ export class DreamNodeController {
 
             if (errors.length > 0) {
                 return res.status(400).json({
-                    mensaje: 'Errores de validación',
-                    errores: errors.map(err => ({
-                        campo: err.property,
-                        mensajes: Object.values(err.constraints || {})
+                    message: 'Errores de validación',
+                    errors: errors.map(err => ({
+                        field: err.property,
+                        messages: Object.values(err.constraints || {})
                     }))
                 });
             }
@@ -31,7 +31,7 @@ export class DreamNodeController {
         } catch (error: any) {
             console.error("Error en DreamNodeController:", error);
             res.status(500).json({ 
-                mensaje: "Error interno del servidor",
+                message: "Error interno del servidor",
                 error: error.message || "Error al interpretar el sueño" 
             });
         }
