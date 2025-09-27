@@ -20,7 +20,7 @@ jobs:
         working-directory: frontend
         run: npm install
 
-      - name: Ejecutando linter del frontend
+      - name: Ejecutando linter
         working-directory: frontend
         run: npm run lint
 
