@@ -5,13 +5,13 @@ import { DreamNodeService } from "../services/dream-node.service";
 import { CreateDreamNodeDto } from "../dtos/dream-node.dto";
 
 export class DreamNodeController {
-    constructor(private readonly dreamNodeService: DreamNodeService) { }
+    constructor(private readonly dreamNodeService: DreamNodeService) {}
 
     async interpret(req: Request, res: Response) {
         try {
             console.log("=== SOLICITUD DE INTERPRETACIÓN ===");
             console.log("Body:", req.body);
-
+            
             const createDreamNodeDto = plainToInstance(CreateDreamNodeDto, req.body);
             const errors = await validate(createDreamNodeDto);
 
@@ -30,9 +30,9 @@ export class DreamNodeController {
 
         } catch (error: any) {
             console.error("Error en DreamNodeController:", error);
-            res.status(500).json({
+            res.status(500).json({ 
                 message: "Error interno del servidor",
-                error: error.message || "Error al interpretar el sueño"
+                error: error.message || "Error al interpretar el sueño" 
             });
         }
     }

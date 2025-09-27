@@ -9,9 +9,9 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "test": "jest"
-    
   },
-  "jest": { "preset": "ts-jest",
+  "jest": {
+    "preset": "ts-jest",
     "testEnvironment": "node"
   },
   "keywords": [],
