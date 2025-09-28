@@ -1,23 +1,23 @@
+import { InterpretationProvider } from "../../domain/providers/interpretation.provider";
 import { OpenAI } from "openai";
-import { envs } from "../config/envs";
-import { CreateDreamNodeDto, DreamNodeResponseDto } from "../dtos/dream-node.dto";
+import { envs } from "../../config/envs";
+import { Interpretation } from "../../domain/models/interpretation-dream.model";
 
-export class DreamNodeService {
-    private readonly openai: OpenAI;
-
+export class InterpretationOpenAIProvider implements InterpretationProvider {
+    private openai : OpenAI
     constructor() {
         this.openai = new OpenAI({
             apiKey: envs.OPENAI_API_KEY,
         });
     }
 
-    async interpretDream(dto: CreateDreamNodeDto): Promise<DreamNodeResponseDto> {
+    async interpreteDream(dreamText: string): Promise<Interpretation> {
         try {
             const prompt = `Analiza este sueño y proporciona:
 1. Una interpretación psicológica clara en 2-3 oraciones
 2. La emoción dominante que transmite el sueño
 
-Sueño: ${dto.description}
+Sueño: ${dreamText}
 
 Responde EXACTAMENTE en este formato JSON:
 {
@@ -38,37 +38,27 @@ Responde EXACTAMENTE en este formato JSON:
                     }
                 ],
                 max_tokens: 200,
-                temperature: 0.3,
+                temperature: 0.7,
             });
 
             const responseContent = response.choices[0]?.message?.content || "{}";
+            let interpretation = "No se pudo interpretar el sueño.";
+            let emotion = "Tristeza";
 
             try {
                 const aiResult = JSON.parse(responseContent);
-
-                return {
-                    id: crypto.randomUUID(),
-                    title: dto.title,
-                    description: dto.description,
-                    interpretation: aiResult.interpretation || "No se pudo interpretar el sueño.",
-                    emotion: aiResult.emotion || "tristeza",
-                    creationDate: new Date()
-                };
+                interpretation = aiResult.interpretation || interpretation;
+                emotion = aiResult.emotion || emotion;
+                emotion = emotion.charAt(0).toUpperCase() + emotion.slice(1)
 
             } catch (parseError) {
                 console.error("Error parseando JSON de OpenAI:", parseError);
-                return {
-                    id: crypto.randomUUID(),
-                    title: dto.title,
-                    description: dto.description,
-                    interpretation: responseContent.trim() || "No se pudo interpretar el sueño.",
-                    emotion: "tristeza",
-                    creationDate: new Date()
-                };
+                interpretation = responseContent.trim() || interpretation;
             }
 
+            return new Interpretation(interpretation, emotion);
         } catch (error: any) {
-            console.error("Error en DreamNodeService:", error);
+            console.error("Error en InterpretationOpenIAProvider:", error);
             throw new Error(error.message || "Error al interpretar el sueño.");
         }
     }

@@ -1,0 +1,36 @@
+export type DreamPrivacy = "Publico" | "Privado" | "Anonimo";
+export type DreamState = "Activo" | "Archivado";
+export type Emotion = "Felicidad" | "Tristeza" | "Miedo" | "Enojo";
+
+interface IDreamNode {
+    id: string;
+    creationDate: Date;
+    title: string;
+    description: string;
+    interpretation: string;
+    privacy : DreamPrivacy;
+    state : DreamState;
+    emotion : Emotion;
+}
+
+export class DreamNode implements IDreamNode {
+    id: string;
+    creationDate: Date;
+    title: string;
+    description: string;
+    interpretation: string;
+    privacy: DreamPrivacy;
+    state: DreamState;
+    emotion: Emotion;
+    constructor(id: string, creationDate: Date, title: string, description: string, interpretation: string, privacy: DreamPrivacy, state: DreamState, emotion: Emotion) {
+        this.id = id;
+        this.creationDate = creationDate;
+        this.title = title;
+        this.description = description;
+        this.interpretation = interpretation;
+        this.privacy = privacy;
+        this.state = state;
+        this.emotion = emotion;
+    }
+
+}
