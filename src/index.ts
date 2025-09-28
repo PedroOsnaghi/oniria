@@ -1,7 +1,7 @@
 import express from "express";
 import 'reflect-metadata';
 import cors from "cors";
-import { AppRoutes } from "./routes/router";
+import { AppRoutes } from "./infraestructure/routes/router";
 import { envs } from "./config/envs";
 
 const app = express();
