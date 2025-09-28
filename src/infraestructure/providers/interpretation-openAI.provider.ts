@@ -42,7 +42,6 @@ Responde EXACTAMENTE en este formato JSON:
             });
 
             const responseContent = response.choices[0]?.message?.content || "{}";
-
             let interpretation = "No se pudo interpretar el sueño.";
             let emotion = "Tristeza";
 
@@ -51,6 +50,7 @@ Responde EXACTAMENTE en este formato JSON:
                 interpretation = aiResult.interpretation || interpretation;
                 emotion = aiResult.emotion || emotion;
                 emotion = emotion.charAt(0).toUpperCase() + emotion.slice(1)
+
             } catch (parseError) {
                 console.error("Error parseando JSON de OpenAI:", parseError);
                 interpretation = responseContent.trim() || interpretation;

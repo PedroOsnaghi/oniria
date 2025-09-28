@@ -11,7 +11,7 @@ export class DreamNodeController {
         try {
             console.log("=== SOLICITUD DE INTERPRETACIÓN ===");
             console.log("Body:", req.body);
-            
+    
             const interpreteDreamDto = plainToInstance(InterpreteDreamDto, req.body);
             const errors = await validate(interpreteDreamDto);
 
@@ -40,9 +40,9 @@ export class DreamNodeController {
 
         } catch (error: any) {
             console.error("Error en DreamNodeController:", error);
-            res.status(500).json({ 
+            res.status(500).json({
                 message: "Error interno del servidor",
-                error: error.message || "Error al interpretar el sueño" 
+                error: error.message || "Error al interpretar el sueño"
             });
         }
     }
