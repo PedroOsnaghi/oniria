@@ -23,5 +23,5 @@ export class InterpretationDreamService {
         } catch (error) {
             throw new Error("Error interpretando el sueño: " + error);
         }
-    } 
+    }
 }

@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, Length, IsOptional, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty, Length} from 'class-validator';
 
 export class InterpreteDreamDto {
   @IsString({ message: 'La descripción debe ser una cadena válida.' })

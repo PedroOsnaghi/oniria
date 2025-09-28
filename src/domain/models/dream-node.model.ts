@@ -2,11 +2,10 @@ export type DreamPrivacy = "Publico" | "Privado" | "Anonimo";
 export type DreamState = "Activo" | "Archivado";
 export type Emotion = "Felicidad" | "Tristeza" | "Miedo" | "Enojo";
 
-
 interface IDreamNode {
     id: string;
     creationDate: Date;
-    title: string;  
+    title: string;
     description: string;
     interpretation: string;
     privacy : DreamPrivacy;
@@ -33,5 +32,5 @@ export class DreamNode implements IDreamNode {
         this.state = state;
         this.emotion = emotion;
     }
-  
+
 }

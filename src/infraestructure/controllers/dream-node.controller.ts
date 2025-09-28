@@ -11,7 +11,7 @@ export class DreamNodeController {
         try {
             console.log("=== SOLICITUD DE INTERPRETACIÓN ===");
             console.log("Body:", req.body);
-    
+
             const interpreteDreamDto = plainToInstance(InterpreteDreamDto, req.body);
             const errors = await validate(interpreteDreamDto);
 
@@ -35,7 +35,7 @@ export class DreamNodeController {
                 interpretation: dreamNode.interpretation,
                 creationDate: dreamNode.creationDate,
                 emotion: dreamNode.emotion
-            } 
+            }
             res.json(dreamNodeResponseDto);
 
         } catch (error: any) {
