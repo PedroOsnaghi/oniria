@@ -1,7 +1,7 @@
 import express from "express";
 import 'reflect-metadata';
 import cors from "cors";
-import { AppRoutes } from "./infraestructure/routes/router";
+import { AppRoutes } from "./infrastructure/routes/router";
 import { envs } from "./config/envs";
 
 const app = express();
@@ -16,4 +16,5 @@ const port = envs.PORT || 3000;
 
 app.listen(port, () => {
     console.log(`Server corriendo en puerto ${port}`);
+    console.log(`Modo: ${process.env.NODE_ENV}`)
 });

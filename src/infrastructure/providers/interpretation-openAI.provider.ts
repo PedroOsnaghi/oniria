@@ -56,7 +56,7 @@ Responde EXACTAMENTE en este formato JSON:
                 interpretation = responseContent.trim() || interpretation;
             }
 
-            return new Interpretation(interpretation, emotion);
+            return { title: "", interpretation, emotion  };
         } catch (error: any) {
             console.error("Error en InterpretationOpenIAProvider:", error);
             throw new Error(error.message || "Error al interpretar el sueño.");

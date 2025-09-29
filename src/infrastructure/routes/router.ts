@@ -5,8 +5,8 @@ export class AppRoutes {
     static get routes(): Router {
         const router = Router();
 
-        router.use("/", (req, res) => res.send("Oniria API"));
-        router.use("/api/dream-node", dreamNodeRouter);
+        router.get("/hello", (req, res) => res.send("Oniria API"));
+        router.use("/api/dreams", dreamNodeRouter);
 
         return router;
     }
