@@ -1,25 +1,13 @@
-import { DreamNode, Emotion } from "../../domain/models/dream-node.model";
+import { Interpretation } from "../../domain/models/interpretation-dream.model";
 import { InterpretationProvider } from "../../domain/providers/interpretation.provider";
 
 export class InterpretationDreamService {
     constructor(private interpretationProvider: InterpretationProvider) {
         this.interpretationProvider = interpretationProvider;
     }
-    async interpretDream(dreamText: string): Promise<DreamNode> {
+    async interpretDream(dreamText: string): Promise<Interpretation> {
         try {
-            const interpretation = await this.interpretationProvider.interpreteDream(dreamText);
-
-            return new DreamNode(
-                crypto.randomUUID(),
-                new Date(),
-                "",
-                dreamText,
-                interpretation.interpretation,
-                "Publico",
-                "Activo",
-                interpretation.emotion as Emotion
-            );
-
+            return this.interpretationProvider.interpreteDream(dreamText);
         } catch (error) {
             throw new Error("Error interpretando el sueño: " + error);
         }

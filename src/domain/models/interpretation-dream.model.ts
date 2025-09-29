@@ -1,6 +1,5 @@
-export class Interpretation {
-    constructor(
-        public interpretation: string,
-        public emotion: string
-    ) {}
+export interface Interpretation {
+    title: string;
+    interpretation: string;
+    emotion: string;
 }
