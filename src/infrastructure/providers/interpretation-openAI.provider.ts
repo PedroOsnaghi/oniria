@@ -14,13 +14,15 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
     async interpretDream(dreamText: string): Promise<Interpretation> {
         try {
             const prompt = `Analiza este sueño y proporciona:
-1. Una interpretación psicológica clara en 2-3 oraciones
-2. La emoción dominante que transmite el sueño
+1. Un título creativo y descriptivo (3-6 palabras)
+2. Una interpretación psicológica clara en 2-3 oraciones
+3. La emoción dominante que transmite el sueño
 
 Sueño: ${dreamText}
 
 Responde EXACTAMENTE en este formato JSON:
 {
+  "title": "Título Creativo del Sueño",
   "interpretation": "tu interpretación aquí",
   "emotion": "felicidad|tristeza|miedo|enojo"
 }`;
@@ -30,7 +32,7 @@ Responde EXACTAMENTE en este formato JSON:
                 messages: [
                     {
                         role: "system",
-                        content: "Eres un psicólogo especialista en interpretación de sueños. Debes responder SIEMPRE en formato JSON válido con 'interpretation' y 'emotion'. Las emociones válidas son: felicidad, tristeza, miedo, enojo. Proporciona interpretaciones claras y útiles en español."
+                        content: "Eres un psicólogo especialista en interpretación de sueños. Debes responder SIEMPRE en formato JSON válido con 'title', 'interpretation' y 'emotion'. Los títulos deben ser creativos y descriptivos. Las emociones válidas son: felicidad, tristeza, miedo, enojo. Proporciona interpretaciones claras y útiles en español."
                     },
                     {
                         role: "user",
@@ -42,11 +44,13 @@ Responde EXACTAMENTE en este formato JSON:
             });
 
             const responseContent = response.choices[0]?.message?.content || "{}";
+            let title = "Interpretación de Sueño";
             let interpretation = "No se pudo interpretar el sueño.";
             let emotion = "Tristeza";
 
             try {
                 const aiResult = JSON.parse(responseContent);
+                title = aiResult.title || title;
                 interpretation = aiResult.interpretation || interpretation;
                 emotion = aiResult.emotion || emotion;
                 emotion = emotion.charAt(0).toUpperCase() + emotion.slice(1)
@@ -56,7 +60,7 @@ Responde EXACTAMENTE en este formato JSON:
                 interpretation = responseContent.trim() || interpretation;
             }
 
-            return { title: "", interpretation, emotion  };
+            return { title, interpretation, emotion  };
         } catch (error: any) {
             console.error("Error en InterpretationOpenIAProvider:", error);
             throw new Error(error.message || "Error al interpretar el sueño.");
@@ -81,6 +85,7 @@ INSTRUCCIONES ESTRICTAS:
 
 Responde EXACTAMENTE en este formato JSON:
 {
+  "title": "Nuevo Título Que Refleje la Perspectiva Opuesta",
   "interpretation": "interpretación COMPLETAMENTE OPUESTA (2-3 oraciones)",
   "emotion": "felicidad|tristeza|miedo|enojo"
 }`;
@@ -90,7 +95,7 @@ Responde EXACTAMENTE en este formato JSON:
                 messages: [
                     {
                         role: "system",
-                        content: "Eres un psicólogo especialista que debe dar interpretaciones RADICALMENTE OPUESTAS a las anteriores. Tu trabajo es CONTRADECIR y ofrecer el PUNTO DE VISTA CONTRARIO. Si la interpretación anterior fue positiva, sé más crítico. Si fue sobre libertad, habla de limitaciones. NUNCA coincidas con la interpretación previa. Responde SIEMPRE en formato JSON válido con 'interpretation' y 'emotion'. Las emociones válidas son: felicidad, tristeza, miedo, enojo."
+                        content: "Eres un psicólogo especialista que debe dar interpretaciones RADICALMENTE OPUESTAS a las anteriores. Tu trabajo es CONTRADECIR y ofrecer el PUNTO DE VISTA CONTRARIO. Si la interpretación anterior fue positiva, sé más crítico. Si fue sobre libertad, habla de limitaciones. NUNCA coincidas con la interpretación previa. Responde SIEMPRE en formato JSON válido con 'title', 'interpretation' y 'emotion'. Crea títulos que reflejen la nueva perspectiva. Las emociones válidas son: felicidad, tristeza, miedo, enojo."
                     },
                     {
                         role: "user",
@@ -102,11 +107,13 @@ Responde EXACTAMENTE en este formato JSON:
             });
 
             const responseContent = response.choices[0]?.message?.content || "{}";
+            let title = "Nueva Perspectiva";
             let interpretation = "No se pudo reinterpretar el sueño.";
             let emotion = "Tristeza";
 
             try {
                 const aiResult = JSON.parse(responseContent);
+                title = aiResult.title || title;
                 interpretation = aiResult.interpretation || interpretation;
                 emotion = aiResult.emotion || emotion;
                 emotion = emotion.charAt(0).toUpperCase() + emotion.slice(1);
@@ -116,7 +123,7 @@ Responde EXACTAMENTE en este formato JSON:
                 interpretation = responseContent.trim() || interpretation;
             }
 
-            return { title: "", interpretation, emotion };
+            return { title, interpretation, emotion };
         } catch (error: any) {
             console.error("Error en reinterpretación OpenAI:", error);
             throw new Error(error.message || "Error al reinterpretar el sueño.");
