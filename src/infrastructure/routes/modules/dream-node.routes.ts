@@ -13,6 +13,7 @@ const dreamNodeRepository = new DreamNodeRepositorySupabase();
 const dreamNodeService = new DreamNodeService(dreamNodeRepository);
 const dreamNodeController = new DreamNodeController(interpretationDreamService, dreamNodeService);
 
-// Solo el endpoint de interpretación
+// Endpoints de interpretación
 dreamNodeRouter.post("/interpret", (req, res) => dreamNodeController.interpret(req, res));
+dreamNodeRouter.post("/reinterpret", (req, res) => dreamNodeController.reinterpret(req, res));
 dreamNodeRouter.post("/save", (req, res) => dreamNodeController.save(req, res));
