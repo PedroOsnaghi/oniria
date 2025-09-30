@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { validate } from "class-validator";
 import { InterpretationDreamService } from "../../application/services/interpreation-dream.service";
-import { InterpreteDreamRequestDto, SaveDreamNodeRequestDto } from "../dtos/dream-node.dto";
+import { InterpreteDreamRequestDto, SaveDreamNodeRequestDto, ReinterpreteDreamRequestDto } from "../dtos/dream-node.dto";
 import { plainToInstance } from "class-transformer";
 import { DreamNodeService } from "../../application/services/dream-node.service";
 
@@ -18,6 +18,7 @@ export class DreamNodeController {
 
             if (errors.length > 0) {
                 res.status(400).json({
+                    message: 'Errores de validación',
                     errors: errors.map(err => ({
                         field: err.property,
                         messages: Object.values(err.constraints || {})
@@ -58,6 +59,37 @@ export class DreamNodeController {
             return res.status(500).json({
                 message: "Error interno del servidor",
                 errors: [error.message || "Error al guardar el nodo de sueño"]
+            });
+        }
+    }
+
+    async reinterpret(req: Request, res: Response) {
+        try {
+            console.log("=== SOLICITUD DE REINTERPRETACIÓN ===");
+            console.log("Body:", req.body);
+
+            const reinterpreteDreamDto = plainToInstance(ReinterpreteDreamRequestDto, req.body);
+            const errors = await validate(reinterpreteDreamDto);
+
+            if (errors.length > 0) {
+                return res.status(400).json({
+                    message: 'Errores de validación',
+                    errors: errors.map(err => ({
+                        field: err.property,
+                        messages: Object.values(err.constraints || {})
+                    }))
+                });
+            }
+
+            const { description, previousInterpretation } = reinterpreteDreamDto;
+            const reinterpretedDream = await this.interpretationDreamService.reinterpretDream(description, previousInterpretation);
+
+            res.json({ description, ...reinterpretedDream });
+
+        } catch (error: any) {
+            console.error("Error en DreamNodeController reinterpret:", error);
+            res.status(500).json({
+                errors: "Error al reinterpretar el sueño"
             });
         }
     }
