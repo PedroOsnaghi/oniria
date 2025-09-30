@@ -42,7 +42,7 @@ describe('InterpretationDreamService', () => {
       // Arrange
       const dreamDescription = 'I dreamed about flying over mountains';
       const error = new Error('OpenAI API error');
-      
+
       mockInterpretationProvider.interpretDream.mockRejectedValue(error);
 
       // Act & Assert
@@ -100,14 +100,14 @@ describe('InterpretationDreamService', () => {
       const dreamDescription = 'I dreamed about water';
       const previousInterpretation = 'Water represents emotions';
       const error = new Error('Provider unavailable');
-      
+
       mockInterpretationProvider.reinterpretDream.mockRejectedValue(error);
 
       // Act & Assert
       await expect(
         service.reinterpretDream(dreamDescription, previousInterpretation)
       ).rejects.toThrow('Error reinterpretando el sueño: Provider unavailable');
-      
+
       expect(mockInterpretationProvider.reinterpretDream).toHaveBeenCalledWith(
         dreamDescription,
         previousInterpretation

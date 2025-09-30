@@ -1,25 +1,16 @@
 import request from 'supertest';
 import express from 'express';
-import { InterpretationProvider } from '../../src/domain/providers/interpretation.provider';
 import { Interpretation } from '../../src/domain/models/interpretation-dream.model';
 import { DreamNodeController } from '../../src/infrastructure/controllers/dream-node.controller';
 import { InterpretationDreamService } from '../../src/application/services/interpreation-dream.service';
 import { DreamNodeService } from '../../src/application/services/dream-node.service';
-import { dreamNodeRouter } from '../../src/infrastructure/routes/modules/dream-node.routes';
 
 describe('Dream API Integration Tests', () => {
   let app: express.Application;
-  let mockInterpretationProvider: jest.Mocked<InterpretationProvider>;
   let mockInterpretationService: jest.Mocked<InterpretationDreamService>;
   let mockDreamNodeService: jest.Mocked<DreamNodeService>;
 
   beforeAll(async () => {
-    // Mock del provider para evitar llamadas reales a OpenAI
-    mockInterpretationProvider = {
-      interpretDream: jest.fn(),
-      reinterpretDream: jest.fn(),
-    };
-
     // Mock de los servicios
     mockInterpretationService = {
       interpretDream: jest.fn(),
@@ -33,10 +24,10 @@ describe('Dream API Integration Tests', () => {
     // Crear Express app para testing
     app = express();
     app.use(express.json());
-    
+
     // Crear controller con mocks
     const controller = new DreamNodeController(mockInterpretationService, mockDreamNodeService);
-    
+
     // Configurar rutas manualmente para testing
     app.post('/api/dreams/interpret', (req, res) => controller.interpret(req, res));
     app.post('/api/dreams/reinterpret', (req, res) => controller.reinterpret(req, res));
@@ -507,7 +498,7 @@ describe('Dream API Integration Tests', () => {
 
         // Simular timeout
         mockInterpretationService.reinterpretDream.mockImplementation(
-          () => new Promise((_, reject) => 
+          () => new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Request timeout')), 100)
           )
         );
@@ -530,7 +521,7 @@ describe('Dream API Integration Tests', () => {
 
         // Simular timeout
         mockInterpretationService.interpretDream.mockImplementation(
-          () => new Promise((_, reject) => 
+          () => new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Request timeout')), 100)
           )
         );
