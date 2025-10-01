@@ -119,7 +119,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
         }
 
         const { count, error } = await query;
-        
+
         if (error) {
             throw new Error(error.message);
         }

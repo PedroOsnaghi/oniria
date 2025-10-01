@@ -343,7 +343,7 @@ describe('DreamNodeController Integration Tests', () => {
 
         expect(response.body.success).toBe(true);
         expect(response.body.data).toHaveLength(1);
-        
+
         const dream = response.body.data[0];
         expect(dream.state).toBe('Activo');
         expect(dream.privacy).toBe('Publico');
