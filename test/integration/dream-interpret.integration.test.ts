@@ -5,6 +5,9 @@ import { DreamNodeController } from '../../src/infrastructure/controllers/dream-
 import { InterpretationDreamService } from '../../src/application/services/interpreation-dream.service';
 import { DreamNodeService } from '../../src/application/services/dream-node.service';
 
+
+//TESTS A TRAVES DE HTTP REQUESTS REALES USANDO SUPERTEST
+
 describe('Dream API Integration Tests', () => {
   let app: express.Application;
   let mockInterpretationService: jest.Mocked<InterpretationDreamService>;

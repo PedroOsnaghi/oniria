@@ -12,7 +12,7 @@ export class InterpretationDreamService {
             throw new Error("Error interpretando el sueño: " + (error as Error).message);
         }
     }
-
+ 
     async reinterpretDream(dreamText: string, previousInterpretation: string): Promise<Interpretation> {
         try {
             return await this.interpretationProvider.reinterpretDream(dreamText, previousInterpretation);
