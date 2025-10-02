@@ -1,10 +1,15 @@
+import 'reflect-metadata';
 import { DreamNodeController } from '../../src/infrastructure/controllers/dream-node.controller';
 import { InterpretationDreamService } from '../../src/application/services/interpreation-dream.service';
 import { DreamNodeService } from '../../src/application/services/dream-node.service';
-import { ReinterpreteDreamRequestDto } from '../../src/infrastructure/dtos/dream-node.dto';
+import { ReinterpreteDreamRequestDto } from '../../src/infrastructure/dtos/dream-node';
 import { Interpretation } from '../../src/domain/models/interpretation-dream.model';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
+
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => 'mocked-uuid-123')
+}));
 import { Request, Response } from 'express';
 
 describe('DreamNodeController Integration Tests', () => {

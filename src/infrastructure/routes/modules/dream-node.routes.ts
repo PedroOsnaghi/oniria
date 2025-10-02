@@ -17,3 +17,4 @@ const dreamNodeController = new DreamNodeController(interpretationDreamService, 
 dreamNodeRouter.post("/interpret", (req, res) => dreamNodeController.interpret(req, res));
 dreamNodeRouter.post("/reinterpret", (req, res) => dreamNodeController.reinterpret(req, res));
 dreamNodeRouter.post("/save", (req, res) => dreamNodeController.save(req, res));
+dreamNodeRouter.get("/user/:userId", (req, res) => dreamNodeController.getUserNodes(req, res));

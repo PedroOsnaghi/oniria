@@ -1,3 +1,5 @@
+import { IDreamNodeFilters } from "../../domain/interfaces/dream-node-filters.interface";
+import { IPaginationOptions, IPaginatedResult } from "../../domain/interfaces/pagination.interface";
 import { DreamNode, Emotion } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { v4 as uuidv4 } from 'uuid';
@@ -23,4 +25,42 @@ export class DreamNodeService {
             throw new Error("Error guardando el nodo de sueño: " + error);
         }
     }
+
+    async getUserNodes(userId: string, filters: IDreamNodeFilters, pagination?: IPaginationOptions): Promise<IPaginatedResult<DreamNode>> {
+        try {
+            const page = pagination?.page || 1;
+            const limit = pagination?.limit || 10;
+            const offset = (page - 1) * limit;
+
+            const paginationData: IPaginationOptions = {
+                page,
+                limit,
+                offset
+            };
+
+            const [nodes, total] = await Promise.all([
+                this.dreamNodeRepository.getUserNodes(userId, filters, paginationData),
+                this.dreamNodeRepository.countUserNodes(userId, filters)
+            ]);
+
+            const totalPages = Math.ceil(total / limit);
+            const hasNext = page < totalPages;
+            const hasPrev = page > 1;
+
+            return {
+                data: nodes,
+                pagination: {
+                    currentPage: page,
+                    limit: limit,
+                    total: total,
+                    totalPages: totalPages,
+                    hasNext: hasNext,
+                    hasPrev: hasPrev
+                }
+            };
+        } catch (error) {
+            throw new Error("Error obteniendo los nodos de sueño del usuario: " + error);
+        }
+    }
+
 }
