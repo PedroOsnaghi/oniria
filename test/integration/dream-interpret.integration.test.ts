@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import request from 'supertest';
 import express from 'express';
 import { Interpretation } from '../../src/domain/models/interpretation-dream.model';
@@ -5,6 +6,9 @@ import { DreamNodeController } from '../../src/infrastructure/controllers/dream-
 import { InterpretationDreamService } from '../../src/application/services/interpreation-dream.service';
 import { DreamNodeService } from '../../src/application/services/dream-node.service';
 
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => 'mocked-uuid-123')
+}));
 
 //TESTS A TRAVES DE HTTP REQUESTS REALES USANDO SUPERTEST
 
@@ -474,7 +478,7 @@ describe('Dream API Integration Tests', () => {
           .post('/api/dreams/reinterpret')
           .send('description=test&previousInterpretation=test')
           .set('Content-Type', 'application/x-www-form-urlencoded')
-          .expect(500); // Express no puede parsear form-urlencoded como JSON, causa error
+          .expect(400); // Express no puede parsear form-urlencoded como JSON, causa error de validación
 
         expect(response.body).toHaveProperty('errors');
       });
@@ -485,7 +489,7 @@ describe('Dream API Integration Tests', () => {
           .post('/api/dreams/interpret')
           .send('description=test')
           .set('Content-Type', 'application/x-www-form-urlencoded')
-          .expect(500); // Express no puede parsear form-urlencoded como JSON, causa error
+          .expect(400); // Express no puede parsear form-urlencoded como JSON, causa error de validación
 
         expect(response.body).toHaveProperty('errors');
       });
