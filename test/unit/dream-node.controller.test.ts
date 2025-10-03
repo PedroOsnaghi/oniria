@@ -5,7 +5,7 @@ import { DreamNodeService } from '../../src/application/services/dream-node.serv
 import { ReinterpreteDreamRequestDto, InterpreteDreamRequestDto } from '../../src/infrastructure/dtos/dream-node';
 import { Interpretation } from '../../src/domain/models/interpretation-dream.model';
 import { validate } from 'class-validator';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid-123')
@@ -206,7 +206,7 @@ describe('DreamNodeController Integration Tests', () => {
           description: 'Soñé que nadaba en un océano de estrellas brillantes'
         };
 
-        const dto = plainToClass(InterpreteDreamRequestDto, plainObject);
+        const dto = plainToInstance(InterpreteDreamRequestDto, plainObject);
 
         // Act
         const errors = await validate(dto);
@@ -220,7 +220,7 @@ describe('DreamNodeController Integration Tests', () => {
         // Arrange
         const plainObject = {};
 
-        const dto = plainToClass(InterpreteDreamRequestDto, plainObject);
+        const dto = plainToInstance(InterpreteDreamRequestDto, plainObject);
 
         // Act
         const errors = await validate(dto);
@@ -237,7 +237,7 @@ describe('DreamNodeController Integration Tests', () => {
           description: 'abc' // Menos de 10 caracteres
         };
 
-        const dto = plainToClass(InterpreteDreamRequestDto, plainObject);
+        const dto = plainToInstance(InterpreteDreamRequestDto, plainObject);
 
         // Act
         const errors = await validate(dto);
@@ -254,7 +254,7 @@ describe('DreamNodeController Integration Tests', () => {
           description: 'Este es un sueño muy detallado donde estaba caminando por un bosque encantado lleno de criaturas mágicas y luces brillantes que danzaban entre los árboles'
         };
 
-        const dto = plainToClass(InterpreteDreamRequestDto, plainObject);
+        const dto = plainToInstance(InterpreteDreamRequestDto, plainObject);
 
         // Act
         const errors = await validate(dto);
@@ -272,7 +272,7 @@ describe('DreamNodeController Integration Tests', () => {
         previousInterpretation: 'Tu sueño refleja el deseo de explorar nuevos horizontes'
       };
 
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
+      const dto = plainToInstance(ReinterpreteDreamRequestDto, plainObject);
 
       // Act
       const errors = await validate(dto);
@@ -290,7 +290,7 @@ describe('DreamNodeController Integration Tests', () => {
         // description missing
       };
 
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
+      const dto = plainToInstance(ReinterpreteDreamRequestDto, plainObject);
 
       // Act
       const errors = await validate(dto);
@@ -308,7 +308,7 @@ describe('DreamNodeController Integration Tests', () => {
         // previousInterpretation missing
       };
 
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
+      const dto = plainToInstance(ReinterpreteDreamRequestDto, plainObject);
 
       // Act
       const errors = await validate(dto);
@@ -326,7 +326,7 @@ describe('DreamNodeController Integration Tests', () => {
         previousInterpretation: 'Tu sueño refleja el deseo de explorar nuevos horizontes'
       };
 
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
+      const dto = plainToInstance(ReinterpreteDreamRequestDto, plainObject);
 
       // Act
       const errors = await validate(dto);
@@ -344,7 +344,7 @@ describe('DreamNodeController Integration Tests', () => {
         previousInterpretation: 'ab' // Menos de 10 caracteres
       };
 
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
+      const dto = plainToInstance(ReinterpreteDreamRequestDto, plainObject);
 
       // Act
       const errors = await validate(dto);
@@ -362,7 +362,7 @@ describe('DreamNodeController Integration Tests', () => {
         previousInterpretation: 'La interpretación anterior sugería que este sueño complejo representa múltiples aspectos de tu psique y experiencias de vida que se manifiestan de manera simbólica'
       };
 
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
+      const dto = plainToInstance(ReinterpreteDreamRequestDto, plainObject);
 
       // Act
       const errors = await validate(dto);
