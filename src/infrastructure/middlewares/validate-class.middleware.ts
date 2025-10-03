@@ -50,7 +50,7 @@ export function validateParams(dtoClass: any) {
       });
     }
 
-    req.params = dto;
+    (req as any).validatedParams = dto;
     next();
   };
 }
@@ -70,7 +70,7 @@ export function validateQuery(dtoClass: any) {
       });
     }
 
-    req.query = dto;
+    (req as any).validatedQuery = dto;
     next();
   };
 }

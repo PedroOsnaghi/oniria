@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { InterpretationDreamService } from "../../application/services/interpreation-dream.service";
 import { DreamNodeService } from "../../application/services/dream-node.service";
+import { GetUserNodesParamsDto } from "../dtos/dream-node/get-user-nodes.dto";
 
 export class DreamNodeController {
   constructor(
@@ -62,9 +63,9 @@ export class DreamNodeController {
 
   async getUserNodes(req: Request, res: Response) {
     try {
-      const paramsDto = req.params;
+      const paramsDto = (req as any).validatedParams as GetUserNodesParamsDto;
       const { state, privacy, emotion, search, page, limit, from, to } =
-        req.query;
+        (req as any).validatedQuery || {};
       const filters: any = {};
       if (state) filters.state = state;
       if (privacy) filters.privacy = privacy;

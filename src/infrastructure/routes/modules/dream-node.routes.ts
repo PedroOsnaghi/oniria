@@ -20,4 +20,4 @@ const dreamNodeController = new DreamNodeController(interpretationDreamService, 
 dreamNodeRouter.post("/interpret", validateBody(InterpreteDreamRequestDto), (req, res) => dreamNodeController.interpret(req, res));
 dreamNodeRouter.post("/reinterpret", validateBody(ReinterpreteDreamRequestDto), (req, res) => dreamNodeController.reinterpret(req, res));
 dreamNodeRouter.post("/save", validateBody(SaveDreamNodeRequestDto), (req, res) => dreamNodeController.save(req, res));
-dreamNodeRouter.get("/user/:userId", validateQuery(GetUserNodesQueryDto), validateParams(GetUserNodesParamsDto), (req, res) => dreamNodeController.getUserNodes(req, res));
+dreamNodeRouter.get("/user/:userId", validateParams(GetUserNodesParamsDto), validateQuery(GetUserNodesQueryDto), (req, res) => dreamNodeController.getUserNodes(req, res));
