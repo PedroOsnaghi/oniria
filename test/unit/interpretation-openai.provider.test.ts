@@ -1,6 +1,5 @@
 import { InterpretationOpenAIProvider } from '../../src/infrastructure/providers/interpretation-openAI.provider';
 import { OpenAI } from 'openai';
-import { envs } from '../../src/config/envs';
 
 // Mock OpenAI
 jest.mock('openai');
@@ -271,7 +270,7 @@ describe('InterpretationOpenAIProvider', () => {
           },
           {
             role: 'user',
-            content: expect.stringContaining(dreamText) && 
+            content: expect.stringContaining(dreamText) &&
                      expect.stringContaining(previousInterpretation)
           }
         ],
@@ -401,7 +400,7 @@ describe('InterpretationOpenAIProvider', () => {
       // Assert
       const callArgs = mockCreate.mock.calls[0][0];
       const userMessage = callArgs.messages[1].content;
-      
+
       expect(userMessage).toContain('IGNORA COMPLETAMENTE la interpretación anterior');
       expect(userMessage).toContain('perspectiva RADICALMENTE OPUESTA');
       expect(userMessage).toContain(previousInterpretation);
