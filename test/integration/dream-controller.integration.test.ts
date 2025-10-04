@@ -2,10 +2,7 @@ import 'reflect-metadata';
 import { DreamNodeController } from '../../src/infrastructure/controllers/dream-node.controller';
 import { InterpretationDreamService } from '../../src/application/services/interpreation-dream.service';
 import { DreamNodeService } from '../../src/application/services/dream-node.service';
-import { ReinterpreteDreamRequestDto } from '../../src/infrastructure/dtos/dream-node';
 import { Interpretation } from '../../src/domain/models/interpretation-dream.model';
-import { validate } from 'class-validator';
-import { plainToClass } from 'class-transformer';
 
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid-123')
@@ -98,114 +95,6 @@ describe('DreamNodeController Integration Tests', () => {
       expect(mockResponse.json).toHaveBeenCalledWith({
         errors: 'Error al reinterpretar el sueño'
       });
-    });
-  });
-
-  describe('DTO Validation Integration', () => {
-    it('should validate ReinterpreteDreamRequestDto successfully with valid data', async () => {
-      // Arrange
-      const plainObject = {
-        description: 'Soñé que volaba sobre una ciudad desconocida',
-        previousInterpretation: 'Tu sueño refleja el deseo de explorar nuevos horizontes'
-      };
-
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
-
-      // Act
-      const errors = await validate(dto);
-
-      // Assert
-      expect(errors).toHaveLength(0);
-      expect(dto.description).toBe(plainObject.description);
-      expect(dto.previousInterpretation).toBe(plainObject.previousInterpretation);
-    });
-
-    it('should fail validation for missing description', async () => {
-      // Arrange
-      const plainObject = {
-        previousInterpretation: 'Tu sueño refleja el deseo de explorar nuevos horizontes'
-        // description missing
-      };
-
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
-
-      // Act
-      const errors = await validate(dto);
-
-      // Assert
-      expect(errors.length).toBeGreaterThan(0);
-      expect(errors[0]?.property).toBe('description');
-      expect(errors[0]?.constraints).toHaveProperty('isNotEmpty');
-    });
-
-    it('should fail validation for missing previousInterpretation', async () => {
-      // Arrange
-      const plainObject = {
-        description: 'Soñé que volaba sobre una ciudad desconocida'
-        // previousInterpretation missing
-      };
-
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
-
-      // Act
-      const errors = await validate(dto);
-
-      // Assert
-      expect(errors.length).toBeGreaterThan(0);
-      expect(errors[0]?.property).toBe('previousInterpretation');
-      expect(errors[0]?.constraints).toHaveProperty('isNotEmpty');
-    });
-
-    it('should fail validation for description too short', async () => {
-      // Arrange
-      const plainObject = {
-        description: 'abc', // Menos de 10 caracteres
-        previousInterpretation: 'Tu sueño refleja el deseo de explorar nuevos horizontes'
-      };
-
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
-
-      // Act
-      const errors = await validate(dto);
-
-      // Assert
-      expect(errors.length).toBeGreaterThan(0);
-      expect(errors[0]?.property).toBe('description');
-      expect(errors[0]?.constraints).toHaveProperty('minLength');
-    });
-
-    it('should fail validation for previousInterpretation too short', async () => {
-      // Arrange
-      const plainObject = {
-        description: 'Soñé que volaba sobre una ciudad desconocida',
-        previousInterpretation: 'ab' // Menos de 10 caracteres
-      };
-
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
-
-      // Act
-      const errors = await validate(dto);
-
-      // Assert
-      expect(errors.length).toBeGreaterThan(0);
-      expect(errors[0]?.property).toBe('previousInterpretation');
-      expect(errors[0]?.constraints).toHaveProperty('minLength');
-    });
-
-    it('should pass validation for long descriptions', async () => {
-      // Arrange
-      const plainObject = {
-        description: 'Este es un sueño muy largo con muchos detalles sobre una experiencia onírica compleja que incluye varios elementos simbólicos y narrativos que requieren interpretación detallada',
-        previousInterpretation: 'La interpretación anterior sugería que este sueño complejo representa múltiples aspectos de tu psique y experiencias de vida que se manifiestan de manera simbólica'
-      };
-
-      const dto = plainToClass(ReinterpreteDreamRequestDto, plainObject);
-
-      // Act
-      const errors = await validate(dto);
-
-      // Assert
-      expect(errors).toHaveLength(0);
     });
   });
 

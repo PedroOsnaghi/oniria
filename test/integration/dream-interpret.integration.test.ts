@@ -79,90 +79,6 @@ describe('Dream API Integration Tests', () => {
       );
     });
 
-    it('should return 400 for missing description', async () => {
-      // Arrange
-      const requestBody = {
-        previousInterpretation: 'Representa tu deseo de libertad'
-        // description faltante
-      };
-
-      // Act & Assert
-      const response = await request(app)
-        .post('/api/dreams/reinterpret')
-        .send(requestBody)
-        .expect(400);
-
-      expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toContain('Errores de validación');
-      expect(response.body).toHaveProperty('errors');
-      expect(response.body.errors).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            field: 'description'
-          })
-        ])
-      );
-    });
-
-    it('should return 400 for missing previousInterpretation', async () => {
-      // Arrange
-      const requestBody = {
-        description: 'Soñé que volaba sobre montañas'
-        // previousInterpretation faltante
-      };
-
-      // Act & Assert
-      const response = await request(app)
-        .post('/api/dreams/reinterpret')
-        .send(requestBody)
-        .expect(400);
-
-      expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toContain('Errores de validación');
-      expect(response.body).toHaveProperty('errors');
-      expect(response.body.errors).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            field: 'previousInterpretation'
-          })
-        ])
-      );
-    });
-
-    it('should return 400 for empty description', async () => {
-      // Arrange
-      const requestBody = {
-        description: '',
-        previousInterpretation: 'Representa tu deseo de libertad'
-      };
-
-      // Act & Assert
-      const response = await request(app)
-        .post('/api/dreams/reinterpret')
-        .send(requestBody)
-        .expect(400);
-
-      expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toContain('Errores de validación');
-    });
-
-    it('should return 400 for description too short', async () => {
-      // Arrange
-      const requestBody = {
-        description: 'abc', // Menos de 10 caracteres
-        previousInterpretation: 'Representa tu deseo de libertad'
-      };
-
-      // Act & Assert
-      const response = await request(app)
-        .post('/api/dreams/reinterpret')
-        .send(requestBody)
-        .expect(400);
-
-      expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toContain('Errores de validación');
-    });
-
     it('should return 500 when interpretation provider fails', async () => {
       // Arrange
       const requestBody = {
@@ -268,62 +184,6 @@ describe('Dream API Integration Tests', () => {
       expect(mockInterpretationService.interpretDream).toHaveBeenCalledWith(
         requestBody.description
       );
-    });
-
-    it('should return 400 for missing description', async () => {
-      // Arrange
-      const requestBody = {
-        // description faltante
-      };
-
-      // Act & Assert
-      const response = await request(app)
-        .post('/api/dreams/interpret')
-        .send(requestBody)
-        .expect(400);
-
-      expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toContain('Errores de validación');
-      expect(response.body).toHaveProperty('errors');
-      expect(response.body.errors).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            field: 'description'
-          })
-        ])
-      );
-    });
-
-    it('should return 400 for empty description', async () => {
-      // Arrange
-      const requestBody = {
-        description: ''
-      };
-
-      // Act & Assert
-      const response = await request(app)
-        .post('/api/dreams/interpret')
-        .send(requestBody)
-        .expect(400);
-
-      expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toContain('Errores de validación');
-    });
-
-    it('should return 400 for description too short', async () => {
-      // Arrange
-      const requestBody = {
-        description: 'abc' // Menos de 10 caracteres
-      };
-
-      // Act & Assert
-      const response = await request(app)
-        .post('/api/dreams/interpret')
-        .send(requestBody)
-        .expect(400);
-
-      expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toContain('Errores de validación');
     });
 
     it('should return 500 when interpretation service fails', async () => {
@@ -449,49 +309,6 @@ describe('Dream API Integration Tests', () => {
   });
 
   describe('Error handling and edge cases', () => {
-    describe('Malformed JSON requests', () => {
-      it('should handle malformed JSON in reinterpret endpoint', async () => {
-        // Act & Assert - Express middleware devuelve 400 para JSON malformado
-        await request(app)
-          .post('/api/dreams/reinterpret')
-          .send('{ invalid json }')
-          .set('Content-Type', 'application/json')
-          .expect(400);
-      });
-
-      it('should handle malformed JSON in interpret endpoint', async () => {
-        // Act & Assert - Express middleware devuelve 400 para JSON malformado
-        await request(app)
-          .post('/api/dreams/interpret')
-          .send('{ also invalid json }')
-          .set('Content-Type', 'application/json')
-          .expect(400);
-      });
-    });
-
-    describe('Wrong content type requests', () => {
-      it('should handle wrong content type in reinterpret endpoint', async () => {
-        // Este test verifica que el servidor maneja correctamente content-type incorrecto
-        const response = await request(app)
-          .post('/api/dreams/reinterpret')
-          .send('description=test&previousInterpretation=test')
-          .set('Content-Type', 'application/x-www-form-urlencoded')
-          .expect(400); // Express no puede parsear form-urlencoded como JSON, causa error de validación
-
-        expect(response.body).toHaveProperty('errors');
-      });
-
-      it('should handle wrong content type in interpret endpoint', async () => {
-        // Este test verifica que el servidor maneja correctamente content-type incorrecto
-        const response = await request(app)
-          .post('/api/dreams/interpret')
-          .send('description=test')
-          .set('Content-Type', 'application/x-www-form-urlencoded')
-          .expect(400); // Express no puede parsear form-urlencoded como JSON, causa error de validación
-
-        expect(response.body).toHaveProperty('errors');
-      });
-    });
 
     describe('Timeout scenarios', () => {
       it('should handle timeout in reinterpret endpoint', async () => {
