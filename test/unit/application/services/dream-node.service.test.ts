@@ -19,7 +19,6 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
     name: 'Usuario Test'
   };
 
-  // ✅ CORRECTO - Crear objeto literal que implementa IDreamNode
   const testDreamNode: IDreamNode = {
     id: '550e8400-e29b-41d4-a716-446655440001',
     creationDate: new Date('2024-01-10T10:30:00Z'),
@@ -31,7 +30,6 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
     emotion: 'Felicidad' as Emotion
   };
 
-  // ✅ CORRECTO - Segundo objeto literal
   const secondTestDreamNode: IDreamNode = {
     id: '550e8400-e29b-41d4-a716-446655440002',
     creationDate: new Date('2024-01-20T08:15:00Z'),
