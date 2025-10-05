@@ -1,8 +1,8 @@
-import { DreamNodeService } from '../../src/application/services/dream-node.service';
-import { IDreamNodeRepository } from '../../src/domain/repositories/dream-node.repository';
-import { IDreamNodeFilters } from '../../src/domain/interfaces/dream-node-filters.interface';
-import { IPaginationOptions } from '../../src/domain/interfaces/pagination.interface';
-import { DreamNode, DreamPrivacy, DreamState, Emotion } from '../../src/domain/models/dream-node.model';
+import { DreamNodeService } from '../../../../src/application/services/dream-node.service';
+import { IDreamNodeRepository } from '../../../../src/domain/repositories/dream-node.repository';
+import { IDreamNodeFilters } from '../../../../src/domain/interfaces/dream-node-filters.interface';
+import { IPaginationOptions } from '../../../../src/domain/interfaces/pagination.interface';
+import { DreamNode, DreamPrivacy, DreamState, Emotion } from '../../../../src/domain/models/dream-node.model';
 
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid-123')
