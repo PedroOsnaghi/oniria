@@ -1,6 +1,5 @@
 import { InterpretationOpenAIProvider } from '../../../../src/infrastructure/providers/interpretation-openAI.provider';
 import { OpenAI } from 'openai';
-import { envs } from '../../../../src/config/envs';
 
 // Mock de OpenAI
 jest.mock('openai');
