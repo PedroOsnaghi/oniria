@@ -2,7 +2,7 @@ import { DreamNodeService } from '../../../../src/application/services/dream-nod
 import { IDreamNodeRepository } from '../../../../src/domain/repositories/dream-node.repository';
 import { IDreamNodeFilters } from '../../../../src/domain/interfaces/dream-node-filters.interface';
 import { IPaginationOptions } from '../../../../src/domain/interfaces/pagination.interface';
-import { DreamNode, DreamPrivacy, DreamState, Emotion } from '../../../../src/domain/models/dream-node.model';
+import { IDreamNode, DreamPrivacy, DreamState, Emotion } from '../../../../src/domain/models/dream-node.model';
 
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid-123')
@@ -19,30 +19,32 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
     name: 'Usuario Test'
   };
 
-  const testDreamNode = new DreamNode(
-    '550e8400-e29b-41d4-a716-446655440001',
-    new Date('2024-01-10T10:30:00Z'),
-    'Mi primer sueño en Oniria',
-    'Soñé que estaba volando sobre una ciudad mágica llena de luces brillantes.',
-    'Este sueño representa tu deseo de libertad y creatividad.',
-    'Publico' as DreamPrivacy,
-    'Activo' as DreamState,
-    'Felicidad' as Emotion
-  );
+  // ✅ CORRECTO - Crear objeto literal que implementa IDreamNode
+  const testDreamNode: IDreamNode = {
+    id: '550e8400-e29b-41d4-a716-446655440001',
+    creationDate: new Date('2024-01-10T10:30:00Z'),
+    title: 'Mi primer sueño en Oniria',
+    description: 'Soñé que estaba volando sobre una ciudad mágica llena de luces brillantes.',
+    interpretation: 'Este sueño representa tu deseo de libertad y creatividad.',
+    privacy: 'Publico' as DreamPrivacy,
+    state: 'Activo' as DreamState,
+    emotion: 'Felicidad' as Emotion
+  };
 
-  const secondTestDreamNode = new DreamNode(
-    '550e8400-e29b-41d4-a716-446655440002',
-    new Date('2024-01-20T08:15:00Z'),
-    'Sueño en el océano profundo',
-    'Un sueño donde nadaba en las profundidades del océano con criaturas luminosas.',
-    'El océano representa tu subconsciente profundo.',
-    'Privado' as DreamPrivacy,
-    'Archivado' as DreamState,
-    'Tristeza' as Emotion
-  );
+  // ✅ CORRECTO - Segundo objeto literal
+  const secondTestDreamNode: IDreamNode = {
+    id: '550e8400-e29b-41d4-a716-446655440002',
+    creationDate: new Date('2024-01-20T08:15:00Z'),
+    title: 'Sueño en el océano profundo',
+    description: 'Un sueño donde nadaba en las profundidades del océano con criaturas luminosas.',
+    interpretation: 'El océano representa tu subconsciente profundo.',
+    privacy: 'Privado' as DreamPrivacy,
+    state: 'Archivado' as DreamState,
+    emotion: 'Tristeza' as Emotion
+  };
 
   const userId = testUser.id;
-  const mockDreamNodes: DreamNode[] = [testDreamNode, secondTestDreamNode];
+  const mockDreamNodes: IDreamNode[] = [testDreamNode, secondTestDreamNode];
 
   beforeEach(() => {
     mockRepository = {

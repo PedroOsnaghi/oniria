@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import request from 'supertest';
-import { ReinterpreteDreamRequestDto } from './../../../src/infrastructure/dtos/dream-node/reinterprete-dream.dto';
-import { validateBody } from '../../../src/infrastructure/middlewares/validate-class.middleware';
+import { ReinterpreteDreamRequestDto } from '../../../../src/infrastructure/dtos/dream-node/reinterprete-dream.dto';
+import { validateBody } from '../../../../src/infrastructure/middlewares/validate-class.middleware'
 
 describe('validateBody(ReinterpreteDreamRequestDto) Middleware', () => {
   let app: express.Application;

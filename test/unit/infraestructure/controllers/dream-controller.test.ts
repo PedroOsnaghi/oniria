@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { DreamNodeController } from '../../../../src/infrastructure/controllers/dream-node.controller';
-import { InterpretationDreamService } from '../../../../src/application/services/interpreation-dream.service';
+import { InterpretationDreamService } from '../../../../src/application/services/interpretation-dream.service';
 import { DreamNodeService } from '../../../../src/application/services/dream-node.service';
 import { Interpretation } from '../../../../src/domain/models/interpretation-dream.model';
 

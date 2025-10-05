@@ -1,4 +1,4 @@
-import { InterpretationDreamService } from '../../../../src/application/services/interpreation-dream.service';
+import { InterpretationDreamService } from '../../../../src/application/services/interpretation-dream.service';
 import { InterpretationProvider } from '../../../../src/domain/providers/interpretation.provider';
 import { Interpretation } from '../../../../src/domain/models/interpretation-dream.model';
 
