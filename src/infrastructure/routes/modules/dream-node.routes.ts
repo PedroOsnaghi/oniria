@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { DreamNodeController } from "../../controllers/dream-node.controller";
 import { InterpretationOpenAIProvider } from "../../providers/interpretation-openAI.provider";
-import { InterpretationDreamService } from "../../../application/services/interpreation-dream.service";
+import { InterpretationDreamService } from "../../../application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../../application/services/dream-node.service";
 import { DreamNodeRepositorySupabase } from "../../repositories/dream-node.repository.supabase";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate-class.middleware";

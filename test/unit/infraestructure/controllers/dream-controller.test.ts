@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { DreamNodeController } from '../../src/infrastructure/controllers/dream-node.controller';
-import { InterpretationDreamService } from '../../src/application/services/interpreation-dream.service';
-import { DreamNodeService } from '../../src/application/services/dream-node.service';
-import { Interpretation } from '../../src/domain/models/interpretation-dream.model';
+import { DreamNodeController } from '../../../../src/infrastructure/controllers/dream-node.controller';
+import { InterpretationDreamService } from '../../../../src/application/services/interpretation-dream.service';
+import { DreamNodeService } from '../../../../src/application/services/dream-node.service';
+import { Interpretation } from '../../../../src/domain/models/interpretation-dream.model';
 
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid-123')

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { InterpretationDreamService } from "../../application/services/interpreation-dream.service";
+import { InterpretationDreamService } from "../../application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../application/services/dream-node.service";
 import { GetUserNodesParamsDto } from "../dtos/dream-node/get-user-nodes.dto";
 
