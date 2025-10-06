@@ -5,7 +5,6 @@ import { testUser } from '../unit/mocks/user-mock';
 import { SaveDreamNodeRequestDto } from '../../src/infrastructure/dtos/dream-node';
 import { validateBody } from '../../src/infrastructure/middlewares/validate-class.middleware';
 
-
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid-123')
 }));
@@ -638,7 +637,7 @@ describe('DreamNodeController Integration Tests', () => {
       expect(response.body.message).toBe('Invalid data');
       expect(response.body.errors.length).toBeGreaterThan(0);
     });
-    
+
   it('should store multiple dreams', async () => {
     await request(app)
       .post('/api/dreams/save')
@@ -665,4 +664,3 @@ describe('DreamNodeController Integration Tests', () => {
   });
   });
 });
-

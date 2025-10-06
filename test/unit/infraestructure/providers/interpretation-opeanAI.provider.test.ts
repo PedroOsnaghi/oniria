@@ -20,10 +20,10 @@ describe('InterpretationOpenAIProvider', () => {
   beforeEach(() => {
     // Reset todos los mocks
     jest.clearAllMocks();
-    
+
     // Mock del método chat.completions.create
     mockChatCompletions = jest.fn();
-    
+
     // Mock de la instancia de OpenAI
     mockOpenAI = {
       chat: {
@@ -49,7 +49,7 @@ describe('InterpretationOpenAIProvider', () => {
 
   describe('interpretDream', () => {
     const dreamText = 'Soñé que volaba sobre montañas';
-    
+
     it('should interpret dream successfully with valid JSON response', async () => {
       // Arrange
       const mockResponse = {
@@ -63,7 +63,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -102,7 +102,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -125,7 +125,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -168,7 +168,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -190,7 +190,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -225,7 +225,7 @@ describe('InterpretationOpenAIProvider', () => {
   describe('reinterpretDream', () => {
     const dreamText = 'Soñé que volaba sobre montañas';
     const previousInterpretation = 'Este sueño representa libertad y éxito.';
-    
+
     it('should reinterpret dream successfully with valid JSON response', async () => {
       // Arrange
       const mockResponse = {
@@ -239,7 +239,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -282,7 +282,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -291,7 +291,7 @@ describe('InterpretationOpenAIProvider', () => {
       // Assert
       const callArgs = mockChatCompletions.mock.calls[0][0];
       const userMessage = callArgs.messages.find((m: any) => m.role === 'user');
-      
+
       expect(userMessage.content).toContain(dreamText);
       expect(userMessage.content).toContain(previousInterpretation);
     });
@@ -309,7 +309,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -332,7 +332,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -376,7 +376,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -397,7 +397,7 @@ describe('InterpretationOpenAIProvider', () => {
           }
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act
@@ -418,7 +418,7 @@ describe('InterpretationOpenAIProvider', () => {
           message: {}
         }]
       };
-      
+
       mockChatCompletions.mockResolvedValue(mockResponse);
 
       // Act

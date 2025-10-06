@@ -20,13 +20,11 @@ describe('DreamNodeRepositorySupabase', () => {
 
         const singleMock = jest.fn().mockResolvedValue({ data: dreamNodeMock, error: null });
         const selectMock = jest.fn(() => ({ single: singleMock }));
-        const insertMock = jest.fn((values: any) => ({ select: selectMock }));
-        const fromMock = jest.fn((table: string) => ({ insert: insertMock }));
+        const insertMock = jest.fn(() => ({ select: selectMock }));
+        const fromMock = jest.fn(() => ({ insert: insertMock }));
 
         mockSupabase = supabase as jest.Mocked<typeof supabase>;
         mockSupabase.from = fromMock as any;
-
-
 
         repo = new DreamNodeRepositorySupabase();
     });
