@@ -42,11 +42,11 @@ create table if not exists public.dream_node (
     profile_id uuid not null references profile(id) on delete cascade,
     title varchar(200) not null,
     description text not null,
-    interpretation text,
+    interpretation text not null,
     creation_date timestamp,
-    privacy_id int references "dream_privacy"(id),
-    state_id int references "dream_state"(id),
-    emotion_id int references "emotion"(id)
+    privacy_id int references "dream_privacy"(id) not null,
+    state_id int references "dream_state"(id) not null,
+    emotion_id int references "emotion"(id) not null
 );
 
 -- BADGE
