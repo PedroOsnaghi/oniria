@@ -16,7 +16,8 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupFiles": ["reflect-metadata"]
   },
   "keywords": [],
   "author": "",
