@@ -12,4 +12,3 @@ export interface IDreamNode {
     state : DreamState;
     emotion : Emotion;
 }
-
