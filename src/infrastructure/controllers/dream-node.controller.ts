@@ -99,4 +99,16 @@ export class DreamNodeController {
       });
     }
   }
+
+  async showUser(req: Request, res: Response) {
+    try {
+      const user = (req as any).currentUser;
+      res.json(user);
+    } catch (error: any) {
+      console.error("Error en DreamNodeController showUser:", error);
+      res.status(500).json({
+        errors: "Error al obtener el usuario",
+      });
+    }
+  }
 }
