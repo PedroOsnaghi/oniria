@@ -6,7 +6,7 @@ import { GetUserNodesParamsDto } from "../dtos/dream-node/get-user-nodes.dto";
 export class DreamNodeController {
   constructor(
     private readonly interpretationDreamService: InterpretationDreamService,
-    private readonly dreamNodeService: DreamNodeService
+    private readonly dreamNodeService: DreamNodeService,
   ) {}
 
   async interpret(req: Request, res: Response): Promise<void> {
@@ -46,6 +46,7 @@ export class DreamNodeController {
   async reinterpret(req: Request, res: Response) {
     try {
       const { description, previousInterpretation } = req.body;
+      // moderation handled by middleware
       const reinterpretedDream =
         await this.interpretationDreamService.reinterpretDream(
           description,
