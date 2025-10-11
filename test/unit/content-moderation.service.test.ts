@@ -18,7 +18,7 @@ describe('ContentModerationService — extensive test suite', () => {
 
   const inappropriateWords = [
 
-    'matar', 'morir', 'muerte', 'asesinar', 'suicidio', 'golpear', 'apuñalar', 
+    'matar', 'morir', 'muerte', 'asesinar', 'suicidio', 'golpear', 'apuñalar',
     'disparar', 'torturar', 'masacrar', 'acuchillar', 'estrangular', 'violar',
     'mutilar', 'decapitar', 'sangre', 'bomba', 'pistola', 'cuchillo', 'arma',
 
