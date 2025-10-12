@@ -1,17 +1,17 @@
-export const privacyMap: Record<string, number> = {
-  Publico: 1,
-  Privado: 2,
-  Anonimo: 3,
+export const privacyMap: Record<string, string> = {
+  Publico: "73829ed1-6348-49ca-a180-95a4a2f3b434",
+  Privado: "277b52b2-3fb4-4408-b4ff-9b65ec7bc351",
+  Anonimo: "672422fc-475f-42a1-9fc0-d1554c6a5b3c",
 };
 
-export const stateMap: Record<string, number> = {
-  Activo: 1,
-  Archivado: 2,
+export const stateMap: Record<string, string> = {
+  Activo: "02edcc98-923b-4dfe-9656-c81c6ab990fb",
+  Archivado: "4c6e14c2-1ffb-4dd4-9812-8bfc5d96c827",
 };
 
-export const emotionMap: Record<string, number> = {
-  Felicidad: 1,
-  Tristeza: 2,
-  Miedo: 3,
-  Enojo: 4,
+export const emotionMap: Record<string, string> = {
+  Felicidad: "9d45592d-247b-4778-afde-daca2002693c",
+  Tristeza: "28ef5090-cba6-4e56-8c96-cb8091581dcc",
+  Miedo: "968e4082-b886-47cc-a19f-bd934de66d4a",
+  Enojo: "889e4b20-3e43-4b4a-b6f0-22733ca0f43d",
 };

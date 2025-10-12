@@ -11,7 +11,6 @@ export class DreamNodeService {
     async saveDreamNode(userId: string, title: string, description: string, interpretation: string, emotion: string): Promise<void> {
         try {
             const dreamNode: DreamNode = {
-                id : uuidv4(),
                 creationDate: new Date(),
                 title,
                 description,

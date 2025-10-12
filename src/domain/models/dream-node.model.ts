@@ -3,7 +3,6 @@ export type DreamState = "Activo" | "Archivado";
 export type Emotion = "Felicidad" | "Tristeza" | "Miedo" | "Enojo";
 
 interface IDreamNode {
-    id: string;
     creationDate: Date;
     title: string;
     description: string;
@@ -14,7 +13,6 @@ interface IDreamNode {
 }
 
 export class DreamNode implements IDreamNode {
-    id: string;
     creationDate: Date;
     title: string;
     description: string;
@@ -22,8 +20,7 @@ export class DreamNode implements IDreamNode {
     privacy: DreamPrivacy;
     state: DreamState;
     emotion: Emotion;
-    constructor(id: string, creationDate: Date, title: string, description: string, interpretation: string, privacy: DreamPrivacy, state: DreamState, emotion: Emotion) {
-        this.id = id;
+    constructor(creationDate: Date, title: string, description: string, interpretation: string, privacy: DreamPrivacy, state: DreamState, emotion: Emotion) {
         this.creationDate = creationDate;
         this.title = title;
         this.description = description;
