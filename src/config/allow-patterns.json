@@ -1,0 +1,13 @@
+[
+  "matar\\s+su\\s+orgull",
+  "matar\\s+el\\s+tiempo",
+  "matar\\s+la\\s+curiosidad",
+  "documental[\\s\\S]*suicid",
+  "tema\\s+del\\s+suicidio",
+  "con\\s+mucho\\s+respeto",
+  "matar\\s+(mi|tu|su)?\\s*ego",
+  "(profesor|clase|historia|documental|investigaci[oó]n|estudio).{0,120}\\b(muerte|muertes|tasa\\s+de\\s+muerte)",
+  "\\bodio\\b\\s+a\\s+(la|el|los|las)?\\s*(opresi[oó]n|tiran[ií]a)",
+  "(bot[aá]nico|estudiaba|estudio|cient[ií]fico|investigaci[oó]n).{0,80}\\bsexo\\b",
+  "\\b(en\\s+mi\\s+sue[nñ]o|en\\s+el\\s+sue[nñ]o|so[nñ]e?)\\b"
+]
