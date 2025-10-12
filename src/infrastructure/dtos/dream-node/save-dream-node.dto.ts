@@ -1,8 +1,6 @@
 import { IsString, IsNotEmpty, Length, IsIn} from 'class-validator';
 
 export class SaveDreamNodeRequestDto {
-  @IsNotEmpty({ message: 'El userId no puede estar vacío.' })
-  userId!: string;
   @IsString({ message: 'El título debe ser una cadena válida.' })
   @IsNotEmpty({ message: 'El título no puede estar vacío.' })
   @Length(3, 100, { message: 'El título debe tener entre 3 y 100 caracteres.' })

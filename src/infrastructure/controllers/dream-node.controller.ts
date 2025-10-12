@@ -6,7 +6,7 @@ import { GetUserNodesParamsDto } from "../dtos/dream-node/get-user-nodes.dto";
 export class DreamNodeController {
   constructor(
     private readonly interpretationDreamService: InterpretationDreamService,
-    private readonly dreamNodeService: DreamNodeService,
+    private readonly dreamNodeService: DreamNodeService
   ) {}
 
   async interpret(req: Request, res: Response): Promise<void> {
@@ -25,7 +25,8 @@ export class DreamNodeController {
 
   async save(req: Request, res: Response) {
     try {
-      const { userId, title, description, interpretation, emotion } = req.body;
+      const userId = (req as any).userId;
+      const { title, description, interpretation, emotion } = req.body;
       const dreamNode = await this.dreamNodeService.saveDreamNode(
         userId,
         title,
@@ -64,7 +65,7 @@ export class DreamNodeController {
 
   async getUserNodes(req: Request, res: Response) {
     try {
-      const paramsDto = (req as any).validatedParams as GetUserNodesParamsDto;
+      const userId = (req as any).userId;
       const { state, privacy, emotion, search, page, limit, from, to } =
         (req as any).validatedQuery || {};
       const filters: any = {};
@@ -75,7 +76,6 @@ export class DreamNodeController {
       if (from) filters.from = from;
       if (to) filters.to = to;
 
-      const { userId } = paramsDto;
       const pagination: any = {};
       if (page) pagination.page = page;
       if (limit) pagination.limit = limit;
@@ -103,7 +103,7 @@ export class DreamNodeController {
 
   async showUser(req: Request, res: Response) {
     try {
-      const user = (req as any).currentUser;
+      const user = (req as any).userId;
       res.json(user);
     } catch (error: any) {
       console.error("Error en DreamNodeController showUser:", error);

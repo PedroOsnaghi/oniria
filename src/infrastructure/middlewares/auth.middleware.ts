@@ -29,7 +29,7 @@ export function authenticateToken(
       return res.status(403).json({ message: "Invalid issuer" });
     }
 
-    (req as any).currentUser = payload;
+    (req as any).userId = payload.sub;
 
     next();
   });
