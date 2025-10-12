@@ -21,8 +21,8 @@ export class DreamNodeService {
                 emotion: emotion.charAt(0).toUpperCase() + emotion.slice(1) as Emotion
             }
             await this.dreamNodeRepository.save(dreamNode, userId);
-        } catch (error) {
-            throw new Error("Error guardando el nodo de sueño: " + error);
+        } catch (error: unknown) {
+            throw new Error("Error guardando el nodo de sueño: " + (error as Error).message);
         }
     }
 

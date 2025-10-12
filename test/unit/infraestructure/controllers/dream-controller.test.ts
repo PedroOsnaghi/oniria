@@ -191,7 +191,7 @@ describe("DreamNodeController.save", () => {
      controller = new DreamNodeController(mockInterpretationService, mockDreamNodeService);
   });
 
-  it("debería guardar un nodo de sueño y devolver 201", async () => {
+  it("should save a dream node and return 201", async () => {
   mockDreamNodeService.saveDreamNode.mockResolvedValue(undefined);
 
   await controller.save(mockSaveReq as Request, mockSaveRes as unknown as Response);
@@ -207,7 +207,7 @@ describe("DreamNodeController.save", () => {
   expect(mockSaveRes.status).toHaveBeenCalledWith(201);
 });
 
-  it("debería devolver 500 cuando el servicio falla", async () => {
+  it("should return 500 when service fails", async () => {
     mockDreamNodeService.saveDreamNode.mockRejectedValue(new Error("Error simulado"));
 
     await controller.save(mockSaveReq as Request, mockSaveRes as unknown as Response);
