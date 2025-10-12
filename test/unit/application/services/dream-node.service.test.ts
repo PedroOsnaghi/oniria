@@ -1,9 +1,10 @@
-import { DreamNodeService } from '../../src/application/services/dream-node.service';
-import { IDreamNodeRepository } from '../../src/domain/repositories/dream-node.repository';
-import { IDreamNodeFilters } from '../../src/domain/interfaces/dream-node-filters.interface';
-import { IPaginationOptions } from '../../src/domain/interfaces/pagination.interface';
-import { DreamNode, DreamPrivacy, DreamState, Emotion } from '../../src/domain/models/dream-node.model';
-
+import { DreamNodeService } from '../../../../src/application/services/dream-node.service';
+import { IDreamNodeRepository } from '../../../../src/domain/repositories/dream-node.repository';
+import { IDreamNodeFilters } from '../../../../src/domain/interfaces/dream-node-filters.interface';
+import { IPaginationOptions } from '../../../../src/domain/interfaces/pagination.interface';
+import { IDreamNode} from '../../../../src/domain/models/dream-node.model';
+import { dreamNodeMock, dreamNodeMockTwo } from '../../mocks/dream-node.mock';
+import { testUser } from '../../mocks/user-mock';
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid-123')
 }));
@@ -12,37 +13,8 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
   let service: DreamNodeService;
   let mockRepository: jest.Mocked<IDreamNodeRepository>;
 
-  // Mock data
-  const testUser = {
-    id: '550e8400-e29b-41d4-a716-446655440000',
-    email: 'test.user@oniria.com',
-    name: 'Usuario Test'
-  };
-
-  const testDreamNode = new DreamNode(
-    '550e8400-e29b-41d4-a716-446655440001',
-    new Date('2024-01-10T10:30:00Z'),
-    'Mi primer sueño en Oniria',
-    'Soñé que estaba volando sobre una ciudad mágica llena de luces brillantes.',
-    'Este sueño representa tu deseo de libertad y creatividad.',
-    'Publico' as DreamPrivacy,
-    'Activo' as DreamState,
-    'Felicidad' as Emotion
-  );
-
-  const secondTestDreamNode = new DreamNode(
-    '550e8400-e29b-41d4-a716-446655440002',
-    new Date('2024-01-20T08:15:00Z'),
-    'Sueño en el océano profundo',
-    'Un sueño donde nadaba en las profundidades del océano con criaturas luminosas.',
-    'El océano representa tu subconsciente profundo.',
-    'Privado' as DreamPrivacy,
-    'Archivado' as DreamState,
-    'Tristeza' as Emotion
-  );
-
   const userId = testUser.id;
-  const mockDreamNodes: DreamNode[] = [testDreamNode, secondTestDreamNode];
+  const mockDreamNodes: IDreamNode[] = [dreamNodeMock, dreamNodeMockTwo];
 
   beforeEach(() => {
     mockRepository = {
@@ -122,7 +94,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
   describe('getUserNodes - State filters', () => {
     it('should filter by state Activo', async () => {
       // Arrange
-      const filteredResult = [testDreamNode]; // Solo el sueño activo
+      const filteredResult = [dreamNodeMock]; // Solo el sueño activo
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = { state: 'Activo' };
@@ -142,7 +114,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
 
     it('should filter by state Archivado', async () => {
       // Arrange
-      const filteredResult = [secondTestDreamNode]; // Solo el sueño archivado
+      const filteredResult = [dreamNodeMockTwo]; // Solo el sueño archivado
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = { state: 'Archivado' };
@@ -164,7 +136,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
   describe('getUserNodes - Privacy filters', () => {
     it('should filter by privacy Publico', async () => {
       // Arrange
-      const filteredResult = [testDreamNode]; // Solo el sueño público
+      const filteredResult = [dreamNodeMock]; // Solo el sueño público
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = { privacy: 'Publico' };
@@ -184,7 +156,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
 
     it('should filter by privacy Privado', async () => {
       // Arrange
-      const filteredResult = [secondTestDreamNode]; // Solo el sueño privado
+      const filteredResult = [dreamNodeMockTwo]; // Solo el sueño privado
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = { privacy: 'Privado' };
@@ -225,7 +197,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
   describe('getUserNodes - Emotion filters', () => {
     it('should filter by emotion Felicidad', async () => {
       // Arrange
-      const filteredResult = [testDreamNode]; // Solo el sueño con Felicidad
+      const filteredResult = [dreamNodeMock]; // Solo el sueño con Felicidad
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = { emotion: 'Felicidad' };
@@ -245,7 +217,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
 
     it('should filter by emotion Tristeza', async () => {
       // Arrange
-      const filteredResult = [secondTestDreamNode]; // Solo el sueño con Tristeza
+      const filteredResult = [dreamNodeMockTwo]; // Solo el sueño con Tristeza
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = { emotion: 'Tristeza' };
@@ -286,7 +258,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
   describe('getUserNodes - Search filters', () => {
     it('should filter by search term in title', async () => {
       // Arrange
-      const filteredResult = [testDreamNode]; // Contiene "primer" en el título
+      const filteredResult = [dreamNodeMock]; // Contiene "primer" en el título
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = { search: 'primer' };
@@ -306,7 +278,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
 
     it('should filter by search term in description', async () => {
       // Arrange
-      const filteredResult = [secondTestDreamNode]; // Contiene "océano" en la descripción
+      const filteredResult = [dreamNodeMockTwo]; // Contiene "océano" en la descripción
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = { search: 'océano' };
@@ -347,7 +319,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
   describe('getUserNodes - Date filters', () => {
     it('should filter by from date', async () => {
       // Arrange
-      const filteredResult = [secondTestDreamNode]; // Solo el sueño después de 2024-01-15
+      const filteredResult = [dreamNodeMockTwo]; // Solo el sueño después de 2024-01-15
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = { from: '2024-01-15' };
@@ -367,7 +339,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
 
     it('should filter by to date', async () => {
       // Arrange
-      const filteredResult = [testDreamNode]; // Solo el sueño antes de 2024-01-15
+      const filteredResult = [dreamNodeMock]; // Solo el sueño antes de 2024-01-15
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = { to: '2024-01-15' };
@@ -387,7 +359,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
 
     it('should filter by date range (from and to)', async () => {
       // Arrange
-      const filteredResult = [testDreamNode]; // Solo el primer sueño dentro del rango
+      const filteredResult = [dreamNodeMockTwo]; // Solo el primer sueño dentro del rango
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = {
@@ -434,7 +406,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
   describe('getUserNodes - Combined filters', () => {
     it('should combine state and privacy filters', async () => {
       // Arrange
-      const filteredResult = [testDreamNode]; // Activo y Público
+      const filteredResult = [dreamNodeMock]; // Activo y Público
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = {
@@ -457,7 +429,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
 
     it('should combine emotion and search filters', async () => {
       // Arrange
-      const filteredResult = [secondTestDreamNode]; // Tristeza y contiene "océano"
+      const filteredResult = [dreamNodeMockTwo]; // Tristeza y contiene "océano"
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = {
@@ -502,7 +474,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
 
     it('should combine all available filters', async () => {
       // Arrange
-      const filteredResult = [testDreamNode]; // Coincide con todos los filtros
+      const filteredResult = [dreamNodeMock]; // Coincide con todos los filtros
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = {

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ReinterpreteDreamRequestDto } from '../../src/infrastructure/dtos/dream-node';
+import { ReinterpreteDreamRequestDto } from '../../../../src/infrastructure/dtos/dream-node';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 

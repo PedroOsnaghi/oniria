@@ -2,7 +2,7 @@ export type DreamPrivacy = "Publico" | "Privado" | "Anonimo";
 export type DreamState = "Activo" | "Archivado";
 export type Emotion = "Felicidad" | "Tristeza" | "Miedo" | "Enojo";
 
-interface IDreamNode {
+export interface IDreamNode {
     creationDate: Date;
     title: string;
     description: string;

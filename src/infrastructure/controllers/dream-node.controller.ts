@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { InterpretationDreamService } from "../../application/services/interpreation-dream.service";
+import { InterpretationDreamService } from "../../application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../application/services/dream-node.service";
 import { GetUserNodesParamsDto } from "../dtos/dream-node/get-user-nodes.dto";
 
 export class DreamNodeController {
   constructor(
     private readonly interpretationDreamService: InterpretationDreamService,
-    private readonly dreamNodeService: DreamNodeService
+    private readonly dreamNodeService: DreamNodeService,
   ) {}
 
   async interpret(req: Request, res: Response): Promise<void> {
@@ -46,6 +46,7 @@ export class DreamNodeController {
   async reinterpret(req: Request, res: Response) {
     try {
       const { description, previousInterpretation } = req.body;
+      // moderation handled by middleware
       const reinterpretedDream =
         await this.interpretationDreamService.reinterpretDream(
           description,

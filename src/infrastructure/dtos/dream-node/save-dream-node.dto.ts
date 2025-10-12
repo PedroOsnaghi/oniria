@@ -17,7 +17,7 @@ export class SaveDreamNodeRequestDto {
   interpretation!: string;
   @IsString({ message: 'La emoción debe ser una cadena válida.' })
   @IsNotEmpty({ message: 'La emoción no puede estar vacía.' })
-  @IsIn(['joy', 'sadness', 'fear', 'anger', 'surprise', 'disgust', 'neutral'],
-    { message: 'La emoción debe ser: joy, sadness, fear, anger, surprise, disgust o neutral' })
+  @IsIn(['Felicidad', 'Tristeza', 'Miedo', 'Enojo'],
+    { message: 'La emoción debe ser: Felicidad, Tristeza, Miedo, Enojo' })
   emotion!: string;
 }

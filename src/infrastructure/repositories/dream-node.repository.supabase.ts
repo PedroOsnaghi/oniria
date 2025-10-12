@@ -1,4 +1,4 @@
-import { DreamNode } from "../../domain/models/dream-node.model";
+import { IDreamNode } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { supabase } from '../../config/supabase';
 import { IDreamNodeEntity } from "../entities/dream-node.entity";
@@ -7,7 +7,7 @@ import { IDreamNodeFilters } from "../../domain/interfaces/dream-node-filters.in
 import { IPaginationOptions} from "../../domain/interfaces/pagination.interface";
 
 export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
-    async save(dreamNode: DreamNode, userId: string): Promise<void> {
+    async save(dreamNode: IDreamNode, userId: string): Promise<void> {
         const dreamNodeEntity : IDreamNodeEntity = {
             profile_id: userId,
             title: dreamNode.title,
@@ -28,7 +28,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
         }
     }
 
-    async getUserNodes(userId: string, filters?: IDreamNodeFilters, pagination?: IPaginationOptions): Promise<DreamNode[]> {
+    async getUserNodes(userId: string, filters?: IDreamNodeFilters, pagination?: IPaginationOptions): Promise<IDreamNode[]> {
         let query = supabase.from("dream_node").select("*").eq("profile_id", userId);
 
         if (filters?.state) {

@@ -1,8 +1,7 @@
 import { IDreamNodeFilters } from "../../domain/interfaces/dream-node-filters.interface";
 import { IPaginationOptions, IPaginatedResult } from "../../domain/interfaces/pagination.interface";
-import { DreamNode, Emotion } from "../../domain/models/dream-node.model";
+import { IDreamNode, Emotion } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
-import { v4 as uuidv4 } from 'uuid';
 
 export class DreamNodeService {
     constructor(private dreamNodeRepository: IDreamNodeRepository) {
@@ -10,7 +9,7 @@ export class DreamNodeService {
     }
     async saveDreamNode(userId: string, title: string, description: string, interpretation: string, emotion: string): Promise<void> {
         try {
-            const dreamNode: DreamNode = {
+            const dreamNode: IDreamNode = {
                 creationDate: new Date(),
                 title,
                 description,
@@ -25,7 +24,7 @@ export class DreamNodeService {
         }
     }
 
-    async getUserNodes(userId: string, filters: IDreamNodeFilters, pagination?: IPaginationOptions): Promise<IPaginatedResult<DreamNode>> {
+    async getUserNodes(userId: string, filters: IDreamNodeFilters, pagination?: IPaginationOptions): Promise<IPaginatedResult<IDreamNode>> {
         try {
             const page = pagination?.page || 1;
             const limit = pagination?.limit || 10;
