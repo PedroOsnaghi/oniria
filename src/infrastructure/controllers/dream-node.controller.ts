@@ -26,14 +26,14 @@ export class DreamNodeController {
   async save(req: Request, res: Response) {
     try {
       const { userId, title, description, interpretation, emotion } = req.body;
-      const dreamNode = await this.dreamNodeService.saveDreamNode(
+      await this.dreamNodeService.saveDreamNode(
         userId,
         title,
         description,
         interpretation,
         emotion
       );
-      return res.status(201).json(dreamNode);
+      return res.status(201);
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);
       return res.status(500).json({
