@@ -10,6 +10,7 @@ jest.mock('uuid', () => ({
 import { Request, Response } from 'express';
 import { mockSaveReq } from '../../mocks/mock-save-req';
 import { mockSaveRes } from '../../mocks/mock-save-res';
+import { userId, filters, pagination, paginatedResult } from '../../mocks/get-user-nodes.mock';
 
 describe('DreamNodeController Integration Tests', () => {
   let controller: DreamNodeController;
@@ -223,6 +224,87 @@ describe("DreamNodeController.save", () => {
     expect(mockSaveRes.json).toHaveBeenCalledWith({
       message: "Error interno del servidor",
       errors: ["Error simulado"]
+    });
+  });
+});
+
+describe('DreamNodeController.getUserNodes', () => {
+  let controller: DreamNodeController;
+  let mockInterpretationService: jest.Mocked<InterpretationDreamService>;
+  let mockDreamNodeService: jest.Mocked<DreamNodeService>;
+  let mockRequest: Partial<Request> & { validatedParams?: any; validatedQuery?: any };
+  let mockResponse: Partial<Response>;
+
+  beforeEach(() => {
+    mockInterpretationService = {
+      interpretDream: jest.fn(),
+      reinterpretDream: jest.fn(),
+    } as any;
+
+    mockDreamNodeService = {
+      saveDreamNode: jest.fn(),
+      getUserNodes: jest.fn(),
+    } as any;
+
+    mockRequest = { } as any;
+    mockResponse = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+    };
+
+    controller = new DreamNodeController(mockInterpretationService, mockDreamNodeService);
+  });
+
+  it('should return paginated result with filters and pagination', async () => {
+    // Arrange
+    (mockRequest as any).validatedParams = { userId } as any;
+    (mockRequest as any).validatedQuery = { ...filters, ...pagination } as any;
+
+    (mockDreamNodeService.getUserNodes as jest.Mock).mockResolvedValue(paginatedResult);
+
+    // Act
+    await controller.getUserNodes(mockRequest as unknown as Request, mockResponse as Response);
+
+    // Assert
+    expect(mockDreamNodeService.getUserNodes).toHaveBeenCalledWith(
+      userId,
+      { ...filters },
+      { ...pagination }
+    );
+    expect(mockResponse.json).toHaveBeenCalledWith(paginatedResult);
+  });
+
+  it('should return 400 when userId is missing', async () => {
+    // Arrange
+    (mockRequest as any).validatedParams = {} as any; // Missing userId
+    (mockRequest as any).validatedQuery = {} as any;
+
+    // Act
+    await controller.getUserNodes(mockRequest as unknown as Request, mockResponse as Response);
+
+    // Assert
+    expect(mockResponse.status).toHaveBeenCalledWith(400);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      errors: 'El id del usuario es requerido',
+    });
+    expect(mockDreamNodeService.getUserNodes).not.toHaveBeenCalled();
+  });
+
+  it('should return 500 when service throws an error', async () => {
+    // Arrange
+    (mockRequest as any).validatedParams = { userId } as any;
+    (mockRequest as any).validatedQuery = { page: 1, limit: 10 } as any;
+
+    (mockDreamNodeService.getUserNodes as jest.Mock).mockRejectedValue(new Error('Database error'));
+
+    // Act
+    await controller.getUserNodes(mockRequest as unknown as Request, mockResponse as Response);
+
+    // Assert
+    expect(mockDreamNodeService.getUserNodes).toHaveBeenCalledWith(userId, {}, { page: 1, limit: 10 });
+    expect(mockResponse.status).toHaveBeenCalledWith(500);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      errors: 'Error al obtener los nodos de sueño del usuario',
     });
   });
 });
