@@ -9,6 +9,7 @@ import { IPaginationOptions} from "../../domain/interfaces/pagination.interface"
 export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
     async save(dreamNode: IDreamNode, userId: string): Promise<void> {
         const dreamNodeEntity : IDreamNodeEntity = {
+            ...(dreamNode.id ? { id: dreamNode.id } : {}),
             profile_id: userId,
             title: dreamNode.title,
             dream_description: dreamNode.description,
