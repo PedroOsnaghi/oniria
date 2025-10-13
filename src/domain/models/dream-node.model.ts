@@ -3,6 +3,7 @@ export type DreamState = "Activo" | "Archivado";
 export type Emotion = "Felicidad" | "Tristeza" | "Miedo" | "Enojo";
 
 export interface IDreamNode {
+    id?: string;
     creationDate: Date;
     title: string;
     description: string;

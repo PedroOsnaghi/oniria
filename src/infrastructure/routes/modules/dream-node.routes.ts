@@ -4,10 +4,10 @@ import { InterpretationOpenAIProvider } from "../../providers/interpretation-ope
 import { InterpretationDreamService } from "../../../application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../../application/services/dream-node.service";
 import { DreamNodeRepositorySupabase } from "../../repositories/dream-node.repository.supabase";
-import { validateBody, validateParams, validateQuery } from "../../middlewares/validate-class.middleware";
+import { validateBody, validateQuery } from "../../middlewares/validate-class.middleware";
 import contentModerationMiddleware from '../../middlewares/content-moderation.middleware';
 import { InterpreteDreamRequestDto, ReinterpreteDreamRequestDto, SaveDreamNodeRequestDto } from "../../dtos/dream-node";
-import { GetUserNodesParamsDto, GetUserNodesQueryDto } from "../../dtos/dream-node/get-user-nodes.dto";
+import { GetUserNodesQueryDto } from "../../dtos/dream-node/get-user-nodes.dto";
 import { authenticateToken } from "../../middlewares/auth.middleware";
 
 export const dreamNodeRouter = Router();
