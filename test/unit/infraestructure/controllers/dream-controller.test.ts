@@ -8,6 +8,8 @@ jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid-123')
 }));
 import { Request, Response } from 'express';
+import { mockSaveReq } from '../../mocks/mock-save-req';
+import { mockSaveRes } from '../../mocks/mock-save-res';
 
 describe('DreamNodeController Integration Tests', () => {
   let controller: DreamNodeController;
@@ -165,6 +167,62 @@ describe('DreamNodeController Integration Tests', () => {
         mockInterpretationService.reinterpretDream.mockReset();
         (mockResponse.json as jest.Mock).mockClear();
       }
+    });
+  });
+});
+
+//Savedreamnode
+
+describe("DreamNodeController.save", () => {
+  let controller: DreamNodeController;
+  let mockDreamNodeService: jest.Mocked<DreamNodeService>;
+  let mockInterpretationService: jest.Mocked<InterpretationDreamService>;
+
+  beforeEach(() => {
+      mockDreamNodeService = {
+      saveDreamNode: jest.fn()
+    } as unknown as jest.Mocked<DreamNodeService>;
+
+     mockInterpretationService = {
+      interpretDream: jest.fn(),
+      reinterpretDream: jest.fn(),
+    } as unknown as jest.Mocked<InterpretationDreamService>;
+
+     controller = new DreamNodeController(mockInterpretationService, mockDreamNodeService);
+  });
+
+  it("should save a dream node and return 201", async () => {
+  mockDreamNodeService.saveDreamNode.mockResolvedValue(undefined);
+
+  await controller.save(mockSaveReq as Request, mockSaveRes as unknown as Response);
+
+  expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith(
+    mockSaveReq.body.userId,
+    mockSaveReq.body.title,
+    mockSaveReq.body.description,
+    mockSaveReq.body.interpretation,
+    mockSaveReq.body.emotion
+  );
+
+  expect(mockSaveRes.status).toHaveBeenCalledWith(201);
+});
+
+  it("should return 500 when service fails", async () => {
+    mockDreamNodeService.saveDreamNode.mockRejectedValue(new Error("Error simulado"));
+
+    await controller.save(mockSaveReq as Request, mockSaveRes as unknown as Response);
+
+    expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith(
+      mockSaveReq.body.userId,
+      mockSaveReq.body.title,
+      mockSaveReq.body.description,
+      mockSaveReq.body.interpretation,
+      mockSaveReq.body.emotion
+    );
+    expect(mockSaveRes.status).toHaveBeenCalledWith(500);
+    expect(mockSaveRes.json).toHaveBeenCalledWith({
+      message: "Error interno del servidor",
+      errors: ["Error simulado"]
     });
   });
 });
