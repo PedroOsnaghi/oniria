@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import express from 'express';
 import request from 'supertest';
-import contentModerationMiddleware from '../../src/infrastructure/middlewares/content-moderation.middleware';
+import contentModerationMiddleware from '../../../../src/infrastructure/middlewares/content-moderation.middleware';
 
 describe('contentModerationMiddleware', () => {
   let app: express.Application;
