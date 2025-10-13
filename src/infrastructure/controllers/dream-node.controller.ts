@@ -26,7 +26,7 @@ export class DreamNodeController {
     try {
       const userId = (req as any).userId;
       const { title, description, interpretation, emotion } = req.body;
-      const dreamNode = await this.dreamNodeService.saveDreamNode(
+      await this.dreamNodeService.saveDreamNode(
         userId,
         title,
         description,
