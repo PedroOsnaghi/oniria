@@ -5,6 +5,7 @@ import { IPaginationOptions } from '../../../../src/domain/interfaces/pagination
 import { IDreamNode} from '../../../../src/domain/models/dream-node.model';
 import { dreamNodeMock, dreamNodeMockTwo } from '../../mocks/dream-node.mock';
 import { testUser } from '../../mocks/user-mock';
+import { v4 as uuidv4 } from "uuid";
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid-123')
 }));
@@ -692,5 +693,60 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
         { page: 2, limit: 10, offset: 10 }
       );
     });
+  });
+});
+
+//save
+
+jest.mock("uuid");
+
+describe("DreamNodeService", () => {
+  let service: DreamNodeService;
+  let mockRepository: { save: jest.Mock };
+
+  beforeEach(() => {
+    mockRepository = {
+      save: jest.fn()
+    };
+    service = new DreamNodeService(mockRepository as any);
+    (uuidv4 as jest.Mock).mockReturnValue("uuid-falso");
+  });
+
+  it("should save a dreamNode correctly", async () => {
+    const userId = "user123";
+    const title = "Sueño de prueba";
+    const description = "Descripción del sueño";
+    const interpretation = "Interpretación del sueño";
+    const emotion = "Felicidad";
+
+    await service.saveDreamNode(userId, title, description, interpretation, emotion);
+
+    expect(mockRepository.save).toHaveBeenCalledWith(
+      {
+        id: "uuid-falso",
+        creationDate: expect.any(Date),
+        title,
+        description,
+        interpretation,
+        privacy: "Privado",
+        state: "Activo",
+        emotion: "Felicidad"
+      },
+      userId
+    );
+  });
+
+  it("should throw an error if the repository fails", async () => {
+    const userId = "user123";
+    const title = "Sueño de prueba";
+    const description = "Descripción del sueño";
+    const interpretation = "Interpretación del sueño";
+    const emotion = "Triste";
+
+    mockRepository.save.mockRejectedValue(new Error("Error en DB"));
+
+    await expect(
+      service.saveDreamNode(userId, title, description, interpretation, emotion)
+    ).rejects.toThrow("Error guardando el nodo de sueño: Error en DB");
   });
 });

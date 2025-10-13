@@ -9,10 +9,10 @@
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",
     "build": "tsc",
-    "start": "cross-env NODE_ENV=production node dist/index.js",
+    "start": "cross-env NODE_ENV=production node dist/src/index.js",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "test": "jest"
+    "test": "rimraf dist && jest"
   },
   "jest": {
     "preset": "ts-jest",

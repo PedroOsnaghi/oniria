@@ -1,4 +1,4 @@
-import { ContentModerationService } from '../../src/application/services/content-moderation.service';
+import { ContentModerationService } from '../../../../src/application/services/content-moderation.service';
 
 describe('ContentModerationService — extensive test suite', () => {
   let service: ContentModerationService;
