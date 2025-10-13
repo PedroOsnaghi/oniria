@@ -197,7 +197,7 @@ describe("DreamNodeController.save", () => {
   await controller.save(mockSaveReq as Request, mockSaveRes as unknown as Response);
 
   expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith(
-    mockSaveReq.body.userId,
+    (mockSaveReq as any).userId,
     mockSaveReq.body.title,
     mockSaveReq.body.description,
     mockSaveReq.body.interpretation,
@@ -213,7 +213,7 @@ describe("DreamNodeController.save", () => {
     await controller.save(mockSaveReq as Request, mockSaveRes as unknown as Response);
 
     expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith(
-      mockSaveReq.body.userId,
+      (mockSaveReq as any).userId,
       mockSaveReq.body.title,
       mockSaveReq.body.description,
       mockSaveReq.body.interpretation,

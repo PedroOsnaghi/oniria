@@ -1,16 +1,16 @@
-import { DreamNodeService } from '../../../../src/application/services/dream-node.service';
-import { IDreamNodeRepository } from '../../../../src/domain/repositories/dream-node.repository';
-import { IDreamNodeFilters } from '../../../../src/domain/interfaces/dream-node-filters.interface';
-import { IPaginationOptions } from '../../../../src/domain/interfaces/pagination.interface';
-import { IDreamNode} from '../../../../src/domain/models/dream-node.model';
-import { dreamNodeMock, dreamNodeMockTwo } from '../../mocks/dream-node.mock';
-import { testUser } from '../../mocks/user-mock';
+import { DreamNodeService } from "../../../../src/application/services/dream-node.service";
+import { IDreamNodeRepository } from "../../../../src/domain/repositories/dream-node.repository";
+import { IDreamNodeFilters } from "../../../../src/domain/interfaces/dream-node-filters.interface";
+import { IPaginationOptions } from "../../../../src/domain/interfaces/pagination.interface";
+import { IDreamNode } from "../../../../src/domain/models/dream-node.model";
+import { dreamNodeMock, dreamNodeMockTwo } from "../../mocks/dream-node.mock";
+import { testUser } from "../../mocks/user-mock";
 import { v4 as uuidv4 } from "uuid";
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mocked-uuid-123')
+jest.mock("uuid", () => ({
+  v4: jest.fn(() => "mocked-uuid-123"),
 }));
 
-describe('DreamNodeService - getUserNodes Complete Tests', () => {
+describe("DreamNodeService - getUserNodes Complete Tests", () => {
   let service: DreamNodeService;
   let mockRepository: jest.Mocked<IDreamNodeRepository>;
 
@@ -27,12 +27,12 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
     service = new DreamNodeService(mockRepository);
   });
 
-  describe('getUserNodes - Basic functionality', () => {
-    it('should return dream nodes with default pagination when no pagination provided', async () => {
+  describe("getUserNodes - Basic functionality", () => {
+    it("should return dream nodes with default pagination when no pagination provided", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue(mockDreamNodes);
       mockRepository.countUserNodes.mockResolvedValue(2);
-      const filters: IDreamNodeFilters = { state: 'Activo' };
+      const filters: IDreamNodeFilters = { state: "Activo" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -45,17 +45,20 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
         total: 2,
         totalPages: 1,
         hasNext: false,
-        hasPrev: false
+        hasPrev: false,
       });
       expect(mockRepository.getUserNodes).toHaveBeenCalledWith(
         userId,
         filters,
         { page: 1, limit: 10, offset: 0 }
       );
-      expect(mockRepository.countUserNodes).toHaveBeenCalledWith(userId, filters);
+      expect(mockRepository.countUserNodes).toHaveBeenCalledWith(
+        userId,
+        filters
+      );
     });
 
-    it('should handle empty filters', async () => {
+    it("should handle empty filters", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue([]);
       mockRepository.countUserNodes.mockResolvedValue(0);
@@ -72,7 +75,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
         total: 0,
         totalPages: 0,
         hasNext: false,
-        hasPrev: false
+        hasPrev: false,
       });
       expect(mockRepository.getUserNodes).toHaveBeenCalledWith(
         userId,
@@ -81,24 +84,26 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       );
     });
 
-    it('should throw error when repository fails', async () => {
+    it("should throw error when repository fails", async () => {
       // Arrange
-      mockRepository.getUserNodes.mockRejectedValue(new Error('Database error'));
+      mockRepository.getUserNodes.mockRejectedValue(
+        new Error("Database error")
+      );
 
       // Act & Assert
       await expect(service.getUserNodes(userId, {})).rejects.toThrow(
-        'Error obteniendo los nodos de sueño del usuario: Error: Database error'
+        "Error obteniendo los nodos de sueño del usuario: Error: Database error"
       );
     });
   });
 
-  describe('getUserNodes - State filters', () => {
-    it('should filter by state Activo', async () => {
+  describe("getUserNodes - State filters", () => {
+    it("should filter by state Activo", async () => {
       // Arrange
       const filteredResult = [dreamNodeMock]; // Solo el sueño activo
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
-      const filters: IDreamNodeFilters = { state: 'Activo' };
+      const filters: IDreamNodeFilters = { state: "Activo" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -113,12 +118,12 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should filter by state Archivado', async () => {
+    it("should filter by state Archivado", async () => {
       // Arrange
       const filteredResult = [dreamNodeMockTwo]; // Solo el sueño archivado
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
-      const filters: IDreamNodeFilters = { state: 'Archivado' };
+      const filters: IDreamNodeFilters = { state: "Archivado" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -134,13 +139,13 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
     });
   });
 
-  describe('getUserNodes - Privacy filters', () => {
-    it('should filter by privacy Publico', async () => {
+  describe("getUserNodes - Privacy filters", () => {
+    it("should filter by privacy Publico", async () => {
       // Arrange
       const filteredResult = [dreamNodeMock]; // Solo el sueño público
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
-      const filters: IDreamNodeFilters = { privacy: 'Publico' };
+      const filters: IDreamNodeFilters = { privacy: "Publico" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -155,12 +160,12 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should filter by privacy Privado', async () => {
+    it("should filter by privacy Privado", async () => {
       // Arrange
       const filteredResult = [dreamNodeMockTwo]; // Solo el sueño privado
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
-      const filters: IDreamNodeFilters = { privacy: 'Privado' };
+      const filters: IDreamNodeFilters = { privacy: "Privado" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -175,11 +180,11 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should filter by privacy Anonimo', async () => {
+    it("should filter by privacy Anonimo", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue([]);
       mockRepository.countUserNodes.mockResolvedValue(0);
-      const filters: IDreamNodeFilters = { privacy: 'Anonimo' };
+      const filters: IDreamNodeFilters = { privacy: "Anonimo" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -195,13 +200,13 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
     });
   });
 
-  describe('getUserNodes - Emotion filters', () => {
-    it('should filter by emotion Felicidad', async () => {
+  describe("getUserNodes - Emotion filters", () => {
+    it("should filter by emotion Felicidad", async () => {
       // Arrange
       const filteredResult = [dreamNodeMock]; // Solo el sueño con Felicidad
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
-      const filters: IDreamNodeFilters = { emotion: 'Felicidad' };
+      const filters: IDreamNodeFilters = { emotion: "Felicidad" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -216,12 +221,12 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should filter by emotion Tristeza', async () => {
+    it("should filter by emotion Tristeza", async () => {
       // Arrange
       const filteredResult = [dreamNodeMockTwo]; // Solo el sueño con Tristeza
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
-      const filters: IDreamNodeFilters = { emotion: 'Tristeza' };
+      const filters: IDreamNodeFilters = { emotion: "Tristeza" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -236,11 +241,11 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should filter by emotion Miedo', async () => {
+    it("should filter by emotion Miedo", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue([]);
       mockRepository.countUserNodes.mockResolvedValue(0);
-      const filters: IDreamNodeFilters = { emotion: 'Miedo' };
+      const filters: IDreamNodeFilters = { emotion: "Miedo" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -256,13 +261,13 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
     });
   });
 
-  describe('getUserNodes - Search filters', () => {
-    it('should filter by search term in title', async () => {
+  describe("getUserNodes - Search filters", () => {
+    it("should filter by search term in title", async () => {
       // Arrange
       const filteredResult = [dreamNodeMock]; // Contiene "primer" en el título
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
-      const filters: IDreamNodeFilters = { search: 'primer' };
+      const filters: IDreamNodeFilters = { search: "primer" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -277,12 +282,12 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should filter by search term in description', async () => {
+    it("should filter by search term in description", async () => {
       // Arrange
       const filteredResult = [dreamNodeMockTwo]; // Contiene "océano" en la descripción
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
-      const filters: IDreamNodeFilters = { search: 'océano' };
+      const filters: IDreamNodeFilters = { search: "océano" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -297,11 +302,11 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should return empty array for search term not found', async () => {
+    it("should return empty array for search term not found", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue([]);
       mockRepository.countUserNodes.mockResolvedValue(0);
-      const filters: IDreamNodeFilters = { search: 'inexistente' };
+      const filters: IDreamNodeFilters = { search: "inexistente" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -317,13 +322,13 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
     });
   });
 
-  describe('getUserNodes - Date filters', () => {
-    it('should filter by from date', async () => {
+  describe("getUserNodes - Date filters", () => {
+    it("should filter by from date", async () => {
       // Arrange
       const filteredResult = [dreamNodeMockTwo]; // Solo el sueño después de 2024-01-15
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
-      const filters: IDreamNodeFilters = { from: '2024-01-15' };
+      const filters: IDreamNodeFilters = { from: "2024-01-15" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -338,12 +343,12 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should filter by to date', async () => {
+    it("should filter by to date", async () => {
       // Arrange
       const filteredResult = [dreamNodeMock]; // Solo el sueño antes de 2024-01-15
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
-      const filters: IDreamNodeFilters = { to: '2024-01-15' };
+      const filters: IDreamNodeFilters = { to: "2024-01-15" };
 
       // Act
       const result = await service.getUserNodes(userId, filters);
@@ -358,14 +363,14 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should filter by date range (from and to)', async () => {
+    it("should filter by date range (from and to)", async () => {
       // Arrange
       const filteredResult = [dreamNodeMockTwo]; // Solo el primer sueño dentro del rango
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = {
-        from: '2024-01-01',
-        to: '2024-01-15'
+        from: "2024-01-01",
+        to: "2024-01-15",
       };
 
       // Act
@@ -381,13 +386,13 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should return empty array when no dreams match date range', async () => {
+    it("should return empty array when no dreams match date range", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue([]);
       mockRepository.countUserNodes.mockResolvedValue(0);
       const filters: IDreamNodeFilters = {
-        from: '2025-01-01',
-        to: '2025-01-31'
+        from: "2025-01-01",
+        to: "2025-01-31",
       };
 
       // Act
@@ -404,15 +409,15 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
     });
   });
 
-  describe('getUserNodes - Combined filters', () => {
-    it('should combine state and privacy filters', async () => {
+  describe("getUserNodes - Combined filters", () => {
+    it("should combine state and privacy filters", async () => {
       // Arrange
       const filteredResult = [dreamNodeMock]; // Activo y Público
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = {
-        state: 'Activo',
-        privacy: 'Publico'
+        state: "Activo",
+        privacy: "Publico",
       };
 
       // Act
@@ -428,14 +433,14 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should combine emotion and search filters', async () => {
+    it("should combine emotion and search filters", async () => {
       // Arrange
       const filteredResult = [dreamNodeMockTwo]; // Tristeza y contiene "océano"
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = {
-        emotion: 'Tristeza',
-        search: 'océano'
+        emotion: "Tristeza",
+        search: "océano",
       };
 
       // Act
@@ -451,13 +456,13 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(1);
     });
 
-    it('should return empty when no dreams match combined filters', async () => {
+    it("should return empty when no dreams match combined filters", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue([]);
       mockRepository.countUserNodes.mockResolvedValue(0);
       const filters: IDreamNodeFilters = {
-        state: 'Activo',
-        emotion: 'Miedo'
+        state: "Activo",
+        emotion: "Miedo",
       };
 
       // Act
@@ -473,18 +478,18 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       expect(result.pagination.total).toBe(0);
     });
 
-    it('should combine all available filters', async () => {
+    it("should combine all available filters", async () => {
       // Arrange
       const filteredResult = [dreamNodeMock]; // Coincide con todos los filtros
       mockRepository.getUserNodes.mockResolvedValue(filteredResult);
       mockRepository.countUserNodes.mockResolvedValue(1);
       const filters: IDreamNodeFilters = {
-        state: 'Activo',
-        privacy: 'Publico',
-        emotion: 'Felicidad',
-        search: 'primer',
-        from: '2024-01-01',
-        to: '2024-01-15'
+        state: "Activo",
+        privacy: "Publico",
+        emotion: "Felicidad",
+        search: "primer",
+        from: "2024-01-01",
+        to: "2024-01-15",
       };
 
       // Act
@@ -501,8 +506,8 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
     });
   });
 
-  describe('getUserNodes - Pagination calculations', () => {
-    it('should calculate correct offset for page 1', async () => {
+  describe("getUserNodes - Pagination calculations", () => {
+    it("should calculate correct offset for page 1", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue(mockDreamNodes);
       mockRepository.countUserNodes.mockResolvedValue(2);
@@ -519,7 +524,7 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
       );
     });
 
-    it('should calculate correct offset for page 3 with limit 5', async () => {
+    it("should calculate correct offset for page 3 with limit 5", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue([mockDreamNodes[0]!]);
       mockRepository.countUserNodes.mockResolvedValue(15);
@@ -540,11 +545,11 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
         total: 15,
         totalPages: 3,
         hasNext: false,
-        hasPrev: true
+        hasPrev: true,
       });
     });
 
-    it('should handle pagination with large dataset', async () => {
+    it("should handle pagination with large dataset", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue(mockDreamNodes);
       mockRepository.countUserNodes.mockResolvedValue(25);
@@ -565,11 +570,11 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
         total: 25,
         totalPages: 3,
         hasNext: true,
-        hasPrev: true
+        hasPrev: true,
       });
     });
 
-    it('should handle last page correctly', async () => {
+    it("should handle last page correctly", async () => {
       // Arrange
       const lastPageItems = [mockDreamNodes[0]!]; // Solo 1 elemento en última página
       mockRepository.getUserNodes.mockResolvedValue(lastPageItems);
@@ -591,11 +596,11 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
         total: 21,
         totalPages: 3,
         hasNext: false,
-        hasPrev: true
+        hasPrev: true,
       });
     });
 
-    it('should handle empty page correctly', async () => {
+    it("should handle empty page correctly", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue([]);
       mockRepository.countUserNodes.mockResolvedValue(10);
@@ -616,11 +621,11 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
         total: 10,
         totalPages: 1,
         hasNext: false,
-        hasPrev: true
+        hasPrev: true,
       });
     });
 
-    it('should handle single item per page', async () => {
+    it("should handle single item per page", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue([mockDreamNodes[0]!]);
       mockRepository.countUserNodes.mockResolvedValue(5);
@@ -641,13 +646,13 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
         total: 5,
         totalPages: 5,
         hasNext: true,
-        hasPrev: false
+        hasPrev: false,
       });
     });
   });
 
-  describe('getUserNodes - Edge cases', () => {
-    it('should handle zero total count', async () => {
+  describe("getUserNodes - Edge cases", () => {
+    it("should handle zero total count", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue([]);
       mockRepository.countUserNodes.mockResolvedValue(0);
@@ -662,29 +667,35 @@ describe('DreamNodeService - getUserNodes Complete Tests', () => {
         total: 0,
         totalPages: 0,
         hasNext: false,
-        hasPrev: false
+        hasPrev: false,
       });
     });
 
-    it('should handle count query failure', async () => {
+    it("should handle count query failure", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue(mockDreamNodes);
-      mockRepository.countUserNodes.mockRejectedValue(new Error('Count failed'));
+      mockRepository.countUserNodes.mockRejectedValue(
+        new Error("Count failed")
+      );
 
       // Act & Assert
       await expect(service.getUserNodes(userId, {})).rejects.toThrow(
-        'Error obteniendo los nodos de sueño del usuario: Error: Count failed'
+        "Error obteniendo los nodos de sueño del usuario: Error: Count failed"
       );
     });
 
-    it('should use default pagination when pagination is partial', async () => {
+    it("should use default pagination when pagination is partial", async () => {
       // Arrange
       mockRepository.getUserNodes.mockResolvedValue(mockDreamNodes);
       mockRepository.countUserNodes.mockResolvedValue(2);
       const partialPagination: Partial<IPaginationOptions> = { page: 2 };
 
       // Act
-      await service.getUserNodes(userId, {}, partialPagination as IPaginationOptions);
+      await service.getUserNodes(
+        userId,
+        {},
+        partialPagination as IPaginationOptions
+      );
 
       // Assert
       expect(mockRepository.getUserNodes).toHaveBeenCalledWith(
@@ -706,7 +717,7 @@ describe("DreamNodeService", () => {
 
   beforeEach(() => {
     mockRepository = {
-      save: jest.fn()
+      save: jest.fn(),
     };
     service = new DreamNodeService(mockRepository as any);
     (uuidv4 as jest.Mock).mockReturnValue("uuid-falso");
@@ -719,20 +730,25 @@ describe("DreamNodeService", () => {
     const interpretation = "Interpretación del sueño";
     const emotion = "Felicidad";
 
-    await service.saveDreamNode(userId, title, description, interpretation, emotion);
+    await service.saveDreamNode(
+      userId,
+      title,
+      description,
+      interpretation,
+      emotion
+    );
 
     expect(mockRepository.save).toHaveBeenCalledWith(
-      {
-        id: "uuid-falso",
-        creationDate: expect.any(Date),
-        title,
-        description,
-        interpretation,
+      expect.objectContaining({
+        title: "Sueño de prueba",
+        description: "Descripción del sueño",
+        interpretation: "Interpretación del sueño",
         privacy: "Privado",
         state: "Activo",
-        emotion: "Felicidad"
-      },
-      userId
+        emotion: "Felicidad",
+        creationDate: expect.any(Date),
+      }),
+      "user123"
     );
   });
 
