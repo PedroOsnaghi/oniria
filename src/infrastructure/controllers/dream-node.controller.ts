@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { InterpretationDreamService } from "../../application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../application/services/dream-node.service";
-import { error } from "console";
 
 export class DreamNodeController {
   constructor(
