@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { InterpretationDreamService } from "../../application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../application/services/dream-node.service";
+import { error } from "console";
 
 export class DreamNodeController {
   constructor(
@@ -33,7 +34,7 @@ export class DreamNodeController {
         interpretation,
         emotion
       );
-      return res.status(201);
+      return res.status(201).json({ message: "Nodo de sueño guardado exitosamente", errors: [] });
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);
       return res.status(500).json({
