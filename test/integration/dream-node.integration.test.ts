@@ -15,8 +15,30 @@ describe('DreamNodeController Integration Tests', () => {
     app = express();
     app.use(express.json());
 
-    app.get('/api/dreams/user/:userId', (req, res) => {
-      const { userId } = req.params;
+    // Mock JWT authentication middleware for /api/dreams/history
+    app.use('/api/dreams/history', (req, res, next) => {
+      // Mock JWT token decoding - set userId based on token
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        // For testing purposes, we'll use a simple mapping
+        if (token === 'mock-jwt-token') {
+          (req as any).userId = testUser.id;
+        } else if (token === 'mock-other-user-token') {
+          (req as any).userId = '550e8400-e29b-41d4-a716-446655440999';
+        } else {
+          (req as any).userId = testUser.id; // Default fallback
+        }
+      } else {
+        (req as any).userId = testUser.id; // Default for tests without auth
+      }
+      next();
+    });
+
+    app.get('/api/dreams/history', (req, res) => {
+      // Get userId from JWT token (set by auth middleware)
+      const userId = (req as any).userId;
+
       const {
         page = '1',
         limit = '10',
@@ -85,11 +107,12 @@ describe('DreamNodeController Integration Tests', () => {
     });
   });
 
-  describe('GET /api/dreams/user/:userId', () => {
+  describe('GET /api/dreams/history', () => {
 
     it('should return 200 status with test user data', async () => {
       const response = await request(app)
-        .get(`/api/dreams/user/${testUser.id}`)
+        .get(`/api/dreams/history`)
+        .set('Authorization', `Bearer mock-jwt-token`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -99,10 +122,9 @@ describe('DreamNodeController Integration Tests', () => {
     });
 
     it('should return empty array for user with no dreams', async () => {
-      const otherUserId = '550e8400-e29b-41d4-a716-446655440999';
-
       const response = await request(app)
-        .get(`/api/dreams/user/${otherUserId}`)
+        .get(`/api/dreams/history`)
+        .set('Authorization', `Bearer mock-other-user-token`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -113,7 +135,8 @@ describe('DreamNodeController Integration Tests', () => {
     describe('Complete filters and parameters', () => {
       it('should filter by state (Active)', async () => {
         const response = await request(app)
-          .get(`/api/dreams/user/${testUser.id}?state=Activo`)
+          .get(`/api/dreams/history?state=Activo`)
+          .set('Authorization', `Bearer mock-jwt-token`)
           .expect(200);
 
         expect(response.body.success).toBe(true);
@@ -124,7 +147,8 @@ describe('DreamNodeController Integration Tests', () => {
 
       it('should filter by state (Archived)', async () => {
         const response = await request(app)
-          .get(`/api/dreams/user/${testUser.id}?state=Archivado`)
+          .get(`/api/dreams/history?state=Archivado`)
+          .set('Authorization', `Bearer mock-jwt-token`)
           .expect(200);
 
         expect(response.body.success).toBe(true);
@@ -135,7 +159,8 @@ describe('DreamNodeController Integration Tests', () => {
 
       it('should filter by privacy (Public)', async () => {
         const response = await request(app)
-          .get(`/api/dreams/user/${testUser.id}?privacy=Publico`)
+          .get(`/api/dreams/history?privacy=Publico`)
+          .set('Authorization', `Bearer mock-jwt-token`)
           .expect(200);
 
         expect(response.body.success).toBe(true);
@@ -146,7 +171,8 @@ describe('DreamNodeController Integration Tests', () => {
 
       it('should filter by privacy (Private)', async () => {
         const response = await request(app)
-          .get(`/api/dreams/user/${testUser.id}?privacy=Privado`)
+          .get(`/api/dreams/history?privacy=Privado`)
+          .set('Authorization', `Bearer mock-jwt-token`)
           .expect(200);
 
         expect(response.body.success).toBe(true);
@@ -157,7 +183,8 @@ describe('DreamNodeController Integration Tests', () => {
 
       it('should filter by emotion (Happiness)', async () => {
         const response = await request(app)
-          .get(`/api/dreams/user/${testUser.id}?emotion=Felicidad`)
+          .get(`/api/dreams/history?emotion=Felicidad`)
+          .set('Authorization', `Bearer mock-jwt-token`)
           .expect(200);
 
         expect(response.body.success).toBe(true);
@@ -168,7 +195,8 @@ describe('DreamNodeController Integration Tests', () => {
 
       it('should filter by emotion (Sadness)', async () => {
         const response = await request(app)
-          .get(`/api/dreams/user/${testUser.id}?emotion=Tristeza`)
+          .get(`/api/dreams/history?emotion=Tristeza`)
+          .set('Authorization', `Bearer mock-jwt-token`)
           .expect(200);
 
         expect(response.body.success).toBe(true);
@@ -179,7 +207,8 @@ describe('DreamNodeController Integration Tests', () => {
 
       it('should filter by search term in title', async () => {
         const response = await request(app)
-          .get(`/api/dreams/user/${testUser.id}?search=primer`)
+          .get(`/api/dreams/history?search=primer`)
+          .set('Authorization', `Bearer mock-jwt-token`)
           .expect(200);
 
         expect(response.body.success).toBe(true);
@@ -189,7 +218,8 @@ describe('DreamNodeController Integration Tests', () => {
 
       it('should filter by date range (from)', async () => {
         const response = await request(app)
-          .get(`/api/dreams/user/${testUser.id}?from=2024-01-15`)
+          .get(`/api/dreams/history?from=2024-01-15`)
+          .set('Authorization', `Bearer mock-jwt-token`)
           .expect(200);
 
         expect(response.body.success).toBe(true);
@@ -200,7 +230,8 @@ describe('DreamNodeController Integration Tests', () => {
 
       it('should filter by date range (to)', async () => {
         const response = await request(app)
-          .get(`/api/dreams/user/${testUser.id}?to=2024-01-15`)
+          .get(`/api/dreams/history?to=2024-01-15`)
+          .set('Authorization', `Bearer mock-jwt-token`)
           .expect(200);
 
         expect(response.body.success).toBe(true);
@@ -211,19 +242,20 @@ describe('DreamNodeController Integration Tests', () => {
 
       it('should filter by date range (from and to)', async () => {
         const response = await request(app)
-          .get(`/api/dreams/user/${testUser.id}?from=2024-01-01&to=2024-01-15`)
+          .get(`/api/dreams/history?from=2024-01-01&to=2024-01-15`)
+          .set('Authorization', `Bearer mock-jwt-token`)
           .expect(200);
 
         expect(response.body.success).toBe(true);
         expect(response.body.data).toHaveLength(1);
         expect(response.body.data[0].title).toBe('Mi primer sueño en Oniria');
       });
-
     });
 
     it('should combine multiple filters (state + privacy)', async () => {
       const response = await request(app)
-        .get(`/api/dreams/user/${testUser.id}?state=Activo&privacy=Publico`)
+        .get(`/api/dreams/history?state=Activo&privacy=Publico`)
+        .set('Authorization', `Bearer mock-jwt-token`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -235,7 +267,8 @@ describe('DreamNodeController Integration Tests', () => {
 
     it('should combine multiple filters (emotion + search)', async () => {
       const response = await request(app)
-        .get(`/api/dreams/user/${testUser.id}?emotion=Tristeza&search=océano`)
+        .get(`/api/dreams/history?emotion=Tristeza&search=océano`)
+        .set('Authorization', `Bearer mock-jwt-token`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -246,7 +279,8 @@ describe('DreamNodeController Integration Tests', () => {
 
     it('should return empty array when no dreams match filters', async () => {
       const response = await request(app)
-        .get(`/api/dreams/user/${testUser.id}?state=Activo&emotion=Miedo`)
+        .get(`/api/dreams/history?state=Activo&emotion=Miedo`)
+        .set('Authorization', `Bearer mock-jwt-token`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -256,13 +290,15 @@ describe('DreamNodeController Integration Tests', () => {
 
     it('should handle pagination with filters', async () => {
       const allResponse = await request(app)
-        .get(`/api/dreams/user/${testUser.id}`)
+        .get(`/api/dreams/history`)
+        .set('Authorization', `Bearer mock-jwt-token`)
         .expect(200);
 
       expect(allResponse.body.data).toHaveLength(2);
 
       const page1Response = await request(app)
-        .get(`/api/dreams/user/${testUser.id}?page=1&limit=1`)
+        .get(`/api/dreams/history?page=1&limit=1`)
+        .set('Authorization', `Bearer mock-jwt-token`)
         .expect(200);
 
       expect(page1Response.body.success).toBe(true);
@@ -277,7 +313,8 @@ describe('DreamNodeController Integration Tests', () => {
       });
 
       const page2Response = await request(app)
-        .get(`/api/dreams/user/${testUser.id}?page=2&limit=1`)
+        .get(`/api/dreams/history?page=2&limit=1`)
+        .set('Authorization', `Bearer mock-jwt-token`)
         .expect(200);
 
       expect(page2Response.body.success).toBe(true);
@@ -294,7 +331,8 @@ describe('DreamNodeController Integration Tests', () => {
 
     it('should combine filters with pagination', async () => {
       const response = await request(app)
-        .get(`/api/dreams/user/${testUser.id}?state=Activo&page=1&limit=1`)
+        .get(`/api/dreams/history?state=Activo&page=1&limit=1`)
+        .set('Authorization', `Bearer mock-jwt-token`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -312,7 +350,8 @@ describe('DreamNodeController Integration Tests', () => {
 
     it('should test all filters combined', async () => {
       const response = await request(app)
-        .get(`/api/dreams/user/${testUser.id}?state=Activo&privacy=Publico&emotion=Felicidad&search=primer&from=2024-01-01&to=2024-01-15&page=1&limit=10`)
+        .get(`/api/dreams/history?state=Activo&privacy=Publico&emotion=Felicidad&search=primer&from=2024-01-01&to=2024-01-15&page=1&limit=10`)
+        .set('Authorization', `Bearer mock-jwt-token`)
         .expect(200);
 
       expect(response.body.success).toBe(true);

@@ -1,13 +1,7 @@
-import { IsOptional, IsIn, IsString, Length, IsNumber, Min, Max, IsDateString, IsUUID, IsNotEmpty } from 'class-validator';
+import { IsOptional, IsIn, IsString, Length, IsNumber, Min, Max, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class GetUserNodesParamsDto {
-  @IsUUID()
-  @IsNotEmpty()
-  userId!: string;
-}
-
-export class GetUserNodesQueryDto {
+export class GetUserNodesRequestDto {
   @IsOptional()
   @IsIn(['Activo', 'Archivado'], { message: 'El estado debe ser "Activo" o "Archivado".' })
   state?: string;

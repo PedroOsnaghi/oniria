@@ -7,7 +7,7 @@ import { DreamNodeRepositorySupabase } from "../../repositories/dream-node.repos
 import { validateBody, validateQuery } from "../../middlewares/validate-class.middleware";
 import contentModerationMiddleware from '../../middlewares/content-moderation.middleware';
 import { InterpreteDreamRequestDto, ReinterpreteDreamRequestDto, SaveDreamNodeRequestDto } from "../../dtos/dream-node";
-import { GetUserNodesQueryDto } from "../../dtos/dream-node/get-user-nodes.dto";
+import { GetUserNodesRequestDto } from "../../dtos/dream-node/get-user-nodes.dto";
 import { authenticateToken } from "../../middlewares/auth.middleware";
 
 export const dreamNodeRouter = Router();
@@ -22,5 +22,5 @@ const dreamNodeController = new DreamNodeController(interpretationDreamService, 
 dreamNodeRouter.post("/interpret", validateBody(InterpreteDreamRequestDto), contentModerationMiddleware, (req, res) => dreamNodeController.interpret(req, res));
 dreamNodeRouter.post("/reinterpret", validateBody(ReinterpreteDreamRequestDto), contentModerationMiddleware, (req, res) => dreamNodeController.reinterpret(req, res));
 dreamNodeRouter.post("/save", authenticateToken, validateBody(SaveDreamNodeRequestDto), (req, res) => dreamNodeController.save(req, res));
-dreamNodeRouter.get("/history", authenticateToken, validateQuery(GetUserNodesQueryDto), (req, res) => dreamNodeController.getUserNodes(req, res));
+dreamNodeRouter.get("/history", authenticateToken, validateQuery(GetUserNodesRequestDto), (req, res) => dreamNodeController.getUserNodes(req, res));
 dreamNodeRouter.get("/user", authenticateToken, (req, res) => dreamNodeController.showUser(req, res));
