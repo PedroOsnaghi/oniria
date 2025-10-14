@@ -203,6 +203,7 @@ describe("DreamNodeController.save", () => {
   );
 
   expect(mockSaveRes.status).toHaveBeenCalledWith(201);
+  expect(mockSaveRes.json).toHaveBeenCalledWith({ message: "Nodo de sueño guardado exitosamente", errors: [] });
 });
 
   it("should return 500 when service fails", async () => {

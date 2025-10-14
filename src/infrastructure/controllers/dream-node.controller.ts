@@ -33,7 +33,7 @@ export class DreamNodeController {
         interpretation,
         emotion
       );
-      return res.status(201);
+      return res.status(201).json({ message: "Nodo de sueño guardado exitosamente", errors: [] });
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);
       return res.status(500).json({
