@@ -16,4 +16,11 @@ export interface IRepositoryUser {
     token: string | null;
 }
 
+export interface IUserContext {
+  themes: Array<{ label: string; count: number }>;
+  people: Array<{ label: string; count: number }>;
+  emotions: Array<{ label: string; count: number }>;
+  locations: Array<{ label: string; count: number }>;
+}
+
 

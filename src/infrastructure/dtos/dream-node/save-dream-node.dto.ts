@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, Length, IsIn} from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsIn, IsArray} from 'class-validator';
 
 export class SaveDreamNodeRequestDto {
   @IsString({ message: 'El título debe ser una cadena válida.' })
@@ -18,4 +18,16 @@ export class SaveDreamNodeRequestDto {
   @IsIn(['Felicidad', 'Tristeza', 'Miedo', 'Enojo'],
     { message: 'La emoción debe ser: Felicidad, Tristeza, Miedo, Enojo' })
   emotion!: string;
+  @IsArray({ message: 'El campo themes debe ser un arreglo de cadenas.' })
+  @IsString({ each: true, message: 'Cada theme debe ser una cadena' })
+  themes!: string[];
+  @IsArray({ message: 'El campo people debe ser un arreglo de cadenas.' })
+  @IsString({ each: true, message: 'Cada people debe ser una cadena' })
+  people!: string[];
+  @IsArray({ message: 'El campo locations debe ser un arreglo de cadenas.' })
+  @IsString({ each: true, message: 'Cada location debe ser una cadena' })
+  locations!: string[];
+  @IsArray({ message: 'El campo emotion_context debe ser un arreglo de cadenas.' })
+  @IsString({ each: true, message: 'Cada emotion_context debe ser una cadena' })
+  emotions_context!: string[];
 }

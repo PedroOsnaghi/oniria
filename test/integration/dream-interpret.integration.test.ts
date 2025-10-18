@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import request from 'supertest';
 import express from 'express';
-import { Interpretation } from '../../src/domain/models/interpretation-dream.model';
+import { Interpretation } from '../../src/domain/interfaces/interpretation-dream.interface';
 import { DreamNodeController } from '../../src/infrastructure/controllers/dream-node.controller';
 import { InterpretationDreamService } from '../../src/application/services/interpretation-dream.service';
 import { DreamNodeService } from '../../src/application/services/dream-node.service';

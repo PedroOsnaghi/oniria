@@ -1,4 +1,4 @@
-import { IUser } from "../../domain/interfaces/user.interface";
+import { IUser, IUserContext } from "../../domain/interfaces/user.interface";
 import { IUserRepository } from "../../domain/repositories/user.repository";
 import { LoginDTO } from "../../infrastructure/dtos/user/login.dto";
 import { RegisterUserDTO } from "../../infrastructure/dtos/user/register-user.dto";
@@ -18,5 +18,9 @@ export class UserService {
 
   async login(userCredentials: LoginDTO) {
     return await this.userRepository.login(userCredentials);
+  }
+
+  async getUserDreamContext(userId: string): Promise<IUserContext | null> {
+    return await this.userRepository.getUserContext(userId);
   }
 }

@@ -1,6 +1,6 @@
 import { InterpretationDreamService } from '../../../../src/application/services/interpretation-dream.service';
 import { InterpretationProvider } from '../../../../src/domain/providers/interpretation.provider';
-import { Interpretation } from '../../../../src/domain/models/interpretation-dream.model';
+import { Interpretation } from '../../../../src/domain/interfaces/interpretation-dream.interface';
 
 describe('InterpretationDreamService', () => {
   let service: InterpretationDreamService;

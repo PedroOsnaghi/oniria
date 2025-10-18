@@ -207,6 +207,183 @@ create table if not exists public.setting (
 );
 
 -- ============================================================
+-- JUNCTION TABLES: DREAM <-> CONTEXT
+-- ============================================================
+
+-- Temas asociados a sueños específicos
+create table if not exists public.dream_theme (
+    dream_id uuid references public.dream_node(id) on delete cascade,
+    theme_id uuid references public.profile_theme(id) on delete cascade,
+    primary key (dream_id, theme_id)
+);
+
+-- Personas asociadas a sueños específicos
+create table if not exists public.dream_person (
+    dream_id uuid references public.dream_node(id) on delete cascade,
+    person_id uuid references public.profile_person(id) on delete cascade,
+    primary key (dream_id, person_id)
+);
+
+-- Emociones contextuales asociadas a sueños específicos
+create table if not exists public.dream_emotion_context (
+    dream_id uuid references public.dream_node(id) on delete cascade,
+    emotion_context_id uuid references public.profile_emotion_context(id) on delete cascade,
+    primary key (dream_id, emotion_context_id)
+);
+
+-- Ubicaciones asociadas a sueños específicos
+create table if not exists public.dream_location (
+    dream_id uuid references public.dream_node(id) on delete cascade,
+    location_id uuid references public.profile_location(id) on delete cascade,
+    primary key (dream_id, location_id)
+);
+
+-- ============================================================
+-- RLS POLICIES PARA JUNCTION TABLES
+-- ============================================================
+
+alter table public.dream_theme enable row level security;
+alter table public.dream_person enable row level security;
+alter table public.dream_emotion_context enable row level security;
+alter table public.dream_location enable row level security;
+
+-- Policies para dream_theme
+create policy "Users can view own dream themes"
+  on public.dream_theme for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_theme.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+create policy "Users can insert own dream themes"
+  on public.dream_theme for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_theme.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+create policy "Users can delete own dream themes"
+  on public.dream_theme for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_theme.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+-- Policies para dream_person
+create policy "Users can view own dream people"
+  on public.dream_person for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_person.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+create policy "Users can insert own dream people"
+  on public.dream_person for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_person.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+create policy "Users can delete own dream people"
+  on public.dream_person for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_person.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+-- Policies para dream_emotion_context
+create policy "Users can view own dream emotions"
+  on public.dream_emotion_context for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_emotion_context.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+create policy "Users can insert own dream emotions"
+  on public.dream_emotion_context for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_emotion_context.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+create policy "Users can delete own dream emotions"
+  on public.dream_emotion_context for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_emotion_context.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+-- Policies para dream_location
+create policy "Users can view own dream locations"
+  on public.dream_location for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_location.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+create policy "Users can insert own dream locations"
+  on public.dream_location for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_location.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+create policy "Users can delete own dream locations"
+  on public.dream_location for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.dream_node dn
+      where dn.id = dream_location.dream_id
+      and dn.profile_id = auth.uid()
+    )
+  );
+
+-- ============================================================
 -- DATOS DE PRUEBA
 -- ============================================================
 insert into public.emotion (id, emotion, color) values
@@ -226,3 +403,83 @@ insert into public.dream_state (id, description) values
 (1, 'Activo'),
 (2, 'Archivado')
 on conflict (id) do nothing;
+
+-- ============================================================
+-- FUNCIÓN PARA OBTENER CONTEXTO DEL USUARIO CON CONTADORES
+-- IMPORTANTE: Debe ir AL FINAL después de todas las tablas
+-- ============================================================
+
+create or replace function public.get_user_context(params jsonb)
+returns json
+language plpgsql
+security definer
+as $$
+declare
+  user_id uuid;
+begin
+  -- Extract user_id from jsonb parameter
+  user_id := (params->>'user_id')::uuid;
+  
+  return json_build_object(
+    'themes', (
+      select coalesce(json_agg(theme_data order by (theme_data->>'count')::int desc), '[]'::json)
+      from (
+        select json_build_object(
+          'label', pt.label,
+          'count', count(dt.dream_id)
+        ) as theme_data
+        from public.profile_theme pt
+        left join public.dream_theme dt on dt.theme_id = pt.id
+        where pt.profile_id = user_id
+        group by pt.id, pt.label, pt.last_updated
+        having count(dt.dream_id) > 0
+      ) themes_subquery
+    ),
+    'people', (
+      select coalesce(json_agg(people_data order by (people_data->>'count')::int desc), '[]'::json)
+      from (
+        select json_build_object(
+          'label', pp.label,
+          'count', count(dp.dream_id)
+        ) as people_data
+        from public.profile_person pp
+        left join public.dream_person dp on dp.person_id = pp.id
+        where pp.profile_id = user_id
+        group by pp.id, pp.label, pp.last_updated
+        having count(dp.dream_id) > 0
+      ) people_subquery
+    ),
+    'emotions', (
+      select coalesce(json_agg(emotion_data order by (emotion_data->>'count')::int desc), '[]'::json)
+      from (
+        select json_build_object(
+          'label', pec.label,
+          'count', count(de.dream_id)
+        ) as emotion_data
+        from public.profile_emotion_context pec
+        left join public.dream_emotion_context de on de.emotion_context_id = pec.id
+        where pec.profile_id = user_id
+        group by pec.id, pec.label, pec.last_updated
+        having count(de.dream_id) > 0
+      ) emotions_subquery
+    ),
+    'locations', (
+      select coalesce(json_agg(location_data order by (location_data->>'count')::int desc), '[]'::json)
+      from (
+        select json_build_object(
+          'label', pl.label,
+          'count', count(dl.dream_id)
+        ) as location_data
+        from public.profile_location pl
+        left join public.dream_location dl on dl.location_id = pl.id
+        where pl.profile_id = user_id
+        group by pl.id, pl.label, pl.last_updated
+        having count(dl.dream_id) > 0
+      ) locations_subquery
+    )
+  );
+end;
+$$;
+
+grant execute on function public.get_user_context(jsonb) to authenticated;
+grant execute on function public.get_user_context(jsonb) to anon;

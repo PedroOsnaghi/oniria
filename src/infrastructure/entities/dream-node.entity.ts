@@ -1,7 +1,7 @@
 export interface IDreamNodeEntity {
     profile_id: string;
     title: string;
-    dream_description: string;
+    description: string;
     interpretation: string;
     creation_date: Date;
     privacy_id: string;

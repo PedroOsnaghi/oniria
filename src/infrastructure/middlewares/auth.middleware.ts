@@ -1,12 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { envs } from "../../config/envs";
-import jwt from "jsonwebtoken";
-import { JwtPayload } from "@supabase/supabase-js";
+import { supabase } from "../../config/supabase"; 
+// import { envs } from "../../config/envs";
+// import jwt from "jsonwebtoken";
+// import { JwtPayload } from "@supabase/supabase-js";
 
-const secret = envs.SUPABASE_JWT_SECRET;
-const url = envs.SUPABASE_URL;
-
-export function authenticateToken(
+export async function authenticateToken(
   req: Request,
   res: Response,
   next: NextFunction
@@ -18,19 +16,41 @@ export function authenticateToken(
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  jwt.verify(token, secret, (err, decoded) => {
-    if (err) {
-      console.error("JWT verification failed:", err);
+  try {
+    // ======= Nuevo enfoque: verificar token directamente con Supabase =======
+    const { data: userData, error } = await supabase.auth.getUser(token);
+
+    if (error || !userData.user) {
+      console.error("JWT verification failed via Supabase:", error);
       return res.status(403).json({ message: "Forbidden" });
     }
-    const payload = decoded as JwtPayload;
 
-    if (!payload.iss?.includes(url)) {
-      return res.status(403).json({ message: "Invalid issuer" });
-    }
-
-    (req as any).userId = payload.sub;
-
+    (req as any).userId = userData.user.id;
     next();
-  });
+
+    // ======= Código previo (verificación manual JWT) =======
+    /*
+    const secret = envs.SUPABASE_JWT_SECRET;
+    const url = envs.SUPABASE_URL;
+
+    jwt.verify(token, secret, (err, decoded) => {
+      if (err) {
+        console.error("JWT verification failed:", err);
+        return res.status(403).json({ message: "Forbidden" });
+      }
+      const payload = decoded as JwtPayload;
+
+      if (!payload.iss?.includes(url)) {
+        return res.status(403).json({ message: "Invalid issuer");
+      }
+
+      (req as any).userId = payload.sub;
+
+      next();
+    });
+    */
+  } catch (err) {
+    console.error("Unexpected error in authenticateToken:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 }

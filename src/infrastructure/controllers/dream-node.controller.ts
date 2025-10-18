@@ -1,18 +1,27 @@
 import { Request, Response } from "express";
 import { InterpretationDreamService } from "../../application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../application/services/dream-node.service";
+import { UserService } from "../../application/services/user.service";
 
 export class DreamNodeController {
   constructor(
     private readonly interpretationDreamService: InterpretationDreamService,
-    private readonly dreamNodeService: DreamNodeService
+    private readonly dreamNodeService: DreamNodeService,
+    private readonly userService: UserService
   ) {}
 
   async interpret(req: Request, res: Response): Promise<void> {
     try {
+      const userId = (req as any).userId;
       const { description } = req.body;
+      const userDreamContext = await this.userService.getUserDreamContext(
+        userId
+      );
       const interpretedDream =
-        await this.interpretationDreamService.interpretDream(description);
+        await this.interpretationDreamService.interpretDream(
+          description,
+          userDreamContext
+        );
       res.json({ description, ...interpretedDream });
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);
@@ -25,15 +34,11 @@ export class DreamNodeController {
   async save(req: Request, res: Response) {
     try {
       const userId = (req as any).userId;
-      const { title, description, interpretation, emotion } = req.body;
-      await this.dreamNodeService.saveDreamNode(
-        userId,
-        title,
-        description,
-        interpretation,
-        emotion
-      );
-      return res.status(201).json({ message: "Nodo de sueño guardado exitosamente", errors: [] });
+      const dreamNode = req.body;
+      await this.dreamNodeService.saveDreamNode(userId, dreamNode);
+      return res
+        .status(201)
+        .json({ message: "Nodo de sueño guardado exitosamente", errors: [] });
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);
       return res.status(500).json({

@@ -1,20 +1,24 @@
 import { supabase } from "../../config/supabase";
-import { IRepositoryUser, IUser } from "../../domain/interfaces/user.interface";
+import {
+  IRepositoryUser,
+  IUser,
+  IUserContext,
+} from "../../domain/interfaces/user.interface";
 import { IUserRepository } from "../../domain/repositories/user.repository";
 import { LoginDTO } from "../dtos/user/login.dto";
 
 export class UserRepository implements IUserRepository {
   async register(user: IUser): Promise<IRepositoryUser> {
     const { email, password, date_of_birth: dateOfBirth } = user;
-    
+
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          date_of_birth: dateOfBirth.toISOString().split("T")[0]
-        }
-      }
+          date_of_birth: dateOfBirth.toISOString().split("T")[0],
+        },
+      },
     });
 
     if (authError || !authData.user) {
@@ -66,5 +70,19 @@ export class UserRepository implements IUserRepository {
       coin_amount: profileData.coin_amount,
       token: data.session.access_token,
     };
+  }
+
+  async getUserContext(userId: string): Promise<IUserContext | null> {
+    const { data, error } = await supabase.rpc("get_user_context", {
+      params: { user_id: userId },
+    });
+
+    if (error) {
+      console.error("Error getting user context:", error);
+      return null;
+    }
+    console.log("Contexto: ", data);
+
+    return data as IUserContext;
   }
 }
