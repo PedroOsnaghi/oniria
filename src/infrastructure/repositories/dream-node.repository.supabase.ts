@@ -16,12 +16,12 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       ...(dreamNode.id ? { id: dreamNode.id } : {}),
       profile_id: userId,
       title: dreamNode.title,
-      description: dreamNode.description,
+      dream_description: dreamNode.dream_description,
       interpretation: dreamNode.interpretation,
       creation_date: dreamNode.creationDate,
-      privacy_id: privacyMap[dreamNode.privacy]!,
-      state_id: stateMap[dreamNode.state]!,
-      emotion_id: emotionMap[dreamNode.emotion]!,
+      privacy_id: privacyMap[dreamNode.dream_privacy]!,
+      state_id: stateMap[dreamNode.dream_state]!,
+      emotion_id: emotionMap[dreamNode.dream_emotion]!,
     };
     const { data, error } = await supabase
       .from("dream_node")
@@ -87,12 +87,12 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
     const dreamNodes = data.map((node: any) => ({
       id: node.id,
       title: node.title,
-      description: node.description,
+      dream_description: node.description,
       interpretation: node.interpretation,
       creationDate: new Date(node.creation_date),
-      privacy: node.privacy,
-      state: node.state,
-      emotion: node.emotion,
+      dream_privacy: node.privacy,
+      dream_state: node.state,
+      dream_emotion: node.emotion,
     }));
 
     return dreamNodes;

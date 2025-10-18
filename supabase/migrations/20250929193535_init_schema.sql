@@ -1,9 +1,8 @@
 -- ============================================================
--- SCRIPT DE DESARROLLO LOCAL ONIRIA
--- Levantar con Supabase en Docker desde cero
+-- ONIRIA: SCRIPT COMPLETO
 -- ============================================================
 
--- Habilitar extensión para gen_random_uuid
+-- Enable pgcrypto for gen_random_uuid()
 create extension if not exists "pgcrypto";
 
 -- ============================================================
@@ -36,15 +35,14 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
--- Activar Row Level Security
+-- Activar Row Level Security en profile
 alter table public.profile enable row level security;
 
--- Eliminar políticas si existían
+-- Crear políticas para profile
 drop policy if exists profile_select_own on public.profile;
 drop policy if exists profile_insert_own on public.profile;
 drop policy if exists profile_update_own on public.profile;
 
--- Crear políticas
 create policy "profile_select_own"
   on public.profile
   for select
@@ -108,47 +106,47 @@ create unique index if not exists unique_location_per_profile
 on public.profile_location(profile_id, lower(label));
 
 -- ============================================================
--- EMOTION COLOR
+-- EMOTION (USAR UUIDs EN LUGAR DE SERIAL)
 -- ============================================================
 create table if not exists public.emotion (
-    id serial primary key,
+    id uuid primary key default gen_random_uuid(),
     emotion varchar(100) not null,
     color varchar(50) not null
 );
 
 -- ============================================================
--- PRIVACY
+-- PRIVACY (UUID)
 -- ============================================================
 create table if not exists public.dream_privacy (
-    id serial primary key,
-    description varchar(100) not null
+    id uuid primary key default gen_random_uuid(),
+    privacy_description varchar(100) not null
 );
 
 -- ============================================================
--- STATE
+-- STATE (UUID)
 -- ============================================================
 create table if not exists public.dream_state (
-    id serial primary key,
-    description varchar(100) not null
+    id uuid primary key default gen_random_uuid(),
+    state_description varchar(100) not null
 );
 
 -- ============================================================
--- DREAM
+-- DREAM NODE (USAR dream_description)
 -- ============================================================
 create table if not exists public.dream_node (
     id uuid primary key default gen_random_uuid(),
     profile_id uuid not null references public.profile(id) on delete cascade,
     title varchar(200) not null,
-    description text not null,
-    interpretation text not null,
-    creation_date timestamp,
-    privacy_id int references public.dream_privacy(id) not null,
-    state_id int references public.dream_state(id) not null,
-    emotion_id int references public.emotion(id) not null
+    dream_description text not null,
+    interpretation text,
+    creation_date timestamp default now(),
+    privacy_id uuid references public.dream_privacy(id),
+    state_id uuid references public.dream_state(id),
+    emotion_id uuid references public.emotion(id)
 );
 
 -- ============================================================
--- BADGE & TIER
+-- BADGE & TIER (UUIDs)
 -- ============================================================
 create table if not exists public.badge (
     id uuid primary key default gen_random_uuid(),
@@ -157,14 +155,14 @@ create table if not exists public.badge (
 );
 
 create table if not exists public.tier (
-    id serial primary key,
+    id uuid primary key default gen_random_uuid(),
     tier_name varchar(100) not null,
     coin int not null
 );
 
 create table if not exists public.badge_tier (
     badge_id uuid references public.badge(id) on delete cascade,
-    tier_id int references public.tier(id) on delete cascade,
+    tier_id uuid references public.tier(id) on delete cascade,
     primary key (badge_id, tier_id)
 );
 
@@ -184,7 +182,8 @@ create table if not exists public.room (
 
 create table if not exists public.user_room (
     profile_id uuid references public.profile(id) on delete cascade,
-    room_id uuid references public.room(id) on delete cascade
+    room_id uuid references public.room(id) on delete cascade,
+    primary key (profile_id, room_id)
 );
 
 create table if not exists public.skin (
@@ -194,7 +193,8 @@ create table if not exists public.skin (
 
 create table if not exists public.user_skin (
     profile_id uuid references public.profile(id) on delete cascade,
-    skin_id uuid references public.skin(id) on delete cascade
+    skin_id uuid references public.skin(id) on delete cascade,
+    primary key (profile_id, skin_id)
 );
 
 -- ============================================================
@@ -207,31 +207,26 @@ create table if not exists public.setting (
 );
 
 -- ============================================================
--- JUNCTION TABLES: DREAM <-> CONTEXT
+-- JUNCTION TABLES: DREAM <-> CONTEXT (UUID refs)
 -- ============================================================
-
--- Temas asociados a sueños específicos
 create table if not exists public.dream_theme (
     dream_id uuid references public.dream_node(id) on delete cascade,
     theme_id uuid references public.profile_theme(id) on delete cascade,
     primary key (dream_id, theme_id)
 );
 
--- Personas asociadas a sueños específicos
 create table if not exists public.dream_person (
     dream_id uuid references public.dream_node(id) on delete cascade,
     person_id uuid references public.profile_person(id) on delete cascade,
     primary key (dream_id, person_id)
 );
 
--- Emociones contextuales asociadas a sueños específicos
 create table if not exists public.dream_emotion_context (
     dream_id uuid references public.dream_node(id) on delete cascade,
     emotion_context_id uuid references public.profile_emotion_context(id) on delete cascade,
     primary key (dream_id, emotion_context_id)
 );
 
--- Ubicaciones asociadas a sueños específicos
 create table if not exists public.dream_location (
     dream_id uuid references public.dream_node(id) on delete cascade,
     location_id uuid references public.profile_location(id) on delete cascade,
@@ -247,7 +242,10 @@ alter table public.dream_person enable row level security;
 alter table public.dream_emotion_context enable row level security;
 alter table public.dream_location enable row level security;
 
+-- ============================================================
 -- Policies para dream_theme
+-- ============================================================
+drop policy if exists "Users can view own dream themes" on public.dream_theme;
 create policy "Users can view own dream themes"
   on public.dream_theme for select
   to authenticated
@@ -255,10 +253,11 @@ create policy "Users can view own dream themes"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_theme.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+drop policy if exists "Users can insert own dream themes" on public.dream_theme;
 create policy "Users can insert own dream themes"
   on public.dream_theme for insert
   to authenticated
@@ -266,10 +265,11 @@ create policy "Users can insert own dream themes"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_theme.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+drop policy if exists "Users can delete own dream themes" on public.dream_theme;
 create policy "Users can delete own dream themes"
   on public.dream_theme for delete
   to authenticated
@@ -277,11 +277,14 @@ create policy "Users can delete own dream themes"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_theme.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+-- ============================================================
 -- Policies para dream_person
+-- ============================================================
+drop policy if exists "Users can view own dream people" on public.dream_person;
 create policy "Users can view own dream people"
   on public.dream_person for select
   to authenticated
@@ -289,10 +292,11 @@ create policy "Users can view own dream people"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_person.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+drop policy if exists "Users can insert own dream people" on public.dream_person;
 create policy "Users can insert own dream people"
   on public.dream_person for insert
   to authenticated
@@ -300,10 +304,11 @@ create policy "Users can insert own dream people"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_person.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+drop policy if exists "Users can delete own dream people" on public.dream_person;
 create policy "Users can delete own dream people"
   on public.dream_person for delete
   to authenticated
@@ -311,11 +316,14 @@ create policy "Users can delete own dream people"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_person.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+-- ============================================================
 -- Policies para dream_emotion_context
+-- ============================================================
+drop policy if exists "Users can view own dream emotions" on public.dream_emotion_context;
 create policy "Users can view own dream emotions"
   on public.dream_emotion_context for select
   to authenticated
@@ -323,10 +331,11 @@ create policy "Users can view own dream emotions"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_emotion_context.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+drop policy if exists "Users can insert own dream emotions" on public.dream_emotion_context;
 create policy "Users can insert own dream emotions"
   on public.dream_emotion_context for insert
   to authenticated
@@ -334,10 +343,11 @@ create policy "Users can insert own dream emotions"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_emotion_context.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+drop policy if exists "Users can delete own dream emotions" on public.dream_emotion_context;
 create policy "Users can delete own dream emotions"
   on public.dream_emotion_context for delete
   to authenticated
@@ -345,11 +355,14 @@ create policy "Users can delete own dream emotions"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_emotion_context.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+-- ============================================================
 -- Policies para dream_location
+-- ============================================================
+drop policy if exists "Users can view own dream locations" on public.dream_location;
 create policy "Users can view own dream locations"
   on public.dream_location for select
   to authenticated
@@ -357,10 +370,11 @@ create policy "Users can view own dream locations"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_location.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+drop policy if exists "Users can insert own dream locations" on public.dream_location;
 create policy "Users can insert own dream locations"
   on public.dream_location for insert
   to authenticated
@@ -368,10 +382,11 @@ create policy "Users can insert own dream locations"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_location.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
+drop policy if exists "Users can delete own dream locations" on public.dream_location;
 create policy "Users can delete own dream locations"
   on public.dream_location for delete
   to authenticated
@@ -379,36 +394,41 @@ create policy "Users can delete own dream locations"
     exists (
       select 1 from public.dream_node dn
       where dn.id = dream_location.dream_id
-      and dn.profile_id = auth.uid()
+        and dn.profile_id = auth.uid()
     )
   );
 
 -- ============================================================
--- DATOS DE PRUEBA
+-- DATOS DE PRUEBA (inserts iniciales)
 -- ============================================================
-insert into public.emotion (id, emotion, color) values
-(1, 'Felicidad', 'Yellow'),
-(2, 'Tristeza', 'Blue'),
-(3, 'Miedo', 'Purple'),
-(4, 'Enojo', 'Red')
-on conflict (id) do nothing;
+-- Emotions (HEX colors)
+insert into public.emotion (emotion, color)
+values
+  ('Felicidad', '#FFFF00'),
+  ('Tristeza', '#0000FF'),
+  ('Miedo', '#800080'),
+  ('Enojo', '#FF0000')
+on conflict do nothing;
 
-insert into public.dream_privacy (id, description) values
-(1, 'Publico'),
-(2, 'Privado'),
-(3, 'Anonimo')
-on conflict (id) do nothing;
+-- Privacy
+insert into public.dream_privacy (privacy_description)
+values
+  ('Publico'),
+  ('Privado'),
+  ('Anonimo')
+on conflict do nothing;
 
-insert into public.dream_state (id, description) values
-(1, 'Activo'),
-(2, 'Archivado')
-on conflict (id) do nothing;
+-- State
+insert into public.dream_state (state_description)
+values
+  ('Activo'),
+  ('Archivado')
+on conflict do nothing;
 
 -- ============================================================
 -- FUNCIÓN PARA OBTENER CONTEXTO DEL USUARIO CON CONTADORES
 -- IMPORTANTE: Debe ir AL FINAL después de todas las tablas
 -- ============================================================
-
 create or replace function public.get_user_context(params jsonb)
 returns json
 language plpgsql
@@ -481,5 +501,7 @@ begin
 end;
 $$;
 
+-- Otorgar permisos de ejecución a roles comunes
 grant execute on function public.get_user_context(jsonb) to authenticated;
 grant execute on function public.get_user_context(jsonb) to anon;
+

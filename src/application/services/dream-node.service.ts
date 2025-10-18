@@ -30,11 +30,11 @@ export class DreamNodeService {
     const dreamNode: IDreamNode = {
       creationDate: new Date(),
       title,
-      description,
+      dream_description: description,
       interpretation,
-      privacy: "Privado",
-      state: "Activo",
-      emotion: (emotion.charAt(0).toUpperCase() + emotion.slice(1)) as Emotion,
+      dream_privacy: "Privado",
+      dream_state: "Activo",
+      dream_emotion: (emotion.charAt(0).toUpperCase() + emotion.slice(1)) as Emotion,
     };
 
     const dreamNodeCreated = await this.dreamNodeRepository.save(

@@ -53,22 +53,22 @@ describe('DreamNodeController Integration Tests', () => {
       let allDreams = userId === testUser.id ? [dreamNodeMock, dreamNodeMockTwo] : [];
 
       if (state) {
-        allDreams = allDreams.filter(dream => dream.state === state);
+        allDreams = allDreams.filter(dream => dream.dream_state === state);
       }
 
       if (privacy) {
-        allDreams = allDreams.filter(dream => dream.privacy === privacy);
+        allDreams = allDreams.filter(dream => dream.dream_privacy === privacy);
       }
 
       if (emotion) {
-        allDreams = allDreams.filter(dream => dream.emotion === emotion);
+        allDreams = allDreams.filter(dream => dream.dream_emotion === emotion);
       }
 
       if (search) {
         const searchTerm = (search as string).toLowerCase();
         allDreams = allDreams.filter(dream =>
           dream.title.toLowerCase().includes(searchTerm) ||
-          dream.description.toLowerCase().includes(searchTerm)
+          dream.dream_description.toLowerCase().includes(searchTerm)
         );
       }
 

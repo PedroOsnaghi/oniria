@@ -261,11 +261,11 @@ describe('DreamNodeController.getUserNodes', () => {
     const mockDreamNode: IDreamNode = {
       id: 'dream-node-id',
       title: 'Test Dream',
-      description: 'Test Description',
+      dream_description: 'Test Description',
       interpretation: 'Test Interpretation',
-      privacy: 'Publico',
-      state: 'Activo',
-      emotion: 'Felicidad',
+      dream_privacy: 'Publico',
+      dream_state: 'Activo',
+      dream_emotion: 'Felicidad',
       creationDate: new Date()
     };
     const expectedResult: IPaginatedResult<IDreamNode> = {
