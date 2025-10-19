@@ -9,14 +9,18 @@ import contentModerationMiddleware from '../../middlewares/content-moderation.mi
 import { InterpreteDreamRequestDto, ReinterpreteDreamRequestDto, SaveDreamNodeRequestDto } from "../../dtos/dream-node";
 import { GetUserNodesRequestDto } from "../../dtos/dream-node/get-user-nodes.dto";
 import { authenticateToken } from "../../middlewares/auth.middleware";
+import { IllustrationGeminiProvider } from "../../providers/illustration-gemini.provider";
+import { IllustrationDreamService } from "../../../application/services/illustration-dream.service";
 
 export const dreamNodeRouter = Router();
 
 const interpretationProvider = new InterpretationOpenAIProvider();
+const illustrationProvider = new IllustrationGeminiProvider();
+const illustrationService = new IllustrationDreamService(illustrationProvider);
 const interpretationDreamService = new InterpretationDreamService(interpretationProvider);
 const dreamNodeRepository = new DreamNodeRepositorySupabase();
 const dreamNodeService = new DreamNodeService(dreamNodeRepository);
-const dreamNodeController = new DreamNodeController(interpretationDreamService, dreamNodeService);
+const dreamNodeController = new DreamNodeController(interpretationDreamService, dreamNodeService, illustrationService);
 
 // Endpoints de interpretación
 dreamNodeRouter.post("/interpret", validateBody(InterpreteDreamRequestDto), contentModerationMiddleware, (req, res) => dreamNodeController.interpret(req, res));
