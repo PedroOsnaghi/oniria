@@ -62,8 +62,14 @@ export class DreamNodeController {
           description,
           previousInterpretation
         );
+      const illustrationUrl =
+        await this.illustrationService.generateIllustration(description);
 
-      res.json({ description, ...reinterpretedDream });
+      res.json({
+        description,
+        imageUrl: illustrationUrl,
+        ...reinterpretedDream,
+      });
     } catch (error: any) {
       console.error("Error en DreamNodeController reinterpret:", error);
       res.status(500).json({
