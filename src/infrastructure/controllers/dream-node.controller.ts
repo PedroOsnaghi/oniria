@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { InterpretationDreamService } from "../../application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../application/services/dream-node.service";
 import { IllustrationDreamService } from "../../application/services/illustration-dream.service";
-import * as fs from "node:fs";
 
 export class DreamNodeController {
   constructor(

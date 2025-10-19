@@ -1,5 +1,4 @@
 import { Interpretation } from "../../domain/models/interpretation-dream.model";
-import { IllustrationProvider } from "../../domain/providers/illustration.provider";
 import { InterpretationProvider } from "../../domain/providers/interpretation.provider";
 
 export class InterpretationDreamService {
