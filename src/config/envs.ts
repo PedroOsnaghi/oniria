@@ -11,4 +11,5 @@ export const envs = {
     SUPABASE_URL: get('SUPABASE_URL').required().asString(),
     SUPABASE_KEY: get('SUPABASE_KEY').required().asString(),
     SUPABASE_JWT_SECRET: get('SUPABASE_JWT_SECRET').required().asString(),
+    GEMINI_API_KEY: get('GEMINI_API_KEY').required().asString()
 };

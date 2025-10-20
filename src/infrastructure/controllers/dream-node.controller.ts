@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import { InterpretationDreamService } from "../../application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../application/services/dream-node.service";
+import { IllustrationDreamService } from "../../application/services/illustration-dream.service";
 
 export class DreamNodeController {
   constructor(
     private readonly interpretationDreamService: InterpretationDreamService,
-    private readonly dreamNodeService: DreamNodeService
+    private readonly dreamNodeService: DreamNodeService,
+    private readonly illustrationService: IllustrationDreamService
   ) {}
 
   async interpret(req: Request, res: Response): Promise<void> {
@@ -13,7 +15,13 @@ export class DreamNodeController {
       const { description } = req.body;
       const interpretedDream =
         await this.interpretationDreamService.interpretDream(description);
-      res.json({ description, ...interpretedDream });
+      const illustrationUrl =
+        await this.illustrationService.generateIllustration(description);
+      res.json({
+        description,
+        imageUrl: illustrationUrl,
+        ...interpretedDream,
+      });
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);
       res.status(500).json({
@@ -33,7 +41,9 @@ export class DreamNodeController {
         interpretation,
         emotion
       );
-      return res.status(201).json({ message: "Nodo de sueño guardado exitosamente", errors: [] });
+      return res
+        .status(201)
+        .json({ message: "Nodo de sueño guardado exitosamente", errors: [] });
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);
       return res.status(500).json({
@@ -52,8 +62,14 @@ export class DreamNodeController {
           description,
           previousInterpretation
         );
+      const illustrationUrl =
+        await this.illustrationService.generateIllustration(description);
 
-      res.json({ description, ...reinterpretedDream });
+      res.json({
+        description,
+        imageUrl: illustrationUrl,
+        ...reinterpretedDream,
+      });
     } catch (error: any) {
       console.error("Error en DreamNodeController reinterpret:", error);
       res.status(500).json({
