@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, Length, IsIn} from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsIn, IsOptional} from 'class-validator';
 
 export class SaveDreamNodeRequestDto {
   @IsString({ message: 'El título debe ser una cadena válida.' })
@@ -18,4 +18,8 @@ export class SaveDreamNodeRequestDto {
   @IsIn(['Felicidad', 'Tristeza', 'Miedo', 'Enojo'],
     { message: 'La emoción debe ser: Felicidad, Tristeza, Miedo, Enojo' })
   emotion!: string;
+  @IsOptional()
+  @IsString({message: 'La imagen debe ser una cadena válida.' })
+  @IsNotEmpty({ message: 'La imagen no puede estar vacía.' })
+  imageUrl?: string;
 }
