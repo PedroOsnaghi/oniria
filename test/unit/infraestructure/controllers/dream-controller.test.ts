@@ -2,7 +2,6 @@ import "reflect-metadata";
 import { DreamNodeController } from "../../../../src/infrastructure/controllers/dream-node.controller";
 import { InterpretationDreamService } from "../../../../src/application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../../../src/application/services/dream-node.service";
-import { Interpretation } from "../../../../src/domain/models/interpretation-dream.model";
 import { IDreamNode } from "../../../../src/domain/models/dream-node.model";
 import { IPaginatedResult } from "../../../../src/domain/interfaces/pagination.interface";
 
@@ -13,14 +12,11 @@ import { Request, Response } from "express";
 import { mockSaveReq } from "../../mocks/mock-save-req";
 import { mockSaveRes } from "../../mocks/mock-save-res";
 import { IllustrationDreamService } from "../../../../src/application/services/illustration-dream.service";
-import { userId } from "../../mocks/get-user-nodes.mock";
 
 describe("DreamNodeController Integration Tests", () => {
   let controller: DreamNodeController;
   let mockInterpretationService: jest.Mocked<InterpretationDreamService>;
   let mockDreamNodeService: jest.Mocked<DreamNodeService>;
-  let mockRequest: Partial<Request>;
-  let mockResponse: Partial<Response>;
   let mockIllustrationService: jest.Mocked<IllustrationDreamService>;
 
   beforeEach(() => {
@@ -39,14 +35,6 @@ describe("DreamNodeController Integration Tests", () => {
       generateIllustration: jest.fn(),
     } as any;
 
-    mockRequest = {
-      body: {},
-    };
-
-    mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
-    };
     controller = new DreamNodeController(
       mockInterpretationService,
       mockDreamNodeService,
@@ -76,7 +64,7 @@ describe("DreamNodeController Integration Tests", () => {
         interpretation: "Interpretación mockeada",
         emotion: "Emoción mockeada",
       });
-      
+
       // Mock the illustration service
       mockIllustrationService.generateIllustration.mockResolvedValue(
         "https://mock-illustration-url.com/image.jpg"

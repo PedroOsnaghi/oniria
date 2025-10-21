@@ -15,12 +15,13 @@ export class DreamNodeService {
     userId: string,
     dreamNode: SaveDreamNodeRequestDto
   ): Promise<void> {
-    let { description, title, interpretation, emotion, imageUrl } = dreamNode;
+    const { description, title, interpretation, emotion } = dreamNode;
+    let { imageUrl } = dreamNode;
 
     if (!imageUrl || !imageUrl.startsWith(envs.SUPABASE_URL)) {
       imageUrl = "";
     }
-    
+
     try {
       const dreamNode: IDreamNode = {
         creationDate: new Date(),
