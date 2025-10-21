@@ -88,8 +88,8 @@ describe('InterpretationOpenAIProvider', () => {
             content: expect.stringContaining(dreamText)
           }
         ],
-        max_tokens: 200,
-        temperature: 0.7
+        max_tokens: 500,
+        temperature: 0.8
       });
     });
 

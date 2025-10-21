@@ -13,34 +13,43 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
 
     async interpretDream(dreamText: string): Promise<Interpretation> {
         try {
-            const prompt = `Analiza este sueño y proporciona:
+            const prompt = `Analiza este sueño en profundidad y proporciona:
 1. Un título creativo y descriptivo (3-6 palabras)
-2. Una interpretación psicológica clara en 2-3 oraciones
+2. Una interpretación psicológica EXTENSA y DETALLADA que incluya:
+   - Significado simbólico de los elementos principales
+   - Posibles emociones o conflictos internos
+   - Reflexión sobre el estado emocional del soñante
+   - Sugerencias o insights psicológicos
+   (MÍNIMO 5-6 oraciones completas y bien desarrolladas)
 3. La emoción dominante que transmite el sueño
 
 Sueño: ${dreamText}
 
+IMPORTANTE: La interpretación debe ser SUSTANCIAL y PROFUNDA, no un resumen breve.
+
 Responde EXACTAMENTE en este formato JSON:
 {
   "title": "Título Creativo del Sueño",
-  "interpretation": "tu interpretación aquí",
+  "interpretation": "tu interpretación EXTENSA y DETALLADA aquí (5-6 oraciones mínimo)",
   "emotion": "felicidad|tristeza|miedo|enojo"
 }`;
 
+            const modelUsed = envs.OPENAI_FINE_TUNED_MODEL || envs.OPENAI_MODEL || "gpt-3.5-turbo";
+            console.log("[InterpretationOpenAIProvider] Modelo usado para interpretación:", modelUsed);
             const response = await this.openai.chat.completions.create({
-                model: "gpt-3.5-turbo",
+                model: modelUsed,
                 messages: [
                     {
                         role: "system",
-                        content: "Eres un psicólogo especialista en interpretación de sueños. Debes responder SIEMPRE en formato JSON válido con 'title', 'interpretation' y 'emotion'. Los títulos deben ser creativos y descriptivos. Las emociones válidas son: felicidad, tristeza, miedo, enojo. Proporciona interpretaciones claras y útiles en español."
+                        content: "Eres un psicólogo especialista en interpretación de sueños con amplia experiencia. Debes responder SIEMPRE en formato JSON válido con 'title', 'interpretation' y 'emotion'. Los títulos deben ser creativos y descriptivos. Las emociones válidas son: felicidad, tristeza, miedo, enojo. CRÍTICO: Las interpretaciones deben ser EXTENSAS, PROFUNDAS y SUSTANCIALES (mínimo 5-6 oraciones completas), explorando el simbolismo, emociones subyacentes y significado psicológico en detalle. NO des respuestas breves o superficiales."
                     },
                     {
                         role: "user",
                         content: prompt
                     }
                 ],
-                max_tokens: 200,
-                temperature: 0.7,
+                max_tokens: 500,
+                temperature: 0.8,
             });
 
             const responseContent = response.choices[0]?.message?.content || "{}";
@@ -91,7 +100,7 @@ Responde EXACTAMENTE en este formato JSON:
 }`;
 
             const response = await this.openai.chat.completions.create({
-                model: "gpt-3.5-turbo",
+                model: envs.OPENAI_FINE_TUNED_MODEL || envs.OPENAI_MODEL || "gpt-3.5-turbo",
                 messages: [
                     {
                         role: "system",

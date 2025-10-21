@@ -12,7 +12,10 @@
     "start": "cross-env NODE_ENV=production node dist/src/index.js",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "test": "rimraf dist && jest"
+    "test": "rimraf dist && jest",
+    "ft:upload": "tsx scripts/openai-finetune.ts upload",
+    "ft:create": "tsx scripts/openai-finetune.ts create",
+    "ft:status": "tsx scripts/openai-finetune.ts status"
   },
   "jest": {
     "preset": "ts-jest",
