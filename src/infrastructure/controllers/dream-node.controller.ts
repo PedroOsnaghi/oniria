@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { InterpretationDreamService } from "../../application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../application/services/dream-node.service";
 import { IllustrationDreamService } from "../../application/services/illustration-dream.service";
+import { SaveDreamNodeRequestDto } from "../dtos/dream-node";
 
 export class DreamNodeController {
   constructor(
@@ -33,13 +34,10 @@ export class DreamNodeController {
   async save(req: Request, res: Response) {
     try {
       const userId = (req as any).userId;
-      const { title, description, interpretation, emotion } = req.body;
+      const dreamNode: SaveDreamNodeRequestDto = req.body;
       await this.dreamNodeService.saveDreamNode(
         userId,
-        title,
-        description,
-        interpretation,
-        emotion
+        dreamNode
       );
       return res
         .status(201)

@@ -13,6 +13,7 @@ import { Request, Response } from "express";
 import { mockSaveReq } from "../../mocks/mock-save-req";
 import { mockSaveRes } from "../../mocks/mock-save-res";
 import { IllustrationDreamService } from "../../../../src/application/services/illustration-dream.service";
+import { userId } from "../../mocks/get-user-nodes.mock";
 
 describe("DreamNodeController Integration Tests", () => {
   let controller: DreamNodeController;
@@ -30,6 +31,8 @@ describe("DreamNodeController Integration Tests", () => {
 
     mockDreamNodeService = {
       saveDreamNode: jest.fn(),
+      getDreamById: jest.fn(),
+      getUserNodes: jest.fn(),
     } as any;
 
     mockIllustrationService = {
@@ -51,412 +54,231 @@ describe("DreamNodeController Integration Tests", () => {
     );
   });
 
-  describe("reinterpret method", () => {
-    it("should successfully reinterpret a dream", async () => {
-      // Arrange
-      const requestBody = {
-        description: "Soñé que caía de un acantilado muy alto",
-        previousInterpretation: "Representa tus miedos y inseguridades",
+  describe("DreamNodeController.reinterpret", () => {
+    let mockReq: any;
+    let mockRes: any;
+
+    beforeEach(() => {
+      mockReq = {
+        body: {
+          dreamId: "uuid-fake",
+          description: "texto",
+          previousInterpretation: "prev",
+        },
+      };
+      mockRes = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
       };
 
-      const expectedResult: Interpretation = {
-        title: "Transformación y Liberación",
-        interpretation:
-          "Caer en sueños también puede simbolizar el proceso de soltar control y confiar en el flujo natural de la vida...",
-        emotion: "Miedo",
-      };
-
-      mockRequest.body = requestBody;
-      mockInterpretationService.reinterpretDream.mockResolvedValue(
-        expectedResult
+      mockInterpretationService.reinterpretDream.mockResolvedValue({
+        title: "Título mockeado",
+        interpretation: "Interpretación mockeada",
+        emotion: "Emoción mockeada",
+      });
+      
+      // Mock the illustration service
+      mockIllustrationService.generateIllustration.mockResolvedValue(
+        "https://mock-illustration-url.com/image.jpg"
       );
+    });
 
-      // Act
-      await controller.reinterpret(
-        mockRequest as Request,
-        mockResponse as Response
-      );
+    it("debería reinterpretar un sueño correctamente", async () => {
+      await controller.reinterpret(mockReq as Request, mockRes as Response);
 
-      // Assert
       expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledWith(
-        requestBody.description,
-        requestBody.previousInterpretation
+        "texto",
+        "prev"
       );
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        description: requestBody.description,
-        ...expectedResult,
+      expect(mockIllustrationService.generateIllustration).toHaveBeenCalledWith("texto");
+      expect(mockRes.json).toHaveBeenCalledWith({
+        description: "texto",
+        imageUrl: "https://mock-illustration-url.com/image.jpg",
+        title: "Título mockeado",
+        interpretation: "Interpretación mockeada",
+        emotion: "Emoción mockeada",
       });
     });
 
-    it("should handle service error and return 500 status", async () => {
-      // Arrange
-      const requestBody = {
-        description: "Soñé con agua turbia",
-        previousInterpretation: "Representa emociones confusas",
-      };
-
-      const serviceError = new Error("OpenAI API error");
-      mockRequest.body = requestBody;
-      mockInterpretationService.reinterpretDream.mockRejectedValue(
-        serviceError
+    it("debería manejar errores al reinterpretar", async () => {
+      mockInterpretationService.reinterpretDream.mockRejectedValueOnce(
+        new Error("Error simulado")
       );
 
-      // Act
-      await controller.reinterpret(
-        mockRequest as Request,
-        mockResponse as Response
-      );
+      await controller.reinterpret(mockReq as Request, mockRes as Response);
 
-      // Assert
-      expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledWith(
-        requestBody.description,
-        requestBody.previousInterpretation
-      );
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith({
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({
         errors: "Error al reinterpretar el sueño",
       });
     });
   });
 
-  describe("Integration with Service Layer", () => {
-    it("should pass correct parameters from DTO to service", async () => {
-      // Arrange
-      const requestBody = {
-        description: "Soñé con un laberinto sin salida",
-        previousInterpretation:
-          "Representa sensación de estar atrapado en la vida",
-      };
+  describe("DreamNodeController.save", () => {
+    beforeEach(() => {
+      mockDreamNodeService.saveDreamNode.mockReset();
+    });
 
-      const expectedResult: Interpretation = {
-        title: "Nuevos Caminos",
-        interpretation:
-          "Un laberinto también puede representar el viaje interior de autodescubrimiento...",
-        emotion: "hopeful",
-      };
+    it("should save a dream node and return 201", async () => {
+      mockDreamNodeService.saveDreamNode.mockResolvedValue(undefined);
+      (mockSaveReq as any).userId = "user123";
 
-      mockRequest.body = requestBody;
-      mockInterpretationService.reinterpretDream.mockResolvedValue(
-        expectedResult
+      await controller.save(
+        mockSaveReq as Request,
+        mockSaveRes as unknown as Response
       );
 
-      // Act
-      await controller.reinterpret(
+      expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith("user123", {
+        userId: "user123",
+        title: mockSaveReq.body.title,
+        description: mockSaveReq.body.description,
+        interpretation: mockSaveReq.body.interpretation,
+        emotion: mockSaveReq.body.emotion,
+        imageUrl: mockSaveReq.body.imageUrl ?? "",
+      });
+
+      expect(mockSaveRes.status).toHaveBeenCalledWith(201);
+      expect(mockSaveRes.json).toHaveBeenCalledWith({
+        message: "Nodo de sueño guardado exitosamente",
+        errors: [],
+      });
+    });
+
+    it("should return 500 when service fails", async () => {
+      mockDreamNodeService.saveDreamNode.mockRejectedValue(
+        new Error("Error simulado")
+      );
+      (mockSaveReq as any).userId = "user123";
+
+      await controller.save(
+        mockSaveReq as Request,
+        mockSaveRes as unknown as Response
+      );
+
+      expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith("user123", {
+        userId: "user123",
+        title: mockSaveReq.body.title,
+        description: mockSaveReq.body.description,
+        interpretation: mockSaveReq.body.interpretation,
+        emotion: mockSaveReq.body.emotion,
+        imageUrl: mockSaveReq.body.imageUrl ?? "",
+      });
+
+      expect(mockSaveRes.status).toHaveBeenCalledWith(500);
+      expect(mockSaveRes.json).toHaveBeenCalledWith({
+        message: "Error interno del servidor",
+        errors: ["Error simulado"],
+      });
+    });
+  });
+
+  describe("DreamNodeController.getUserNodes", () => {
+    let mockRequest: Partial<Request> & {
+      validatedQuery?: any;
+      userId?: string;
+    };
+    let mockResponse: Partial<Response>;
+
+    beforeEach(() => {
+      mockRequest = {};
+      mockResponse = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+      };
+    });
+
+    it("should return paginated result with filters and pagination", async () => {
+      const userId = "mocked-user-id";
+      const filters = {
+        state: "Activo",
+        privacy: "Publico",
+        emotion: "Felicidad",
+        search: "test",
+      };
+      const pagination = { page: 1, limit: 10 };
+      const mockDreamNode: IDreamNode = {
+        id: "dream-node-id",
+        title: "Test Dream",
+        description: "Test Description",
+        interpretation: "Test Interpretation",
+        privacy: "Publico",
+        state: "Activo",
+        emotion: "Felicidad",
+        creationDate: new Date(),
+      };
+      const expectedResult: IPaginatedResult<IDreamNode> = {
+        data: [mockDreamNode],
+        pagination: {
+          currentPage: 1,
+          limit: 10,
+          total: 1,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
+        },
+      };
+
+      mockRequest.validatedQuery = { ...filters, ...pagination };
+      mockRequest.userId = userId;
+      mockDreamNodeService.getUserNodes.mockResolvedValue(expectedResult);
+
+      await controller.getUserNodes(
         mockRequest as Request,
         mockResponse as Response
       );
 
-      // Assert
-      expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledTimes(
-        1
+      expect(mockDreamNodeService.getUserNodes).toHaveBeenCalledWith(
+        userId,
+        filters,
+        pagination
       );
-      expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledWith(
-        requestBody.description,
-        requestBody.previousInterpretation
+      expect(mockResponse.json).toHaveBeenCalledWith(expectedResult);
+    });
+
+    it("should return 400 when userId is missing", async () => {
+      mockRequest.userId = "";
+
+      await controller.getUserNodes(
+        mockRequest as Request,
+        mockResponse as Response
       );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        errors: "El id del usuario es requerido",
+      });
     });
 
-    it("should handle different types of interpretations", async () => {
-      // Arrange
-      const testCases = [
-        {
-          dto: {
-            description: "Sueño positivo",
-            previousInterpretation: "Interpretación positiva",
-          },
-          response: {
-            title: "Título Positivo",
-            interpretation: "Nueva interpretación positiva",
-            emotion: "joy",
-          },
-        },
-        {
-          dto: {
-            description: "Sueño neutro",
-            previousInterpretation: "Interpretación neutra",
-          },
-          response: {
-            title: "Título Neutro",
-            interpretation: "Nueva interpretación neutra",
-            emotion: "calm",
-          },
-        },
-        {
-          dto: {
-            description: "Sueño desafiante",
-            previousInterpretation: "Interpretación desafiante",
-          },
-          response: {
-            title: "Título Transformativo",
-            interpretation: "Nueva perspectiva transformativa",
-            emotion: "growth",
-          },
-        },
-      ];
+    it("should return 500 when service throws an error", async () => {
+      const userId = "mocked-user-id";
+      const filters = {
+        state: "Activo",
+        privacy: "Publico",
+        emotion: "Felicidad",
+        search: "test",
+      };
+      const pagination = { page: 1, limit: 10 };
 
-      for (const testCase of testCases) {
-        // Arrange
-        mockRequest.body = testCase.dto;
-        mockInterpretationService.reinterpretDream.mockResolvedValue(
-          testCase.response
-        );
+      mockRequest.userId = userId;
+      mockRequest.validatedQuery = { ...filters, ...pagination };
+      mockDreamNodeService.getUserNodes.mockRejectedValue(
+        new Error("Service error")
+      );
 
-        // Act
-        await controller.reinterpret(
-          mockRequest as Request,
-          mockResponse as Response
-        );
+      await controller.getUserNodes(
+        mockRequest as Request,
+        mockResponse as Response
+      );
 
-        // Assert
-        expect(mockResponse.json).toHaveBeenCalledWith({
-          description: testCase.dto.description,
-          ...testCase.response,
-        });
-        expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledWith(
-          testCase.dto.description,
-          testCase.dto.previousInterpretation
-        );
-
-        // Reset mocks for next iteration
-        mockInterpretationService.reinterpretDream.mockReset();
-        (mockResponse.json as jest.Mock).mockClear();
-      }
-    });
-  });
-});
-
-//Savedreamnode
-
-describe("DreamNodeController.save", () => {
-  let controller: DreamNodeController;
-  let mockDreamNodeService: jest.Mocked<DreamNodeService>;
-  let mockInterpretationService: jest.Mocked<InterpretationDreamService>;
-  let mockIllustrationService: jest.Mocked<IllustrationDreamService>;
-  beforeEach(() => {
-    mockDreamNodeService = {
-      saveDreamNode: jest.fn(),
-    } as unknown as jest.Mocked<DreamNodeService>;
-
-    mockInterpretationService = {
-      interpretDream: jest.fn(),
-      reinterpretDream: jest.fn(),
-    } as unknown as jest.Mocked<InterpretationDreamService>;
-
-    mockIllustrationService = {
-      generateIllustration: jest.fn(),
-    } as unknown as jest.Mocked<IllustrationDreamService>;
-
-    controller = new DreamNodeController(
-      mockInterpretationService,
-      mockDreamNodeService,
-      mockIllustrationService
-    );
-  });
-
-  it("should save a dream node and return 201", async () => {
-    mockDreamNodeService.saveDreamNode.mockResolvedValue(undefined);
-
-    await controller.save(
-      mockSaveReq as Request,
-      mockSaveRes as unknown as Response
-    );
-
-    expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith(
-      (mockSaveReq as any).userId,
-      mockSaveReq.body.title,
-      mockSaveReq.body.description,
-      mockSaveReq.body.interpretation,
-      mockSaveReq.body.emotion
-    );
-
-    expect(mockSaveRes.status).toHaveBeenCalledWith(201);
-    expect(mockSaveRes.json).toHaveBeenCalledWith({
-      message: "Nodo de sueño guardado exitosamente",
-      errors: [],
-    });
-  });
-
-  it("should return 500 when service fails", async () => {
-    mockDreamNodeService.saveDreamNode.mockRejectedValue(
-      new Error("Error simulado")
-    );
-
-    await controller.save(
-      mockSaveReq as Request,
-      mockSaveRes as unknown as Response
-    );
-
-    expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith(
-      (mockSaveReq as any).userId,
-      mockSaveReq.body.title,
-      mockSaveReq.body.description,
-      mockSaveReq.body.interpretation,
-      mockSaveReq.body.emotion
-    );
-    expect(mockSaveRes.status).toHaveBeenCalledWith(500);
-    expect(mockSaveRes.json).toHaveBeenCalledWith({
-      message: "Error interno del servidor",
-      errors: ["Error simulado"],
-    });
-  });
-});
-
-describe("DreamNodeController.getUserNodes", () => {
-  let controller: DreamNodeController;
-  let mockInterpretationService: jest.Mocked<InterpretationDreamService>;
-  let mockDreamNodeService: jest.Mocked<DreamNodeService>;
-  let mockIllustrationService: jest.Mocked<IllustrationDreamService>;
-  let mockRequest: Partial<Request> & {
-    validatedParams?: any;
-    validatedQuery?: any;
-  };
-  let mockResponse: Partial<Response>;
-
-  beforeEach(() => {
-    mockInterpretationService = {
-      interpretDream: jest.fn(),
-      reinterpretDream: jest.fn(),
-    } as any;
-
-    mockDreamNodeService = {
-      saveDreamNode: jest.fn(),
-      getUserNodes: jest.fn(),
-    } as any;
-
-    mockIllustrationService = {
-      generateIllustration: jest.fn(),
-    } as unknown as jest.Mocked<IllustrationDreamService>;
-
-    mockRequest = {} as any;
-    mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
-    };
-
-    controller = new DreamNodeController(
-      mockInterpretationService,
-      mockDreamNodeService,
-      mockIllustrationService
-    );
-  });
-
-  it("should return paginated result with filters and pagination", async () => {
-    // Arrange
-    const userId = "mocked-user-id";
-    const filters = {
-      state: "Activo",
-      privacy: "Publico",
-      emotion: "Felicidad",
-      search: "test",
-    };
-    const pagination = { page: 1, limit: 10 };
-    const mockDreamNode: IDreamNode = {
-      id: "dream-node-id",
-      title: "Test Dream",
-      description: "Test Description",
-      interpretation: "Test Interpretation",
-      privacy: "Publico",
-      state: "Activo",
-      emotion: "Felicidad",
-      creationDate: new Date(),
-    };
-    const expectedResult: IPaginatedResult<IDreamNode> = {
-      data: [mockDreamNode],
-      pagination: {
-        currentPage: 1,
-        limit: 10,
-        total: 1,
-        totalPages: 1,
-        hasNext: false,
-        hasPrev: false,
-      },
-    };
-
-    mockRequest.validatedQuery = {
-      state: "Activo",
-      privacy: "Publico",
-      emotion: "Felicidad",
-      search: "test",
-      page: 1,
-      limit: 10,
-      from: undefined,
-      to: undefined,
-    };
-    (mockRequest as any).userId = userId;
-    mockDreamNodeService.getUserNodes.mockResolvedValue(expectedResult);
-
-    // Act
-    await controller.getUserNodes(
-      mockRequest as Request,
-      mockResponse as Response
-    );
-
-    // Assert
-    expect(mockDreamNodeService.getUserNodes).toHaveBeenCalledWith(
-      userId,
-      filters,
-      pagination
-    );
-    expect(mockResponse.json).toHaveBeenCalledWith(expectedResult);
-  });
-
-  it("should return 400 when userId is missing", async () => {
-    // Arrange
-    (mockRequest as any).userId = undefined; // No userId provided
-
-    // Act
-    await controller.getUserNodes(
-      mockRequest as Request,
-      mockResponse as Response
-    );
-
-    // Assert
-    expect(mockResponse.status).toHaveBeenCalledWith(400);
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      errors: "El id del usuario es requerido",
-    });
-  });
-
-  it("should return 500 when service throws an error", async () => {
-    // Arrange
-    const userId = "mocked-user-id";
-    const filters = {
-      state: "Activo",
-      privacy: "Publico",
-      emotion: "Felicidad",
-      search: "test",
-    };
-    const pagination = { page: 1, limit: 10 };
-
-    (mockRequest as any).userId = userId;
-    mockRequest.validatedQuery = {
-      state: "Activo",
-      privacy: "Publico",
-      emotion: "Felicidad",
-      search: "test",
-      page: 1,
-      limit: 10,
-      from: undefined,
-      to: undefined,
-    };
-    const serviceError = new Error("Service error");
-    mockDreamNodeService.getUserNodes.mockRejectedValue(serviceError);
-
-    // Act
-    await controller.getUserNodes(
-      mockRequest as Request,
-      mockResponse as Response
-    );
-
-    // Assert
-    expect(mockDreamNodeService.getUserNodes).toHaveBeenCalledWith(
-      userId,
-      filters,
-      pagination
-    );
-    expect(mockResponse.status).toHaveBeenCalledWith(500);
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      errors: "Error al obtener los nodos de sueño del usuario",
+      expect(mockDreamNodeService.getUserNodes).toHaveBeenCalledWith(
+        userId,
+        filters,
+        pagination
+      );
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        errors: "Error al obtener los nodos de sueño del usuario",
+      });
     });
   });
 });
