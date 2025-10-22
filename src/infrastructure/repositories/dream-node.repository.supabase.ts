@@ -78,6 +78,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
             title: node.title,
             description: node.description,
             interpretation: node.interpretation,
+            imageUrl: node.image_url,
             creationDate: new Date(node.creation_date),
             privacy: node.privacy,
             state: node.state,
