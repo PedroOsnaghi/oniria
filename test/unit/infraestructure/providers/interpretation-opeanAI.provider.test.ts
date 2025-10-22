@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { InterpretationOpenAIProvider } from '../../../../src/infrastructure/providers/interpretation-openAI.provider';
 import { OpenAI } from 'openai';
 
@@ -88,8 +89,9 @@ describe('InterpretationOpenAIProvider', () => {
             content: expect.stringContaining(dreamText)
           }
         ],
-        max_tokens: 500,
-        temperature: 0.8
+        max_tokens: 350,
+        temperature: 0.8,
+        response_format: { type: 'json_object' }
       });
     });
 
@@ -264,8 +266,9 @@ describe('InterpretationOpenAIProvider', () => {
             content: expect.stringContaining('IGNORA COMPLETAMENTE la interpretación anterior')
           }
         ],
-        max_tokens: 200,
-        temperature: 1.1
+        max_tokens: 350,
+        temperature: 0.9,
+        response_format: { type: 'json_object' }
       });
     });
 
@@ -318,7 +321,7 @@ describe('InterpretationOpenAIProvider', () => {
       // Assert
       expect(mockChatCompletions).toHaveBeenCalledWith(
         expect.objectContaining({
-          temperature: 1.1
+          temperature: 0.9
         })
       );
     });
@@ -430,6 +433,232 @@ describe('InterpretationOpenAIProvider', () => {
         interpretation: 'No se pudo interpretar el sueño.',
         emotion: 'Tristeza'
       });
+    });
+  });
+
+  describe('fine-tuning model support', () => {
+    const dreamText = 'Soñé que volaba sobre el mar';
+    const previousInterpretation = 'Representa libertad';
+
+    it('should use fine-tuned model when OPENAI_FINE_TUNED_MODEL is set in constructor', async () => {
+      // Arrange
+      const fineTunedModel = 'ft:gpt-3.5-turbo-0125:personal::ABC123';
+
+      // Mock envs con modelo fine-tuned
+      const originalEnvs = require('../../../../src/config/envs').envs;
+      Object.defineProperty(require('../../../../src/config/envs'), 'envs', {
+        get: () => ({
+          ...originalEnvs,
+          OPENAI_FINE_TUNED_MODEL: fineTunedModel
+        }),
+        configurable: true
+      });
+
+      const mockResponse = {
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              title: 'Vuelo sobre el Mar',
+              interpretation: 'Este sueño simboliza tu búsqueda de libertad emocional.',
+              emotion: 'felicidad'
+            })
+          }
+        }]
+      };
+
+      mockChatCompletions.mockResolvedValue(mockResponse);
+
+      // Act
+      await provider.interpretDream(dreamText);
+
+      // Assert
+      expect(mockChatCompletions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          model: fineTunedModel
+        })
+      );
+
+      // Restore
+      Object.defineProperty(require('../../../../src/config/envs'), 'envs', {
+        get: () => originalEnvs,
+        configurable: true
+      });
+    });
+
+    it('should fall back to OPENAI_MODEL when OPENAI_FINE_TUNED_MODEL is not set', async () => {
+      // Arrange
+      const baseModel = 'gpt-4';
+
+      const originalEnvs = require('../../../../src/config/envs').envs;
+      Object.defineProperty(require('../../../../src/config/envs'), 'envs', {
+        get: () => ({
+          ...originalEnvs,
+          OPENAI_MODEL: baseModel,
+          OPENAI_FINE_TUNED_MODEL: undefined
+        }),
+        configurable: true
+      });
+
+      const mockResponse = {
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              title: 'Test Title',
+              interpretation: 'Test interpretation',
+              emotion: 'felicidad'
+            })
+          }
+        }]
+      };
+
+      mockChatCompletions.mockResolvedValue(mockResponse);
+
+      // Act
+      await provider.interpretDream(dreamText);
+
+      // Assert
+      expect(mockChatCompletions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          model: baseModel
+        })
+      );
+
+      // Restore
+      Object.defineProperty(require('../../../../src/config/envs'), 'envs', {
+        get: () => originalEnvs,
+        configurable: true
+      });
+    });
+
+    it('should use default model when no env vars are set', async () => {
+      // Arrange
+      const mockResponse = {
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              title: 'Test Title',
+              interpretation: 'Test interpretation',
+              emotion: 'felicidad'
+            })
+          }
+        }]
+      };
+
+      mockChatCompletions.mockResolvedValue(mockResponse);
+
+      // Act
+      await provider.interpretDream(dreamText);
+
+      // Assert - Should use gpt-3.5-turbo by default
+      expect(mockChatCompletions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          model: 'gpt-3.5-turbo'
+        })
+      );
+    });
+
+    it('should use fine-tuned model for reinterpretation when set', async () => {
+      // Arrange
+      const fineTunedModel = 'ft:gpt-3.5-turbo-0125:personal::ABC123';
+
+      const originalEnvs = require('../../../../src/config/envs').envs;
+      Object.defineProperty(require('../../../../src/config/envs'), 'envs', {
+        get: () => ({
+          ...originalEnvs,
+          OPENAI_FINE_TUNED_MODEL: fineTunedModel
+        }),
+        configurable: true
+      });
+
+      const mockResponse = {
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              title: 'Perspectiva Opuesta',
+              interpretation: 'Desde otro ángulo, este sueño refleja temores.',
+              emotion: 'miedo'
+            })
+          }
+        }]
+      };
+
+      mockChatCompletions.mockResolvedValue(mockResponse);
+
+      // Act
+      await provider.reinterpretDream(dreamText, previousInterpretation);
+
+      // Assert
+      expect(mockChatCompletions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          model: fineTunedModel
+        })
+      );
+
+      // Restore
+      Object.defineProperty(require('../../../../src/config/envs'), 'envs', {
+        get: () => originalEnvs,
+        configurable: true
+      });
+    });
+
+    it('should log the model being used for interpretation', async () => {
+      // Arrange
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      const mockResponse = {
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              title: 'Test',
+              interpretation: 'Test',
+              emotion: 'felicidad'
+            })
+          }
+        }]
+      };
+
+      mockChatCompletions.mockResolvedValue(mockResponse);
+
+      // Act
+      await provider.interpretDream(dreamText);
+
+      // Assert - Should log the model (default gpt-3.5-turbo in this case)
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '[InterpretationOpenAIProvider] Modelo usado para interpretación:',
+        expect.any(String)
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should log the model being used for reinterpretation', async () => {
+      // Arrange
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      const mockResponse = {
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              title: 'Test',
+              interpretation: 'Test',
+              emotion: 'miedo'
+            })
+          }
+        }]
+      };
+
+      mockChatCompletions.mockResolvedValue(mockResponse);
+
+      // Act
+      await provider.reinterpretDream(dreamText, previousInterpretation);
+
+      // Assert - Should log the model
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '[InterpretationOpenAIProvider] Modelo usado para reinterpretación:',
+        expect.any(String)
+      );
+
+      consoleSpy.mockRestore();
     });
   });
 });
