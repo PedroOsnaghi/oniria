@@ -4,11 +4,11 @@ import { supabase } from '../../config/supabase';
 import { IDreamNodeEntity } from "../entities/dream-node.entity";
 import { privacyMap, stateMap, emotionMap } from "../../config/mappings";
 import { IDreamNodeFilters } from "../../domain/interfaces/dream-node-filters.interface";
-import { IPaginationOptions} from "../../domain/interfaces/pagination.interface";
+import { IPaginationOptions } from "../../domain/interfaces/pagination.interface";
 
 export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
     async save(dreamNode: IDreamNode, userId: string): Promise<void> {
-        const dreamNodeEntity : IDreamNodeEntity = {
+        const dreamNodeEntity: IDreamNodeEntity = {
             ...(dreamNode.id ? { id: dreamNode.id } : {}),
             profile_id: userId,
             title: dreamNode.title,
@@ -20,7 +20,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
             emotion_id: emotionMap[dreamNode.emotion]!,
             image_url: dreamNode.imageUrl ?? '',
         };
-        const {error} = await supabase
+        const { error } = await supabase
             .from('dream_node')
             .insert(dreamNodeEntity)
             .select()
