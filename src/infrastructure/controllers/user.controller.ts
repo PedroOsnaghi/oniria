@@ -29,4 +29,17 @@ export class UserController {
       });
     }
   }
+
+  async getContext(req: Request, res: Response) {
+    try {
+      const userId = (req as any).userId;
+      const context = await this.userService.getUserDreamContext(userId);
+      res.json(context);
+    } catch (error: any) {
+      console.error("Error en UserController getContext:", error);
+      res.status(500).json({
+        errors: "Error al obtener el contexto del usuario",
+      });
+    }
+  }
 }

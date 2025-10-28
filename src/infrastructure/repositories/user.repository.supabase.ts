@@ -42,8 +42,6 @@ export class UserRepository implements IUserRepository {
       password,
     });
 
-    console.log("Data: ", data);
-
     if (error || !data.session || !data.user) {
       throw new Error(error?.message || "No se pudo iniciar sesión");
     }
@@ -81,7 +79,6 @@ export class UserRepository implements IUserRepository {
       console.error("Error getting user context:", error);
       return null;
     }
-    console.log("Contexto: ", data);
 
     return data as IUserContext;
   }

@@ -12,6 +12,19 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
     });
   }
 
+  private sanitizeText(text: string): string {
+    if (!text) return text;
+
+    const noHtml = text.replace(/<[^>]*>/g, " ");
+    return noHtml.replace(/\s+/g, " ").trim();
+  }
+
+  private limitSentences(text: string, max: number): string {
+    const parts = text.split(/(?<=[.!?])\s+/).filter(Boolean);
+    if (parts.length <= max) return text.trim();
+    return parts.slice(0, max).join(" ").trim();
+  }
+
   async interpretDream(
     dreamText: string,
     userContext?: IUserContext | null
@@ -21,7 +34,11 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
 
       const prompt = `${contextSection}Analiza este sueño y proporciona:
 1. Un título creativo y descriptivo (3-6 palabras)
-2. Una interpretación psicológica clara en 2-3 oraciones
+2. Una interpretación psicológica concisa pero profunda que incluya:
+   - Significado simbólico de los elementos principales
+   - Posibles emociones o conflictos internos
+   - Reflexión sobre el estado emocional del soñante
+   (3-4 oraciones completas y sustanciales)
 3. La emoción dominante que transmite el sueño
 4. Temas principales mencionados (máximo 3)
 5. Personas mencionadas (si las hay)
@@ -30,10 +47,12 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
 
 Sueño: ${dreamText}
 
+IMPORTANTE: Sé conciso pero profundo. Evita repeticiones innecesarias.
+
 Responde EXACTAMENTE en este formato JSON:
 {
   "title": "Título Creativo del Sueño",
-  "interpretation": "tu interpretación aquí",
+  "interpretation": "tu interpretación clara y profunda (3-4 oraciones)",
   "emotion": "felicidad|tristeza|miedo|enojo",
   "themes": ["tema1", "tema2"],
   "people": ["persona1"],
@@ -41,32 +60,50 @@ Responde EXACTAMENTE en este formato JSON:
   "emotions_context": ["emoción1", "emoción2"]
 }`;
 
+      const modelUsed =
+        envs.OPENAI_FINE_TUNED_MODEL || envs.OPENAI_MODEL || "gpt-3.5-turbo";
+      console.log(
+        "[InterpretationOpenAIProvider] Modelo usado para interpretación:",
+        modelUsed
+      );
       const response = await this.openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: modelUsed,
         messages: [
           {
             role: "system",
             content:
-              "Eres un psicólogo especialista en interpretación de sueños. Debes responder SIEMPRE en formato JSON válido. Los títulos deben ser creativos y descriptivos. Las emociones válidas son: felicidad, tristeza, miedo, enojo. Proporciona interpretaciones claras y útiles en español.",
+              "Eres un psicólogo especialista en interpretación de sueños con amplia experiencia. Debes responder SIEMPRE en formato JSON válido con 'title', 'interpretation' y 'emotion', sin envoltorios, sin markdown y sin etiquetas HTML. Los títulos deben ser creativos y descriptivos. Las emociones válidas son: felicidad, tristeza, miedo, enojo. CRÍTICO: Las interpretaciones deben ser concisas pero profundas (3-4 oraciones completas), explorando el simbolismo y las emociones subyacentes. Sé directo y evita relleno innecesario.",
           },
           {
             role: "user",
             content: prompt,
           },
         ],
-        max_tokens: 300,
-        temperature: 0.7,
+        max_tokens: 350,
+        temperature: 0.8,
+        response_format: { type: "json_object" } as any,
       });
 
       const responseContent = response.choices[0]?.message?.content || "{}";
-
+      let title = "Interpretación de Sueño";
+      let interpretation = "No se pudo interpretar el sueño.";
+      let emotion = "Tristeza";
       const aiResult = JSON.parse(responseContent);
 
+      title = this.sanitizeText(aiResult.title || title);
+      interpretation = this.sanitizeText(
+        aiResult.interpretation || interpretation
+      );
+      interpretation = this.limitSentences(interpretation, 4);
+      emotion = (aiResult.emotion || emotion || "").toString().toLowerCase();
+      const allowed = new Set(["felicidad", "tristeza", "miedo", "enojo"]);
+      if (!allowed.has(emotion)) emotion = "tristeza";
+      emotion = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+
       return {
-        title: aiResult.title || "Interpretación de Sueño",
-        interpretation:
-          aiResult.interpretation || "No se pudo interpretar el sueño.",
-        emotion: this.normalizeEmotion(aiResult.emotion),
+        title,
+        interpretation,
+        emotion,
         themes: aiResult.themes || [],
         people: aiResult.people || [],
         locations: aiResult.locations || [],
@@ -128,37 +165,6 @@ Responde EXACTAMENTE en este formato JSON:
     return contextText;
   }
 
-  private normalizeEmotion(emotion: string): string {
-    const normalized = emotion?.toLowerCase() || "tristeza";
-
-    const emotionMap: Record<string, string> = {
-      felicidad: "Felicidad",
-      alegría: "Felicidad",
-      joy: "Felicidad",
-      happiness: "Felicidad",
-      contento: "Felicidad",
-
-      tristeza: "Tristeza",
-      sadness: "Tristeza",
-      melancolía: "Tristeza",
-      pena: "Tristeza",
-
-      miedo: "Miedo",
-      fear: "Miedo",
-      terror: "Miedo",
-      ansiedad: "Miedo",
-      pánico: "Miedo",
-
-      enojo: "Enojo",
-      ira: "Enojo",
-      anger: "Enojo",
-      rabia: "Enojo",
-      furia: "Enojo",
-    };
-
-    return emotionMap[normalized] || "Tristeza";
-  }
-
   async reinterpretDream(
     dreamText: string,
     previousInterpretation: string
@@ -177,35 +183,51 @@ INSTRUCCIONES ESTRICTAS:
 - Si la anterior fue OPTIMISTA, sé más REALISTA/pesimista
 - Usa una escuela psicológica DIFERENTE (Freud vs Jung vs Gestalt vs Cognitivo)
 - La emoción debe ser OPUESTA a lo que podría sugerir la anterior
+- Sé conciso pero profundo (3-4 oraciones sustanciales)
 
 Responde EXACTAMENTE en este formato JSON:
 {
   "title": "Nuevo Título Que Refleje la Perspectiva Opuesta",
-  "interpretation": "interpretación COMPLETAMENTE OPUESTA (2-3 oraciones)",
-  "emotion": "felicidad|tristeza|miedo|enojo"
+  "interpretation": "interpretación COMPLETAMENTE OPUESTA (3-4 oraciones)",
+  "emotion": "felicidad|tristeza|miedo|enojo",
+  "themes": ["tema1", "tema2"],
+  "people": ["persona1"],
+  "locations": ["ubicación1"],
+  "emotions_context": ["emoción1", "emoción2"]
 }`;
 
+      const modelUsed =
+        envs.OPENAI_FINE_TUNED_MODEL || envs.OPENAI_MODEL || "gpt-3.5-turbo";
+      console.log(
+        "[InterpretationOpenAIProvider] Modelo usado para reinterpretación:",
+        modelUsed
+      );
       const response = await this.openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: modelUsed,
         messages: [
           {
             role: "system",
             content:
-              "Eres un psicólogo especialista que debe dar interpretaciones RADICALMENTE OPUESTAS a las anteriores. Tu trabajo es CONTRADECIR y ofrecer el PUNTO DE VISTA CONTRARIO. Si la interpretación anterior fue positiva, sé más crítico. Si fue sobre libertad, habla de limitaciones. NUNCA coincidas con la interpretación previa. Responde SIEMPRE en formato JSON válido con 'title', 'interpretation' y 'emotion'. Crea títulos que reflejen la nueva perspectiva. Las emociones válidas son: felicidad, tristeza, miedo, enojo.",
+              "Eres un psicólogo especialista que debe dar interpretaciones RADICALMENTE OPUESTAS a las anteriores. Tu trabajo es CONTRADECIR y ofrecer el PUNTO DE VISTA CONTRARIO. Si la interpretación anterior fue positiva, sé más crítico. Si fue sobre libertad, habla de limitaciones. NUNCA coincidas con la interpretación previa. Responde SIEMPRE en formato JSON válido con 'title', 'interpretation' y 'emotion', sin markdown y sin etiquetas HTML. Crea títulos que reflejen la nueva perspectiva. Las emociones válidas son: felicidad, tristeza, miedo, enojo. Las interpretaciones deben ser concisas pero profundas (3-4 oraciones), explorando la perspectiva opuesta.",
           },
           {
             role: "user",
             content: prompt,
           },
         ],
-        max_tokens: 200,
-        temperature: 1.1, // Máxima creatividad para interpretación opuesta
+        max_tokens: 350,
+        temperature: 0.9,
+        response_format: { type: "json_object" } as any,
       });
 
       const responseContent = response.choices[0]?.message?.content || "{}";
       let title = "Nueva Perspectiva";
       let interpretation = "No se pudo reinterpretar el sueño.";
       let emotion = "Tristeza";
+      let themes: string[] = [];
+      let people: string[] = [];
+      let locations: string[] = [];
+      let emotions_context: string[] = [];
 
       try {
         const aiResult = JSON.parse(responseContent);
@@ -213,6 +235,10 @@ Responde EXACTAMENTE en este formato JSON:
         interpretation = aiResult.interpretation || interpretation;
         emotion = aiResult.emotion || emotion;
         emotion = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+        themes = aiResult.themes || [];
+        people = aiResult.people || [];
+        locations = aiResult.locations || [];
+        emotions_context = aiResult.emotions_context || [];
       } catch (parseError) {
         console.error(
           "Error parseando JSON de OpenAI en reinterpretación:",
@@ -221,7 +247,15 @@ Responde EXACTAMENTE en este formato JSON:
         interpretation = responseContent.trim() || interpretation;
       }
 
-      return { title, interpretation, emotion };
+      return {
+        title,
+        interpretation,
+        emotion,
+        themes,
+        people,
+        locations,
+        emotions_context,
+      };
     } catch (error: any) {
       console.error("Error en reinterpretación OpenAI:", error);
       throw new Error(error.message || "Error al reinterpretar el sueño.");

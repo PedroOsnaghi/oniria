@@ -22,6 +22,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       privacy_id: privacyMap[dreamNode.dream_privacy]!,
       state_id: stateMap[dreamNode.dream_state]!,
       emotion_id: emotionMap[dreamNode.dream_emotion]!,
+            image_url: dreamNode.imageUrl ?? '',
     };
     const { data, error } = await supabase
       .from("dream_node")
@@ -89,6 +90,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       title: node.title,
       dream_description: node.description,
       interpretation: node.interpretation,
+            imageUrl: node.image_url,
       creationDate: new Date(node.creation_date),
       dream_privacy: node.privacy,
       dream_state: node.state,

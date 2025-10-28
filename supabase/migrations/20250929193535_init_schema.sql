@@ -427,7 +427,6 @@ on conflict do nothing;
 
 -- ============================================================
 -- FUNCIÓN PARA OBTENER CONTEXTO DEL USUARIO CON CONTADORES
--- IMPORTANTE: Debe ir AL FINAL después de todas las tablas
 -- ============================================================
 create or replace function public.get_user_context(params jsonb)
 returns json
@@ -437,9 +436,8 @@ as $$
 declare
   user_id uuid;
 begin
-  -- Extract user_id from jsonb parameter
   user_id := (params->>'user_id')::uuid;
-  
+
   return json_build_object(
     'themes', (
       select coalesce(json_agg(theme_data order by (theme_data->>'count')::int desc), '[]'::json)
@@ -450,6 +448,12 @@ begin
         ) as theme_data
         from public.profile_theme pt
         left join public.dream_theme dt on dt.theme_id = pt.id
+        and dt.dream_id in (
+          select id from public.dream_node
+          where profile_id = user_id
+          order by creation_date desc
+          limit 20
+        )
         where pt.profile_id = user_id
         group by pt.id, pt.label, pt.last_updated
         having count(dt.dream_id) > 0
@@ -464,6 +468,12 @@ begin
         ) as people_data
         from public.profile_person pp
         left join public.dream_person dp on dp.person_id = pp.id
+        and dp.dream_id in (
+          select id from public.dream_node
+          where profile_id = user_id
+          order by creation_date desc
+          limit 20
+        )
         where pp.profile_id = user_id
         group by pp.id, pp.label, pp.last_updated
         having count(dp.dream_id) > 0
@@ -478,6 +488,12 @@ begin
         ) as emotion_data
         from public.profile_emotion_context pec
         left join public.dream_emotion_context de on de.emotion_context_id = pec.id
+        and de.dream_id in (
+          select id from public.dream_node
+          where profile_id = user_id
+          order by creation_date desc
+          limit 20
+        )
         where pec.profile_id = user_id
         group by pec.id, pec.label, pec.last_updated
         having count(de.dream_id) > 0
@@ -492,6 +508,12 @@ begin
         ) as location_data
         from public.profile_location pl
         left join public.dream_location dl on dl.location_id = pl.id
+        and dl.dream_id in (
+          select id from public.dream_node
+          where profile_id = user_id
+          order by creation_date desc
+          limit 20
+        )
         where pl.profile_id = user_id
         group by pl.id, pl.label, pl.last_updated
         having count(dl.dream_id) > 0
@@ -501,7 +523,5 @@ begin
 end;
 $$;
 
--- Otorgar permisos de ejecución a roles comunes
 grant execute on function public.get_user_context(jsonb) to authenticated;
-grant execute on function public.get_user_context(jsonb) to anon;
 

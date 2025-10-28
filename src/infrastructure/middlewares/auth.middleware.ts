@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { supabase } from "../../config/supabase"; 
-// import { envs } from "../../config/envs";
-// import jwt from "jsonwebtoken";
-// import { JwtPayload } from "@supabase/supabase-js";
+import { envs } from "../../config/envs";
+import jwt from "jsonwebtoken";
+import { JwtPayload } from "@supabase/supabase-js";
 
 export async function authenticateToken(
   req: Request,
@@ -18,18 +18,18 @@ export async function authenticateToken(
 
   try {
     // ======= Nuevo enfoque: verificar token directamente con Supabase =======
-    const { data: userData, error } = await supabase.auth.getUser(token);
+    // const { data: userData, error } = await supabase.auth.getUser(token);
 
-    if (error || !userData.user) {
-      console.error("JWT verification failed via Supabase:", error);
-      return res.status(403).json({ message: "Forbidden" });
-    }
+    // if (error || !userData.user) {
+    //   console.error("JWT verification failed via Supabase:", error);
+    //   return res.status(403).json({ message: "Forbidden" });
+    // }
 
-    (req as any).userId = userData.user.id;
-    next();
+    // (req as any).userId = userData.user.id;
+    // next();
 
     // ======= Código previo (verificación manual JWT) =======
-    /*
+    
     const secret = envs.SUPABASE_JWT_SECRET;
     const url = envs.SUPABASE_URL;
 
@@ -41,14 +41,13 @@ export async function authenticateToken(
       const payload = decoded as JwtPayload;
 
       if (!payload.iss?.includes(url)) {
-        return res.status(403).json({ message: "Invalid issuer");
+        return res.status(403).json({ message: "Invalid issuer"});
       }
 
       (req as any).userId = payload.sub;
 
       next();
     });
-    */
   } catch (err) {
     console.error("Unexpected error in authenticateToken:", err);
     return res.status(500).json({ message: "Internal server error" });

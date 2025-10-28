@@ -7,4 +7,5 @@ export interface IDreamNodeEntity {
     privacy_id: string;
     state_id: string;
     emotion_id: string;
+    image_url: string;
 }
