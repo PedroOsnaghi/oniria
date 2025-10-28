@@ -24,12 +24,14 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       emotion_id: emotionMap[dreamNode.dream_emotion]!,
             image_url: dreamNode.imageUrl ?? '',
     };
-    const { data, error } = await supabase
+    const { data,  error  } = await supabase
       .from("dream_node")
       .insert(dreamNodeEntity)
       .select()
       .single();
     if (data) return data;
+
+        console.log(error)
     if (error) {
       throw new Error(error!.message);
     }
