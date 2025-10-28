@@ -22,5 +22,3 @@ export interface IUserContext {
   emotions: Array<{ label: string; count: number }>;
   locations: Array<{ label: string; count: number }>;
 }
-
-

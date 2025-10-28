@@ -1,4 +1,4 @@
-import { IDreamContext } from "../../domain/interfaces/dream-context.interface";
+import { envs } from "../../config/envs";
 import { IDreamNodeFilters } from "../../domain/interfaces/dream-node-filters.interface";
 import {
   IPaginationOptions,
@@ -27,22 +27,32 @@ export class DreamNodeService {
       emotions_context,
     } = dream;
 
+    let { imageUrl } = dream;
+
+    if (!imageUrl || !imageUrl.startsWith(envs.SUPABASE_URL)) {
+      imageUrl = "";
+    }
+
     const dreamNode: IDreamNode = {
       creationDate: new Date(),
       title,
       dream_description: description,
       interpretation,
+      imageUrl,
       dream_privacy: "Privado",
       dream_state: "Activo",
-      dream_emotion: (emotion.charAt(0).toUpperCase() + emotion.slice(1)) as Emotion,
+      dream_emotion: (emotion.charAt(0).toUpperCase() +
+        emotion.slice(1)) as Emotion,
     };
 
     const dreamNodeCreated = await this.dreamNodeRepository.save(
       dreamNode,
       userId
     );
-    if (!dreamNodeCreated?.id)
+
+    if (!dreamNodeCreated?.id) {
       throw new Error("No se pudo crear el nodo de sueño");
+    }
 
     await this.dreamNodeRepository.addDreamContext(
       dreamNodeCreated.id,

@@ -1,12 +1,5 @@
 import { Type } from "class-transformer";
-import {
-    IsDate,
-  IsDateString,
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Length,
-} from "class-validator";
+import { IsDate, IsEmail, IsNotEmpty, IsString, Length } from "class-validator";
 
 export class RegisterUserDTO {
   @IsString({ message: "El nombre debe ser una cadena válida." })

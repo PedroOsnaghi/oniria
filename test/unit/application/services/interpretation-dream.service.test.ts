@@ -33,7 +33,7 @@ describe('InterpretationDreamService', () => {
       const result = await service.interpretDream(dreamDescription);
 
       // Assert
-      expect(mockInterpretationProvider.interpretDream).toHaveBeenCalledWith(dreamDescription);
+      expect(mockInterpretationProvider.interpretDream).toHaveBeenCalledWith(dreamDescription, undefined);
       expect(mockInterpretationProvider.interpretDream).toHaveBeenCalledTimes(1);
       expect(result).toEqual(expectedResult);
     });
@@ -47,7 +47,7 @@ describe('InterpretationDreamService', () => {
 
       // Act & Assert
       await expect(service.interpretDream(dreamDescription)).rejects.toThrow('Error interpretando el sueño: OpenAI API error');
-      expect(mockInterpretationProvider.interpretDream).toHaveBeenCalledWith(dreamDescription);
+      expect(mockInterpretationProvider.interpretDream).toHaveBeenCalledWith(dreamDescription, undefined);
     });
 
     it('should handle empty dream description', async () => {
@@ -65,7 +65,7 @@ describe('InterpretationDreamService', () => {
       const result = await service.interpretDream(dreamDescription);
 
       // Assert
-      expect(mockInterpretationProvider.interpretDream).toHaveBeenCalledWith(dreamDescription);
+      expect(mockInterpretationProvider.interpretDream).toHaveBeenCalledWith(dreamDescription, undefined);
       expect(result).toEqual(expectedResult);
     });
   });
