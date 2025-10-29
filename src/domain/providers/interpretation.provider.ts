@@ -1,13 +1,14 @@
+import { IDreamContext } from "../interfaces/dream-context.interface";
 import { Interpretation } from "../interfaces/interpretation-dream.interface";
-import { IUserContext } from "../interfaces/user.interface";
 
 export interface InterpretationProvider {
   interpretDream(
     dreamText: string,
-    userContext?: IUserContext | null
+    dreamContext?: IDreamContext | null
   ): Promise<Interpretation>;
   reinterpretDream(
     dreamText: string,
-    previousInterpretation: string
+    previousInterpretation: string,
+    dreamContext?: IDreamContext | null
   ): Promise<Interpretation>;
 }

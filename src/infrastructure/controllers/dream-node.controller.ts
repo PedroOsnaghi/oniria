@@ -3,34 +3,54 @@ import { InterpretationDreamService } from "../../application/services/interpret
 import { DreamNodeService } from "../../application/services/dream-node.service";
 import { IllustrationDreamService } from "../../application/services/illustration-dream.service";
 import { SaveDreamNodeRequestDto } from "../dtos/dream-node";
-import { UserService } from "../../application/services/user.service";
+import { DreamContextService } from "../../application/services/dream-context.service";
 
 export class DreamNodeController {
   constructor(
     private readonly interpretationDreamService: InterpretationDreamService,
     private readonly dreamNodeService: DreamNodeService,
     private readonly illustrationService: IllustrationDreamService,
-    private readonly userService: UserService
+    private readonly contextService: DreamContextService
   ) {}
 
   async interpret(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
       const { description } = req.body;
-      const userDreamContext = await this.userService.getUserDreamContext(
+      const userDreamContext = await this.contextService.getUserDreamContext(
         userId
       );
-      const interpretedDream =
-        await this.interpretationDreamService.interpretDream(
-          description,
-          userDreamContext
-        );
+      const interpretation = await this.interpretationDreamService.interpretDream(
+      description,
+      userDreamContext
+    );
+
+    if (interpretation.context && req.session) {
+      try {
+          (req.session as any).dreamContext = JSON.parse(JSON.stringify(interpretation.context));
+
+        await new Promise<void>((resolve, reject) => {
+          req.session?.save((err: Error | null) => {
+            if (err) {
+              console.error('Error saving session:', err);
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
+        });
+      } catch (error) {
+        console.error('Error handling session:', error);
+      }
+    }
       const illustrationUrl =
         await this.illustrationService.generateIllustration(description);
       res.json({
         description,
         imageUrl: illustrationUrl,
-        ...interpretedDream,
+        interpretation: interpretation.interpretation,
+        emotion: interpretation.emotion,
+        title: interpretation.title,
       });
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);
@@ -44,9 +64,26 @@ export class DreamNodeController {
     try {
       const userId = (req as any).userId;
       const dreamNode: SaveDreamNodeRequestDto = req.body;
+      const session = req.session as any;
+      const dreamContext = session.dreamContext ? 
+        JSON.parse(JSON.stringify(session.dreamContext)) : {
+        themes: [],
+        people: [],
+        locations: [],
+        emotions_context: []
+      };
+
+      if (session.dreamContext) {
+        session.dreamContext = null;
+        await new Promise<void>((resolve) => {
+          req.session?.save(() => resolve());
+        });
+      }
+
       await this.dreamNodeService.saveDreamNode(
         userId,
-        dreamNode
+        dreamNode,
+        dreamContext
       );
       return res
         .status(201)
@@ -64,11 +101,16 @@ export class DreamNodeController {
     try {
       const { description, previousInterpretation } = req.body;
       // moderation handled by middleware
+      const userId = (req as any).userId;
+      const dreamContext = await this.contextService.getUserDreamContext(userId);
+
       const reinterpretedDream =
         await this.interpretationDreamService.reinterpretDream(
           description,
-          previousInterpretation
+          previousInterpretation,
+          dreamContext
         );
+
       const illustrationUrl =
         await this.illustrationService.generateIllustration(description);
 

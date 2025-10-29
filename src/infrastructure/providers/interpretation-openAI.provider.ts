@@ -2,7 +2,7 @@ import { InterpretationProvider } from "../../domain/providers/interpretation.pr
 import { OpenAI } from "openai";
 import { envs } from "../../config/envs";
 import { Interpretation } from "../../domain/interfaces/interpretation-dream.interface";
-import { IUserContext } from "../../domain/interfaces/user.interface";
+import { IDreamContext } from "../../domain/interfaces/dream-context.interface";
 
 export class InterpretationOpenAIProvider implements InterpretationProvider {
   private openai: OpenAI;
@@ -27,10 +27,12 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
 
   async interpretDream(
     dreamText: string,
-    userContext?: IUserContext | null
+    dreamContext?: IDreamContext | null
   ): Promise<Interpretation> {
     try {
-      const contextSection = this.buildContextSection(userContext);
+      console.log('Dream Context:', JSON.stringify(dreamContext, null, 2));
+      const contextSection = this.buildContextSection(dreamContext);
+      console.log('Context Section:', contextSection);
 
       const prompt = `${contextSection}Analiza este sueño y proporciona:
 1. Un título creativo y descriptivo (3-6 palabras)
@@ -104,10 +106,12 @@ Responde EXACTAMENTE en este formato JSON:
         title,
         interpretation,
         emotion,
-        themes: aiResult.themes || [],
-        people: aiResult.people || [],
-        locations: aiResult.locations || [],
-        emotions_context: aiResult.emotions_context || [],
+        context: {
+          themes: (aiResult.themes || []).map((theme: string) => ({ label: theme, count: 1 })),
+          people: (aiResult.people || []).map((person: string) => ({ label: person, count: 1 })),
+          locations: (aiResult.locations || []).map((location: string) => ({ label: location, count: 1 })),
+          emotions_context: (aiResult.emotions_context || []).map((emotion: string) => ({ label: emotion, count: 1 }))
+        }
       };
     } catch (error: any) {
       console.error("Error en InterpretationOpenIAProvider:", error);
@@ -115,49 +119,49 @@ Responde EXACTAMENTE en este formato JSON:
     }
   }
 
-  private buildContextSection(userContext?: IUserContext | null): string {
-    if (!userContext) {
-      return "";
-    }
+  private buildContextSection(userContext?: IDreamContext | null): string {
+    if (!userContext) return '';
 
-    const hasContext =
-      userContext.themes.length > 0 ||
-      userContext.people.length > 0 ||
-      userContext.emotions.length > 0 ||
-      userContext.locations.length > 0;
+    let contextText = '\n\nContexto del usuario (para enriquecer la interpretación):\n';
 
-    if (!hasContext) {
-      return "";
-    }
-
-    let contextText = "CONTEXTO DEL USUARIO (de sueños anteriores):\n";
-
-    if (userContext.themes.length > 0) {
+    if (userContext.themes && Array.isArray(userContext.themes) && userContext.themes.length > 0) {
       const themesList = userContext.themes
+        .filter(t => t && t.label && typeof t.count === 'number')
         .map((t) => `"${t.label}" (${t.count} veces)`)
-        .join(", ");
-      contextText += `- Temas recurrentes: ${themesList}\n`;
+        .join(', ');
+      if (themesList) {
+        contextText += `- Temas recurrentes: ${themesList}\n`;
+      }
     }
 
-    if (userContext.people.length > 0) {
+    if (userContext.people && Array.isArray(userContext.people) && userContext.people.length > 0) {
       const peopleList = userContext.people
+        .filter(p => p && p.label && typeof p.count === 'number')
         .map((p) => `"${p.label}" (${p.count} veces)`)
-        .join(", ");
-      contextText += `- Personas importantes: ${peopleList}\n`;
+        .join(', ');
+      if (peopleList) {
+        contextText += `- Personas importantes: ${peopleList}\n`;
+      }
     }
 
-    if (userContext.emotions.length > 0) {
-      const emotionsList = userContext.emotions
+    if (userContext.emotions_context && Array.isArray(userContext.emotions_context) && userContext.emotions_context.length > 0) {
+      const emotionsList = userContext.emotions_context
+        .filter(e => e && e.label && typeof e.count === 'number')
         .map((e) => `"${e.label}" (${e.count} veces)`)
-        .join(", ");
-      contextText += `- Emociones frecuentes: ${emotionsList}\n`;
+        .join(', ');
+      if (emotionsList) {
+        contextText += `- Emociones frecuentes: ${emotionsList}\n`;
+      }
     }
 
-    if (userContext.locations.length > 0) {
+    if (userContext.locations && Array.isArray(userContext.locations) && userContext.locations.length > 0) {
       const locationsList = userContext.locations
+        .filter(l => l && l.label && typeof l.count === 'number')
         .map((l) => `"${l.label}" (${l.count} veces)`)
-        .join(", ");
-      contextText += `- Lugares significativos: ${locationsList}\n`;
+        .join(', ');
+      if (locationsList) {
+        contextText += `- Lugares recurrentes: ${locationsList}\n`;
+      }
     }
 
     contextText +=
@@ -167,14 +171,18 @@ Responde EXACTAMENTE en este formato JSON:
 
   async reinterpretDream(
     dreamText: string,
-    previousInterpretation: string
+    previousInterpretation: string,
+    dreamContext?: IDreamContext | null
   ): Promise<Interpretation> {
     try {
+      const contextSection = this.buildContextSection(dreamContext);
       const prompt = `IGNORA COMPLETAMENTE la interpretación anterior. Debes dar una perspectiva RADICALMENTE OPUESTA y diferente.
 
 Sueño: ${dreamText}
 
 INTERPRETACIÓN ANTERIOR (que debes CONTRADECIR): ${previousInterpretation}
+
+${contextSection}
 
 INSTRUCCIONES ESTRICTAS:
 - Si la anterior habló de aspectos POSITIVOS, enfócate en aspectos NEGATIVOS/preocupantes
@@ -251,10 +259,24 @@ Responde EXACTAMENTE en este formato JSON:
         title,
         interpretation,
         emotion,
-        themes,
-        people,
-        locations,
-        emotions_context,
+        context: {
+          themes: (themes || []).map(theme => ({
+            label: theme,
+            count: 1
+          })),
+          people: (people || []).map(person => ({
+            label: person,
+            count: 1
+          })),
+          locations: (locations || []).map(location => ({
+            label: location,
+            count: 1
+          })),
+          emotions_context: (emotions_context || []).map(emotion => ({
+            label: emotion,
+            count: 1
+          }))
+        }
       };
     } catch (error: any) {
       console.error("Error en reinterpretación OpenAI:", error);

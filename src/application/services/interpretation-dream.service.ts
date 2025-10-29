@@ -1,14 +1,16 @@
 import { Interpretation } from "../../domain/interfaces/interpretation-dream.interface";
-import { IUserContext } from "../../domain/interfaces/user.interface";
 import { InterpretationProvider } from "../../domain/providers/interpretation.provider";
+import { IDreamContext } from "../../domain/interfaces/dream-context.interface";
 
 export class InterpretationDreamService {
     constructor(private interpretationProvider: InterpretationProvider, ) {
         this.interpretationProvider = interpretationProvider;
     }
-    async interpretDream(dreamText: string,userDreamContext?: IUserContext | null): Promise<Interpretation> {
+    async interpretDream(dreamText: string, userDreamContext?: IDreamContext | null): Promise<Interpretation> {
         try {
-            return await this.interpretationProvider.interpretDream(dreamText, userDreamContext);
+            const interpretation = await this.interpretationProvider.interpretDream(dreamText, userDreamContext);
+
+            return interpretation;
         } catch (error) {
             throw new Error("Error interpretando el sueño: " + (error as Error).message);
         }
@@ -16,12 +18,14 @@ export class InterpretationDreamService {
 
   async reinterpretDream(
     dreamText: string,
-    previousInterpretation: string
+    previousInterpretation: string,
+    dreamContext?: IDreamContext | null
   ): Promise<Interpretation> {
     try {
       return await this.interpretationProvider.reinterpretDream(
         dreamText,
-        previousInterpretation
+        previousInterpretation,
+        dreamContext
       );
     } catch (error) {
       throw new Error(

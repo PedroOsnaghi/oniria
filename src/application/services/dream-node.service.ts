@@ -1,5 +1,6 @@
 import { envs } from "../../config/envs";
 import { IDreamNodeFilters } from "../../domain/interfaces/dream-node-filters.interface";
+import { DreamContext } from "../../domain/interfaces/interpretation-dream.interface";
 import {
   IPaginationOptions,
   IPaginatedResult,
@@ -14,35 +15,28 @@ export class DreamNodeService {
   }
   async saveDreamNode(
     userId: string,
-    dream: SaveDreamNodeRequestDto
+    dream: SaveDreamNodeRequestDto,
+    dreamContext: DreamContext
   ): Promise<void> {
     const {
       title,
       description,
-      emotion,
       interpretation,
-      themes,
-      people,
-      locations,
-      emotions_context,
+      emotion,
+      imageUrl = "",
     } = dream;
 
-    let { imageUrl } = dream;
-
-    if (!imageUrl || !imageUrl.startsWith(envs.SUPABASE_URL)) {
-      imageUrl = "";
-    }
+    const finalImageUrl = imageUrl?.startsWith(envs.SUPABASE_URL) ? imageUrl : "";
 
     const dreamNode: IDreamNode = {
       creationDate: new Date(),
       title,
       dream_description: description,
       interpretation,
-      imageUrl,
+      imageUrl: finalImageUrl,
       dream_privacy: "Privado",
       dream_state: "Activo",
-      dream_emotion: (emotion.charAt(0).toUpperCase() +
-        emotion.slice(1)) as Emotion,
+      dream_emotion: emotion as Emotion,
     };
 
     const dreamNodeCreated = await this.dreamNodeRepository.save(
@@ -57,7 +51,7 @@ export class DreamNodeService {
     await this.dreamNodeRepository.addDreamContext(
       dreamNodeCreated.id,
       userId,
-      { themes, people, locations, emotions_context }
+      dreamContext
     );
   }
 

@@ -48,50 +48,57 @@ describe("DreamNodeController Integration Tests", () => {
         to,
       } = req.query;
 
-      let allDreams =
-        userId === testUser.id ? [dreamNodeMock, dreamNodeMockTwo] : [];
+      // Base de datos simulada
+      let allDreams = userId === testUser.id ? [dreamNodeMock, dreamNodeMockTwo] : [];
 
+      // Aplicar filtros
       if (state) {
-        allDreams = allDreams.filter((dream) => dream.dream_state === state);
+        allDreams = allDreams.filter(dream =>
+          dream.dream_state.toLowerCase() === String(state).toLowerCase()
+        );
       }
 
       if (privacy) {
-        allDreams = allDreams.filter(
-          (dream) => dream.dream_privacy === privacy
+        allDreams = allDreams.filter(dream =>
+          dream.dream_privacy.toLowerCase() === String(privacy).toLowerCase()
         );
       }
 
       if (emotion) {
-        allDreams = allDreams.filter(
-          (dream) => dream.dream_emotion === emotion
+        allDreams = allDreams.filter(dream =>
+          dream.dream_emotion.toLowerCase() === String(emotion).toLowerCase()
         );
       }
 
       if (search) {
-        const searchTerm = (search as string).toLowerCase();
+        const searchTerm = String(search).toLowerCase();
         allDreams = allDreams.filter(
-          (dream) =>
+          dream =>
             dream.title.toLowerCase().includes(searchTerm) ||
-            dream.dream_description.toLowerCase().includes(searchTerm)
+            (dream.dream_description &&
+             dream.dream_description.toLowerCase().includes(searchTerm))
         );
       }
 
       if (from) {
-        const fromDate = new Date(from as string);
+        const fromDate = new Date(String(from));
         allDreams = allDreams.filter(
-          (dream) => new Date(dream.creationDate) >= fromDate
+          dream => new Date(dream.creationDate) >= fromDate
         );
       }
 
       if (to) {
-        const toDate = new Date(to as string);
+        const toDate = new Date(String(to));
+        // Añadir un día para incluir el día completo
+        toDate.setDate(toDate.getDate() + 1);
         allDreams = allDreams.filter(
-          (dream) => new Date(dream.creationDate) <= toDate
+          dream => new Date(dream.creationDate) <= toDate
         );
       }
 
-      const pageNum = parseInt(page as string);
-      const limitNum = parseInt(limit as string);
+      // Paginación
+      const pageNum = Math.max(1, parseInt(String(page), 10)) || 1;
+      const limitNum = Math.max(1, parseInt(String(limit), 10)) || 10;
       const startIndex = (pageNum - 1) * limitNum;
       const endIndex = startIndex + limitNum;
       const paginatedDreams = allDreams.slice(startIndex, endIndex);

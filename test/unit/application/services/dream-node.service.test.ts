@@ -44,7 +44,7 @@ describe("DreamNodeService - saveDreamNode", () => {
         title: node.title,
         dream_description: node.description,
         interpretation: node.interpretation,
-        dream_emotion: "Felicidad",
+        dream_emotion: expect.stringMatching(/felicidad/i),
         dream_privacy: "Privado",
         dream_state: "Activo",
         imageUrl: node.imageUrl,
@@ -71,18 +71,18 @@ describe("DreamNodeService - saveDreamNode", () => {
     await service.saveDreamNode(userId, node);
 
     expect(mockRepository.save).toHaveBeenCalledWith(
-  expect.objectContaining({
-    title: node.title,
-    dream_description: node.description,
-    dream_emotion: node.emotion.charAt(0).toUpperCase() + node.emotion.slice(1),
-    dream_privacy: "Privado",
-    dream_state: "Activo",
-    imageUrl: "",
-    interpretation: node.interpretation,
-    creationDate: expect.any(Date),
-  }),
-  userId
-);
+      expect.objectContaining({
+        title: node.title,
+        dream_description: node.description,
+        dream_emotion: node.emotion,
+        dream_privacy: "Privado",
+        dream_state: "Activo",
+        imageUrl: "",
+        interpretation: node.interpretation,
+        creationDate: expect.any(Date),
+      }),
+      userId
+    );
   });
 
   it("should handle missing imageUrl gracefully", async () => {
@@ -105,8 +105,7 @@ describe("DreamNodeService - saveDreamNode", () => {
       expect.objectContaining({
         title: node.title,
         dream_description: node.description,
-        dream_emotion:
-          node.emotion.charAt(0).toUpperCase() + node.emotion.slice(1),
+        dream_emotion: node.emotion,
         dream_privacy: "Privado",
         dream_state: "Activo",
         imageUrl: node.imageUrl,

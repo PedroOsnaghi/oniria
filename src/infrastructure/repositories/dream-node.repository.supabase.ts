@@ -10,7 +10,7 @@ import { IDreamContext } from "../../domain/interfaces/dream-context.interface";
 export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
   async save(
     dreamNode: IDreamNode,
-    userId: string
+    userId: string,
   ): Promise<IDreamNode | undefined> {
     const dreamNodeEntity: IDreamNodeEntity = {
       ...(dreamNode.id ? { id: dreamNode.id } : {}),
@@ -22,7 +22,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       privacy_id: privacyMap[dreamNode.dream_privacy]!,
       state_id: stateMap[dreamNode.dream_state]!,
       emotion_id: emotionMap[dreamNode.dream_emotion]!,
-            image_url: dreamNode.imageUrl ?? '',
+      image_url: dreamNode.imageUrl ?? '',
     };
     const { data,  error  } = await supabase
       .from("dream_node")
@@ -149,6 +149,24 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
     return count || 0;
   }
 
+   async getUserDreamContext(userId: string): Promise<IDreamContext> {
+    const { data, error } = await supabase.rpc("get_user_context", {
+      params: { user_id: userId },
+    });
+
+    if (error) {
+      console.error("Error getting user context:", error);
+      return {
+        themes: [],
+        people: [],
+        locations: [],
+        emotions_context: []
+      };
+    }
+
+    return data as IDreamContext;
+  }
+
   async addDreamContext(
     dreamNodeId: string,
     userId: string,
@@ -157,12 +175,12 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
     const { themes, people, locations, emotions_context } = context;
 
     if (themes?.length) {
-      for (const label of themes) {
+      for (const theme of themes) {
         const { data: existingTheme } = await supabase
           .from("profile_theme")
           .select("id")
           .eq("profile_id", userId)
-          .ilike("label", label)
+          .ilike("label", theme.label)
           .single();
 
         const themeId =
@@ -170,7 +188,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
           (
             await supabase
               .from("profile_theme")
-              .insert({ profile_id: userId, label })
+              .insert({ profile_id: userId, label: theme.label })
               .select("id")
               .single()
           ).data?.id;
@@ -188,12 +206,12 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
     }
 
     if (people?.length) {
-      for (const label of people) {
+      for (const person of people) {
         const { data: existingPerson } = await supabase
           .from("profile_person")
           .select("id")
           .eq("profile_id", userId)
-          .ilike("label", label)
+          .ilike("label", person.label)
           .single();
 
         const personId =
@@ -201,7 +219,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
           (
             await supabase
               .from("profile_person")
-              .insert({ profile_id: userId, label })
+              .insert({ profile_id: userId, label: person.label })
               .select("id")
               .single()
           ).data?.id;
@@ -219,12 +237,12 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
     }
 
     if (locations?.length) {
-      for (const label of locations) {
+      for (const location of locations) {
         const { data: existingLocation } = await supabase
           .from("profile_location")
           .select("id")
           .eq("profile_id", userId)
-          .ilike("label", label)
+          .ilike("label", location.label)
           .single();
 
         const locationId =
@@ -232,7 +250,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
           (
             await supabase
               .from("profile_location")
-              .insert({ profile_id: userId, label })
+              .insert({ profile_id: userId, label: location.label })
               .select("id")
               .single()
           ).data?.id;
@@ -251,12 +269,12 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
     }
 
     if (emotions_context?.length) {
-      for (const label of emotions_context) {
+      for (const emotion of emotions_context) {
         const { data: existingEmotion } = await supabase
           .from("profile_emotion_context")
           .select("id")
           .eq("profile_id", userId)
-          .ilike("label", label)
+          .ilike("label", emotion.label)
           .single();
 
         const emotionId =
@@ -264,7 +282,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
           (
             await supabase
               .from("profile_emotion_context")
-              .insert({ profile_id: userId, label })
+              .insert({ profile_id: userId, label: emotion.label })
               .select("id")
               .single()
           ).data?.id;

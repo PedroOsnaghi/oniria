@@ -1,8 +1,7 @@
 import { supabase } from "../../config/supabase";
 import {
   IRepositoryUser,
-  IUser,
-  IUserContext,
+  IUser
 } from "../../domain/interfaces/user.interface";
 import { IUserRepository } from "../../domain/repositories/user.repository";
 import { LoginDTO } from "../dtos/user/login.dto";
@@ -70,16 +69,4 @@ export class UserRepository implements IUserRepository {
     };
   }
 
-  async getUserContext(userId: string): Promise<IUserContext | null> {
-    const { data, error } = await supabase.rpc("get_user_context", {
-      params: { user_id: userId },
-    });
-
-    if (error) {
-      console.error("Error getting user context:", error);
-      return null;
-    }
-
-    return data as IUserContext;
-  }
 }

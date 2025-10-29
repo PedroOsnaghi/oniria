@@ -62,10 +62,12 @@ describe("InterpretationOpenAIProvider", () => {
                 interpretation:
                   "Este sueño representa tu deseo de libertad y superación personal.",
                 emotion: "felicidad",
-                emotions_context: [],
-                people: [],
-                locations: [],
-                themes: [],
+                context: {
+                  emotions_context: [],
+                  people: [],
+                  locations: [],
+                  themes: [],
+                },
               }),
             },
           },
@@ -83,10 +85,12 @@ describe("InterpretationOpenAIProvider", () => {
         interpretation:
           "Este sueño representa tu deseo de libertad y superación personal.",
         emotion: "Felicidad",
-        emotions_context: [],
-        people: [],
-        locations: [],
-        themes: [],
+        context: {
+          emotions_context: [],
+          people: [],
+          locations: [],
+          themes: [],
+        },
       });
 
       expect(mockChatCompletions).toHaveBeenCalledWith({
@@ -119,10 +123,12 @@ describe("InterpretationOpenAIProvider", () => {
                 title: "Interpretación de Sueño",
                 interpretation: "Invalid JSON response from OpenAI",
                 emotion: "Tristeza",
-                emotions_context: [],
-                people: [],
-                locations: [],
-                themes: [],
+                context: {
+                  emotions_context: [],
+                  people: [],
+                  locations: [],
+                  themes: [],
+                },
               }),
             },
           },
@@ -139,10 +145,12 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Interpretación de Sueño",
         interpretation: "Invalid JSON response from OpenAI",
         emotion: "Tristeza",
-        emotions_context: [],
-        people: [],
-        locations: [],
-        themes: [],
+        context: {
+          emotions_context: [],
+          people: [],
+          locations: [],
+          themes: [],
+        }
       });
     });
 
@@ -168,10 +176,12 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Interpretación de Sueño",
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
-        emotions_context: [],
-        people: [],
-        locations: [],
-        themes: [],
+        context: {
+          emotions_context: [],
+          people: [],
+          locations: [],
+          themes: [],
+        },
       });
     });
 
@@ -187,11 +197,13 @@ describe("InterpretationOpenAIProvider", () => {
       expect(result).toEqual({
         title: "Interpretación de Sueño",
         interpretation: "No se pudo interpretar el sueño.",
+        context: {
+          emotions_context: [],
+          people: [],
+          locations: [],
+          themes: [],
+        },
         emotion: "Tristeza",
-        emotions_context: [],
-        people: [],
-        locations: [],
-        themes: [],
       });
     });
 
@@ -245,10 +257,12 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Partial Response",
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
-        emotions_context: [],
-        people: [],
-        locations: [],
-        themes: [],
+        context: {
+          emotions_context: [],
+          people: [],
+          locations: [],
+          themes: [],
+        },
       });
     });
 
@@ -308,11 +322,13 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Miedo a las alturas",
         interpretation:
           "Este sueño puede reflejar ansiedad y miedo al fracaso.",
+        context: {
+          emotions_context: [],
+          people: [],
+          locations: [],
+          themes: [],
+        },
         emotion: "Miedo",
-        emotions_context: [],
-        people: [],
-        locations: [],
-        themes: [],
       });
 
       expect(mockChatCompletions).toHaveBeenCalledWith({
@@ -418,10 +434,12 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Nueva Perspectiva",
         interpretation: "Invalid JSON for reinterpretation",
         emotion: "Tristeza",
-        emotions_context: [],
-        people: [],
-        locations: [],
-        themes: [],
+        context: {
+          emotions_context: [],
+          people: [],
+          locations: [],
+          themes: [],
+        },
       });
     });
 
@@ -498,10 +516,12 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Interpretación de Sueño",
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
-        emotions_context: [],
-        people: [],
-        locations: [],
-        themes: [],
+        context: {
+          emotions_context: [],
+          people: [],
+          locations: [],
+          themes: [],
+        },
       });
     });
 
@@ -525,10 +545,12 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Interpretación de Sueño",
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
-        emotions_context: [],
-        people: [],
-        locations: [],
-        themes: [],
+        context: {
+          emotions_context: [],
+          people: [],
+          locations: [],
+          themes: [],
+        },
       });
     });
   });

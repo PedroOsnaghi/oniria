@@ -8,4 +8,5 @@ export interface IDreamNodeRepository {
     getUserNodes(userId: string, filters: IDreamNodeFilters, pagination: IPaginationOptions): Promise<IDreamNode[]>;
     countUserNodes(userId: string, filters: IDreamNodeFilters): Promise<number>;
     addDreamContext(nodeId:string, userId: string, dreamContext : IDreamContext): Promise<void>;
+    getUserDreamContext(userId: string): Promise<IDreamContext>;
 }

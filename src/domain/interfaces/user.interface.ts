@@ -15,10 +15,3 @@ export interface IRepositoryUser {
     coin_amount: number;
     token: string | null;
 }
-
-export interface IUserContext {
-  themes: Array<{ label: string; count: number }>;
-  people: Array<{ label: string; count: number }>;
-  emotions: Array<{ label: string; count: number }>;
-  locations: Array<{ label: string; count: number }>;
-}
