@@ -7,8 +7,9 @@ import { IDreamNode, Emotion } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { SaveDreamNodeRequestDto } from "../../infrastructure/dtos/dream-node";
 import { envs } from "../../config/envs";
+import { MissionService } from "./mission.service";
 export class DreamNodeService {
-  constructor(private dreamNodeRepository: IDreamNodeRepository) {
+  constructor(private dreamNodeRepository: IDreamNodeRepository, private missionService?: MissionService) {
     this.dreamNodeRepository = dreamNodeRepository;
   }
   async saveDreamNode(
@@ -35,6 +36,12 @@ export class DreamNodeService {
         imageUrl,
       };
       await this.dreamNodeRepository.save(dreamNode, userId);
+      // Fire-and-forget mission updates; do not block save on badges logic
+      if (this.missionService) {
+        this.missionService.onDreamSaved(userId).catch((e) => {
+          console.error('MissionService onDreamSaved error:', e);
+        });
+      }
     } catch (error: unknown) {
       throw new Error(
         "Error guardando el nodo de sueño: " + (error as Error).message
