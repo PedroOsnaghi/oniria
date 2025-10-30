@@ -7,11 +7,14 @@ export interface IUser {
     coin_amount: number;
 }
 
-export interface IRepositoryUser {
+export interface IUserContext {
     id: string;
     email: string;
     name: string;
     date_of_birth: Date;
     coin_amount: number;
+}
+
+export interface IRepositoryUser extends IUserContext {
     token: string | null;
 }

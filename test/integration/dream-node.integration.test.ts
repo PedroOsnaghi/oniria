@@ -688,6 +688,7 @@ describe("DreamNodeController Integration Tests", () => {
           description: "Una descripción válida para el sueño",
           interpretation: "Interpretación válida del sueño",
           emotion: "Felicidad",
+          imageUrl: "https://example.com/image.jpg",
         })
         .expect(201);
 

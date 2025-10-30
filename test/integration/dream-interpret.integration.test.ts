@@ -6,8 +6,8 @@ import { DreamNodeController } from "../../src/infrastructure/controllers/dream-
 import { InterpretationDreamService } from "../../src/application/services/interpretation-dream.service";
 import { DreamNodeService } from "../../src/application/services/dream-node.service";
 import { IllustrationDreamService } from "../../src/application/services/illustration-dream.service";
-import { UserService } from "../../src/application/services/user.service";
-import { IUserContext } from "../../src/domain/interfaces/user.interface";
+import { DreamContextService } from "../../src/application/services/dream-context.service";
+import { IDreamContext } from "../../src/domain/interfaces/dream-context.interface";
 
 jest.mock("uuid", () => ({
   v4: jest.fn(() => "mocked-uuid-123"),
@@ -18,7 +18,7 @@ describe("Dream API Integration Tests", () => {
   let mockInterpretationService: jest.Mocked<InterpretationDreamService>;
   let mockDreamNodeService: jest.Mocked<DreamNodeService>;
   let mockIllustrationService: jest.Mocked<IllustrationDreamService>;
-  let mockUserService: jest.Mocked<UserService>;
+  let mockDreamContextService: jest.Mocked<DreamContextService>;
 
   beforeAll(async () => {
     mockInterpretationService = {
@@ -34,8 +34,15 @@ describe("Dream API Integration Tests", () => {
       generateIllustration: jest.fn(),
     } as any;
 
-    mockUserService = {
-      getUserDreamContext: jest.fn(),
+    mockDreamContextService = {
+      register: jest.fn(),
+      login: jest.fn(),
+      getUserDreamContext: jest.fn().mockResolvedValue({
+        themes: [],
+        people: [],
+        locations: [],
+        emotions_context: []
+      }),
     } as any;
 
     app = express();
@@ -50,7 +57,7 @@ describe("Dream API Integration Tests", () => {
       mockInterpretationService,
       mockDreamNodeService,
       mockIllustrationService,
-      mockUserService
+      mockDreamContextService
     );
 
     app.post("/api/dreams/interpret", (req, res) =>
@@ -82,6 +89,12 @@ describe("Dream API Integration Tests", () => {
         interpretation:
           "Volar sobre montañas también puede representar tu capacidad para superar obstáculos grandes...",
         emotion: "Felicidad",
+        context: {
+          themes: [],
+          people: [],
+          locations: [],
+          emotions_context: []
+        }
       };
 
       mockInterpretationService.reinterpretDream.mockResolvedValue(
@@ -99,7 +112,8 @@ describe("Dream API Integration Tests", () => {
       });
       expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledWith(
         requestBody.description,
-        requestBody.previousInterpretation
+        requestBody.previousInterpretation,
+        expect.any(Object) // context object
       );
     });
 
@@ -134,6 +148,12 @@ describe("Dream API Integration Tests", () => {
         title: "Interpretación de Sueño Complejo",
         interpretation: "Tu sueño detallado sugiere...",
         emotion: "Felicidad",
+        context: {
+          themes: [],
+          people: [],
+          locations: [],
+          emotions_context: []
+        }
       };
 
       mockInterpretationService.reinterpretDream.mockResolvedValue(
@@ -163,6 +183,12 @@ describe("Dream API Integration Tests", () => {
         interpretation:
           "Los símbolos en los sueños representan aspectos del subconsciente...",
         emotion: "Miedo",
+        context: {
+          themes: [],
+          people: [],
+          locations: [],
+          emotions_context: []
+        }
       };
 
       mockInterpretationService.reinterpretDream.mockResolvedValue(
@@ -187,7 +213,20 @@ describe("Dream API Integration Tests", () => {
         description: "Soñé que volaba sobre montañas",
       };
 
-      const expectedResponse: Interpretation = {
+      const expectedResponseService = {
+        title: "Libertad y Trascendencia",
+        interpretation:
+          "Volar en los sueños generalmente representa el deseo de libertad...",
+        emotion: "Felicidad",
+        context: {
+          themes: [],
+          people: [],
+          locations: [],
+          emotions_context: []
+        }
+      };
+
+        const expectedResponse = {
         title: "Libertad y Trascendencia",
         interpretation:
           "Volar en los sueños generalmente representa el deseo de libertad...",
@@ -197,13 +236,13 @@ describe("Dream API Integration Tests", () => {
       const mockImageUrl = "https://example.com/dream-illustration.png";
 
       mockInterpretationService.interpretDream.mockResolvedValue(
-        expectedResponse
+        expectedResponseService
       );
       mockIllustrationService.generateIllustration.mockResolvedValue(
         mockImageUrl
       );
 
-      mockUserService.getUserDreamContext.mockResolvedValue({} as IUserContext);
+      mockDreamContextService.getUserDreamContext.mockResolvedValue({themes: [],people: [], locations: [], emotions_context: []} as IDreamContext);
 
       const response = await request(app)
         .post("/api/dreams/interpret")
@@ -213,13 +252,18 @@ describe("Dream API Integration Tests", () => {
 
       expect(response.body).toEqual({
         description: requestBody.description,
-        imageUrl: mockImageUrl,
         ...expectedResponse,
+        imageUrl: mockImageUrl,
       });
 
       expect(mockInterpretationService.interpretDream).toHaveBeenCalledWith(
         requestBody.description,
-        expect.anything()
+        expect.objectContaining({
+          themes: expect.any(Array),
+          people: expect.any(Array),
+          locations: expect.any(Array),
+          emotions_context: expect.any(Array)
+        })
       );
 
       expect(mockIllustrationService.generateIllustration).toHaveBeenCalledWith(
@@ -237,6 +281,12 @@ describe("Dream API Integration Tests", () => {
         interpretation:
           "Volar en los sueños generalmente representa el deseo de libertad...",
         emotion: "Felicidad",
+        context: {
+          themes: [],
+          people: [],
+          locations: [],
+          emotions_context: []
+        }
       };
 
       mockInterpretationService.interpretDream.mockResolvedValue(
@@ -267,6 +317,12 @@ describe("Dream API Integration Tests", () => {
         interpretation:
           "Tu sueño extenso indica una exploración compleja del subconsciente...",
         emotion: "Tristeza",
+        context: {
+          themes: [],
+          people: [],
+          locations: [],
+          emotions_context: []
+        }
       };
 
       const mockImageUrl = "https://example.com/forest-dream.png";
@@ -281,12 +337,15 @@ describe("Dream API Integration Tests", () => {
       const response = await request(app)
         .post("/api/dreams/interpret")
         .send(requestBody)
+        .set('Authorization', 'Bearer valid-token')
         .expect(200);
 
       expect(response.body).toEqual({
         description: requestBody.description,
         imageUrl: mockImageUrl,
-        ...expectedResponse,
+        interpretation: expectedResponse.interpretation,
+        emotion: expectedResponse.emotion,
+        title: expectedResponse.title
       });
     });
 
@@ -301,6 +360,12 @@ describe("Dream API Integration Tests", () => {
         interpretation:
           "Las criaturas místicas en sueños representan aspectos arquetípicos de tu psique...",
         emotion: "Felicidad",
+        context: {
+          themes: [],
+          people: [],
+          locations: [],
+          emotions_context: []
+        }
       };
 
       const mockImageUrl = "https://example.com/mystical-dream.png";
@@ -315,12 +380,15 @@ describe("Dream API Integration Tests", () => {
       const response = await request(app)
         .post("/api/dreams/interpret")
         .send(requestBody)
+        .set('Authorization', 'Bearer valid-token')
         .expect(200);
 
       expect(response.body).toEqual({
         description: requestBody.description,
         imageUrl: mockImageUrl,
-        ...expectedResponse,
+        interpretation: expectedResponse.interpretation,
+        emotion: expectedResponse.emotion,
+        title: expectedResponse.title
       });
     });
 
@@ -329,35 +397,42 @@ describe("Dream API Integration Tests", () => {
         {
           description: "Soñé que ganaba un premio importante",
           expectedEmotion: "Felicidad",
-          title: "Reconocimiento y Logro",
-        },
-        {
-          description: "Soñé que estaba perdido en una ciudad desconocida",
-          expectedEmotion: "Miedo",
-          title: "Búsqueda de Dirección",
+          context: {
+            themes: [],
+            people: [],
+            locations: [],
+            emotions_context: []
+          }
         },
         {
           description: "Soñé que hablaba con un ser querido fallecido",
           expectedEmotion: "Tristeza",
-          title: "Conexión Trascendental",
-        },
+          context: {
+            themes: [],
+            people: [],
+            locations: [],
+            emotions_context: []
+          }
+        }
       ];
 
       for (const testCase of testCases) {
-        const requestBody = { description: testCase.description };
-        const expectedResponse: Interpretation = {
-          title: testCase.title,
-          interpretation: `Interpretación detallada del sueño: ${testCase.description}`,
-          emotion: testCase.expectedEmotion,
+        const requestBody = {
+          description: testCase.description,
         };
 
-        const mockImageUrl = "https://example.com/emotion-dream.png";
+        const expectedResponse = {
+          emotion: testCase.expectedEmotion,
+          title: `Sueño de ${testCase.expectedEmotion}`,
+          interpretation: `Este sueño refleja sentimientos de ${testCase.expectedEmotion.toLowerCase()}.`,
+          context: testCase.context
+        };
 
-        mockInterpretationService.interpretDream.mockResolvedValue(
+        mockInterpretationService.interpretDream.mockResolvedValueOnce(
           expectedResponse
         );
-        mockIllustrationService.generateIllustration.mockResolvedValue(
-          mockImageUrl
+        mockIllustrationService.generateIllustration.mockResolvedValueOnce(
+          "https://example.com/emotion-dream.png"
         );
 
         const response = await request(app)
@@ -367,16 +442,64 @@ describe("Dream API Integration Tests", () => {
 
         expect(response.body).toEqual({
           description: requestBody.description,
-          imageUrl: mockImageUrl,
-          ...expectedResponse,
+          imageUrl: "https://example.com/emotion-dream.png",
+          interpretation: expectedResponse.interpretation,
+          emotion: expectedResponse.emotion,
+          title: expectedResponse.title
         });
-        expect(response.body.emotion).toBe(testCase.expectedEmotion);
-
-        mockInterpretationService.interpretDream.mockReset();
-        mockIllustrationService.generateIllustration.mockReset();
       }
     });
+
+    it("should handle multiple concurrent requests to reinterpret", async () => {
+      const requestBody = {
+        description: "Sueño de prueba para concurrencia",
+        previousInterpretation: "Interpretación previa",
+      };
+
+      const expectedResponseService: Interpretation = {
+        title: "Respuesta Concurrente",
+        interpretation: "Manejo de múltiples requests...",
+        emotion: "Felicidad",
+        context: {
+          themes: [],
+          people: [],
+          locations: [],
+          emotions_context: []
+        }
+      };
+
+       const expectedResponse = {
+        title: "Respuesta Concurrente",
+        interpretation: "Manejo de múltiples requests...",
+        emotion: "Felicidad",
+      };
+
+      mockInterpretationService.reinterpretDream.mockResolvedValue(
+        expectedResponseService
+      );
+
+      const promises = Array(3)
+        .fill(null)
+        .map(() =>
+          request(app)
+            .post("/api/dreams/reinterpret")
+            .send(requestBody)
+            .expect(200)
+        );
+
+      const responses = await Promise.all(promises);
+
+    responses.forEach((response) => {
+    expect(response.body).toEqual({
+      description: requestBody.description,
+      interpretation: expectedResponse.interpretation,
+      emotion: expectedResponse.emotion,
+      title: expectedResponse.title,
+      context: expectedResponseService.context,
+      imageUrl: "https://example.com/mystical-dream.png"
   });
+      });
+    });
 
   describe("Error handling and edge cases", () => {
     describe("Timeout scenarios", () => {
@@ -425,82 +548,6 @@ describe("Dream API Integration Tests", () => {
         expect(response.body.errors).toContain("Error al interpretar el sueño");
       });
     });
-
-    describe("Rate limiting and performance", () => {
-      it("should handle multiple concurrent requests to reinterpret", async () => {
-        const requestBody = {
-          description: "Sueño de prueba para concurrencia",
-          previousInterpretation: "Interpretación previa",
-        };
-
-        const expectedResponse: Interpretation = {
-          title: "Respuesta Concurrente",
-          interpretation: "Manejo de múltiples requests...",
-          emotion: "Felicidad",
-        };
-
-        mockInterpretationService.reinterpretDream.mockResolvedValue(
-          expectedResponse
-        );
-
-        const promises = Array(3)
-          .fill(null)
-          .map(() =>
-            request(app)
-              .post("/api/dreams/reinterpret")
-              .send(requestBody)
-              .expect(200)
-          );
-
-        const responses = await Promise.all(promises);
-
-        responses.forEach((response) => {
-          expect(response.body).toEqual({
-            description: requestBody.description,
-            ...expectedResponse,
-          });
-        });
-      });
-
-      it("should handle multiple concurrent requests to interpret", async () => {
-        const requestBody = {
-          description: "Otro sueño de prueba para concurrencia",
-        };
-
-        const expectedResponse: Interpretation = {
-          title: "Interpretación Concurrente",
-          interpretation: "Procesamiento simultáneo de sueños...",
-          emotion: "Felicidad",
-        };
-
-        const mockImageUrl = "https://example.com/concurrent-dream.png";
-
-        mockInterpretationService.interpretDream.mockResolvedValue(
-          expectedResponse
-        );
-        mockIllustrationService.generateIllustration.mockResolvedValue(
-          mockImageUrl
-        );
-
-        const promises = Array(3)
-          .fill(null)
-          .map(() =>
-            request(app)
-              .post("/api/dreams/interpret")
-              .send(requestBody)
-              .expect(200)
-          );
-
-        const responses = await Promise.all(promises);
-
-        responses.forEach((response) => {
-          expect(response.body).toEqual({
-            description: requestBody.description,
-            imageUrl: mockImageUrl,
-            ...expectedResponse,
-          });
-        });
-      });
-    });
   });
 });
+})

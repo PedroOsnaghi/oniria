@@ -4,7 +4,7 @@ import { DreamNodeController } from '../../../../src/infrastructure/controllers/
 import { InterpretationDreamService } from '../../../../src/application/services/interpretation-dream.service';
 import { DreamNodeService } from '../../../../src/application/services/dream-node.service';
 import { IllustrationDreamService } from '../../../../src/application/services/illustration-dream.service';
-import { ContextService } from '../../../../src/application/services/dream-context.service';
+import { DreamContextService } from '../../../../src/application/services/dream-context.service';
 import { IDreamNode } from '../../../../src/domain/models/dream-node.model';
 import { IPaginatedResult } from '../../../../src/domain/interfaces/pagination.interface';
 
@@ -12,16 +12,28 @@ jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid-123'),
 }));
 
-// Mock session save function
-const mockSessionSave = jest.fn((callback) => callback());
+const mockSession: any = {
+  id: 'mock-session-id',
+  cookie: { path: '/', maxAge: 1000 },
+  regenerate: jest.fn(),
+  destroy: jest.fn(),
+  reload: jest.fn(),
+  save: jest.fn(),
+  touch: jest.fn(),
+  dreamContext: {
+    themes: [],
+    people: [],
+    locations: [],
+    emotions_context: [],
+  },
+};
 
 describe('DreamNodeController Integration Tests', () => {
   let controller: DreamNodeController;
   let mockInterpretationService: jest.Mocked<InterpretationDreamService>;
   let mockDreamNodeService: jest.Mocked<DreamNodeService>;
   let mockIllustrationService: jest.Mocked<IllustrationDreamService>;
-  let mockContextService: jest.Mocked<ContextService>;
-  
+  let mockContextService: jest.Mocked<DreamContextService>;
   // Common mock implementations
   const mockDreamContext = {
     themes: [],
@@ -33,7 +45,6 @@ describe('DreamNodeController Integration Tests', () => {
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
-    
     // Mock services
     mockInterpretationService = {
       interpretDream: jest.fn().mockResolvedValue({
@@ -91,10 +102,7 @@ describe('DreamNodeController Integration Tests', () => {
           description: 'Test dream description',
           previousInterpretation: 'Previous interpretation'
         },
-        session: {
-          save: mockSessionSave,
-          dreamContext: { ...mockDreamContext }
-        }
+        session: mockSession,
       };
 
       mockRes = {
@@ -111,7 +119,13 @@ describe('DreamNodeController Integration Tests', () => {
       // Assert
       expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledWith(
         'Test dream description',
-        'Previous interpretation'
+        'Previous interpretation',
+        {
+          themes: [],
+          people: [],
+          locations: [],
+          emotions_context: [],
+        }
       );
       expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
         title: 'Reinterpreted Dream',
@@ -152,8 +166,18 @@ describe('DreamNodeController Integration Tests', () => {
   describe('DreamNodeController.save', () => {
     let mockReq: Partial<Request> & { userId?: string };
     let mockRes: Partial<Response>;
+    let saveCallback: (err?: any) => void;
 
     beforeEach(() => {
+      // Create a fresh mock for each test
+      const mockSave = jest.fn().mockImplementation((cb) => {
+        saveCallback = cb;
+        return {
+          ...mockSession,
+          save: mockSave
+        };
+      });
+
       mockReq = {
         userId: 'test-user-id',
         body: {
@@ -164,8 +188,9 @@ describe('DreamNodeController Integration Tests', () => {
           imageUrl: 'https://example.com/image.jpg'
         },
         session: {
-          save: mockSessionSave,
-          dreamContext: { ...mockDreamContext }
+          ...mockSession,
+          save: mockSave,
+          dreamContext: null
         }
       };
 
@@ -174,23 +199,42 @@ describe('DreamNodeController Integration Tests', () => {
         json: jest.fn(),
         send: jest.fn()
       };
+
+      // Mock the service method
+      mockDreamNodeService.saveDreamNode.mockResolvedValue(undefined);
     });
 
     it('should save a dream node successfully', async () => {
+      // Arrange
+      const expectedDreamNode = {
+        title: 'Test Dream',
+        description: 'Test description',
+        interpretation: 'Test interpretation',
+        emotion: 'happy',
+        imageUrl: 'https://example.com/image.jpg'
+      };
+
       // Act
-      await controller.save(mockReq as Request, mockRes as Response);
+      const savePromise = controller.save(mockReq as Request, mockRes as Response);
+
+      // Simulate session save completion
+      if (saveCallback) {
+        saveCallback();
+      }
+
+      // Wait for the controller to complete
+      await savePromise;
 
       // Assert
       expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith(
         'test-user-id',
+        expect.objectContaining(expectedDreamNode),
         expect.objectContaining({
-          title: 'Test Dream',
-          description: 'Test description',
-          interpretation: 'Test interpretation',
-          emotion: 'happy',
-          imageUrl: 'https://example.com/image.jpg'
-        }),
-        expect.any(Object)
+          themes: expect.any(Array),
+          people: expect.any(Array),
+          locations: expect.any(Array),
+          emotions_context: expect.any(Array)
+        })
       );
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith({

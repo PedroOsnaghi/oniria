@@ -65,7 +65,7 @@ export class DreamNodeController {
       const userId = (req as any).userId;
       const dreamNode: SaveDreamNodeRequestDto = req.body;
       const session = req.session as any;
-      const dreamContext = session.dreamContext ? 
+      const dreamContext = session.dreamContext ?
         JSON.parse(JSON.stringify(session.dreamContext)) : {
         themes: [],
         people: [],
