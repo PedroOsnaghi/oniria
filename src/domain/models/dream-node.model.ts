@@ -6,23 +6,23 @@ export interface IDreamNode {
   id?: string;
   creationDate: Date;
   title: string;
-  description: string;
+  dream_description: string;
   interpretation: string;
   imageUrl?: string | undefined;
-  privacy: DreamPrivacy;
-  state: DreamState;
-  emotion: Emotion;
+  dream_privacy: DreamPrivacy;
+  dream_state: DreamState;
+  dream_emotion: Emotion;
 }
 
 export class DreamNode implements IDreamNode {
   creationDate: Date;
   title: string;
-  description: string;
+  dream_description: string;
   interpretation: string;
   imageUrl?: string;
-  privacy: DreamPrivacy;
-  state: DreamState;
-  emotion: Emotion;
+  dream_privacy: DreamPrivacy;
+  dream_state: DreamState;
+  dream_emotion: Emotion;
   constructor(
     creationDate: Date,
     title: string,
@@ -35,11 +35,11 @@ export class DreamNode implements IDreamNode {
   ) {
     this.creationDate = creationDate;
     this.title = title;
-    this.description = description;
+    this.dream_description = description;
     this.interpretation = interpretation;
     this.imageUrl = imageUrl ?? "";
-    this.privacy = privacy;
-    this.state = state;
-    this.emotion = emotion;
+    this.dream_privacy = privacy;
+    this.dream_state = state;
+    this.dream_emotion = emotion;
   }
 }

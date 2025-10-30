@@ -9,6 +9,7 @@ import contentModerationMiddleware from '../../middlewares/content-moderation.mi
 import { InterpreteDreamRequestDto, ReinterpreteDreamRequestDto, SaveDreamNodeRequestDto } from "../../dtos/dream-node";
 import { GetUserNodesRequestDto } from "../../dtos/dream-node/get-user-nodes.dto";
 import { authenticateToken } from "../../middlewares/auth.middleware";
+import { DreamContextService } from "../../../application/services/dream-context.service";
 import { IllustrationGeminiProvider } from "../../providers/illustration-gemini.provider";
 import { IllustrationDreamService } from "../../../application/services/illustration-dream.service";
 
@@ -20,10 +21,11 @@ const illustrationService = new IllustrationDreamService(illustrationProvider);
 const interpretationDreamService = new InterpretationDreamService(interpretationProvider);
 const dreamNodeRepository = new DreamNodeRepositorySupabase();
 const dreamNodeService = new DreamNodeService(dreamNodeRepository);
-const dreamNodeController = new DreamNodeController(interpretationDreamService, dreamNodeService, illustrationService);
+const contextService = new DreamContextService(dreamNodeRepository);
+const dreamNodeController = new DreamNodeController(interpretationDreamService, dreamNodeService, illustrationService, contextService);
 
 // Endpoints de interpretación
-dreamNodeRouter.post("/interpret", validateBody(InterpreteDreamRequestDto), contentModerationMiddleware, (req, res) => dreamNodeController.interpret(req, res));
+dreamNodeRouter.post("/interpret", authenticateToken, validateBody(InterpreteDreamRequestDto), contentModerationMiddleware, (req, res) => dreamNodeController.interpret(req, res));
 dreamNodeRouter.post("/reinterpret", validateBody(ReinterpreteDreamRequestDto), contentModerationMiddleware, (req, res) => dreamNodeController.reinterpret(req, res));
 dreamNodeRouter.post("/save", authenticateToken, validateBody(SaveDreamNodeRequestDto), (req, res) => dreamNodeController.save(req, res));
 dreamNodeRouter.get("/history", authenticateToken, validateQuery(GetUserNodesRequestDto), (req, res) => dreamNodeController.getUserNodes(req, res));
