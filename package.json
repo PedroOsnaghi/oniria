@@ -58,6 +58,7 @@
     "env-var": "^7.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mercadopago": "^2.9.0",
     "openai": "^5.22.0",
     "reflect-metadata": "^0.2.2",
     "uuid": "^13.0.0"
