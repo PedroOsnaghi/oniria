@@ -29,7 +29,6 @@ describe("TranscripcionController", () => {
   it("debe devolver 400 si no se proporciona archivo", async () => {
     delete mockReq.file;
 
-
     await controller.transcribeAudio(
       mockReq as Request,
       mockRes as Response

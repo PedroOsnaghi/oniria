@@ -11,10 +11,9 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
       apiKey: envs.OPENAI_API_KEY,
     });
   }
-  
+
   private sanitizeText(text: string): string {
     if (!text) return text;
-
 
     const noHtml = text.replace(/<[^>]*>/g, " ");
     return noHtml.replace(/\s+/g, " ").trim();
