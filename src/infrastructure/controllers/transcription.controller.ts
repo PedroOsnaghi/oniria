@@ -19,6 +19,7 @@ export class TranscripcionController {
 
       res.json({ text: transcripcion.text });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error al transcribir el audio" });
     }
   }

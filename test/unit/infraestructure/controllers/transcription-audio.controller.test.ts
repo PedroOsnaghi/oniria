@@ -2,10 +2,6 @@ import { TranscriptionService } from "../../../../src/application/services/trans
 import { TranscripcionController } from "../../../../src/infrastructure/controllers/transcription.controller";
 import { Request, Response } from "express";
 
-class Transcripcion {
-  constructor(public text: string) {}
-}
-
 describe("TranscripcionController", () => {
   let controller: TranscripcionController;
   let transcriptionService: jest.Mocked<TranscriptionService>;

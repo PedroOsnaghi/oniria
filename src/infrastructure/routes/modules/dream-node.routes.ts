@@ -12,7 +12,7 @@ import { authenticateToken } from "../../middlewares/auth.middleware";
 import { DreamContextService } from "../../../application/services/dream-context.service";
 import { IllustrationGeminiProvider } from "../../providers/illustration-gemini.provider";
 import { IllustrationDreamService } from "../../../application/services/illustration-dream.service";
-import { upload, validateAudio } from "../../middlewares/upload";
+import { validateAudio } from "../../middlewares/upload";
 import { TranscripcionController } from "../../controllers/transcription.controller";
 import { TranscriptionWhisperProvider } from "../../providers/transcription-whisper.provider";
 import { TranscriptionService } from "../../../application/services/transcription.service";
