@@ -1,4 +1,6 @@
+import { envs } from "../../config/envs";
 import { IDreamNodeFilters } from "../../domain/interfaces/dream-node-filters.interface";
+import { DreamContext } from "../../domain/interfaces/interpretation-dream.interface";
 import {
   IPaginationOptions,
   IPaginatedResult,
@@ -6,40 +8,51 @@ import {
 import { IDreamNode, Emotion } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { SaveDreamNodeRequestDto } from "../../infrastructure/dtos/dream-node";
-import { envs } from "../../config/envs";
+
 export class DreamNodeService {
   constructor(private dreamNodeRepository: IDreamNodeRepository) {
     this.dreamNodeRepository = dreamNodeRepository;
   }
   async saveDreamNode(
     userId: string,
-    dreamNode: SaveDreamNodeRequestDto
+    dream: SaveDreamNodeRequestDto,
+    dreamContext: DreamContext
   ): Promise<void> {
-    const { description, title, interpretation, emotion } = dreamNode;
-    let { imageUrl } = dreamNode;
+    const {
+      title,
+      description,
+      interpretation,
+      emotion,
+      imageUrl = "",
+    } = dream;
 
-    if (!imageUrl || !imageUrl.startsWith(envs.SUPABASE_URL)) {
-      imageUrl = "";
+    const finalImageUrl = imageUrl?.startsWith(envs.SUPABASE_URL) ? imageUrl : "";
+
+    const dreamNode: IDreamNode = {
+      creationDate: new Date(),
+      title,
+      dream_description: description,
+      interpretation,
+      imageUrl: finalImageUrl,
+      dream_privacy: "Privado",
+      dream_state: "Activo",
+      dream_emotion: emotion as Emotion,
+    };
+
+    const dreamNodeCreated = await this.dreamNodeRepository.save(
+      dreamNode,
+      userId
+    );
+
+    if (!dreamNodeCreated?.id) {
+      throw new Error("No se pudo crear el nodo de sueño");
     }
 
-    try {
-      const dreamNode: IDreamNode = {
-        creationDate: new Date(),
-        title,
-        description,
-        interpretation,
-        privacy: "Privado",
-        state: "Activo",
-        emotion: (emotion.charAt(0).toUpperCase() +
-          emotion.slice(1)) as Emotion,
-        imageUrl,
-      };
-      await this.dreamNodeRepository.save(dreamNode, userId);
-    } catch (error: unknown) {
-      throw new Error(
-        "Error guardando el nodo de sueño: " + (error as Error).message
-      );
-    }
+    await this.dreamNodeRepository.addDreamContext(
+      dreamNodeCreated.id,
+      userId,
+      dreamContext
+    );
   }
 
   async getUserNodes(

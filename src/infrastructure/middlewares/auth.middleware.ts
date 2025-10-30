@@ -3,10 +3,7 @@ import { envs } from "../../config/envs";
 import jwt from "jsonwebtoken";
 import { JwtPayload } from "@supabase/supabase-js";
 
-const secret = envs.SUPABASE_JWT_SECRET;
-const url = envs.SUPABASE_URL;
-
-export function authenticateToken(
+export async function authenticateToken(
   req: Request,
   res: Response,
   next: NextFunction
@@ -18,19 +15,27 @@ export function authenticateToken(
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  jwt.verify(token, secret, (err, decoded) => {
-    if (err) {
-      console.error("JWT verification failed:", err);
-      return res.status(403).json({ message: "Forbidden" });
-    }
-    const payload = decoded as JwtPayload;
+  try {
+    const secret = envs.SUPABASE_JWT_SECRET;
+    const url = envs.SUPABASE_URL;
 
-    if (!payload.iss?.includes(url)) {
-      return res.status(403).json({ message: "Invalid issuer" });
-    }
+    jwt.verify(token, secret, (err, decoded) => {
+      if (err) {
+        console.error("JWT verification failed:", err);
+        return res.status(403).json({ message: "Forbidden" });
+      }
+      const payload = decoded as JwtPayload;
 
-    (req as any).userId = payload.sub;
+      if (!payload.iss?.includes(url)) {
+        return res.status(403).json({ message: "Invalid issuer" });
+      }
 
-    next();
-  });
+      (req as any).userId = payload.sub;
+
+      next();
+    });
+  } catch (err) {
+    console.error("Unexpected error in authenticateToken:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 }
