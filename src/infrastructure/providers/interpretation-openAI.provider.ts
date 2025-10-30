@@ -13,7 +13,7 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
 
     private sanitizeText(text: string): string {
         if (!text) return text;
-        
+
         const noHtml = text.replace(/<[^>]*>/g, ' ');
         return noHtml.replace(/\s+/g, ' ').trim();
     }
@@ -132,7 +132,7 @@ Responde EXACTAMENTE en este formato JSON:
                     }
                 ],
                 max_tokens: 350,
-                temperature: 0.9, 
+                temperature: 0.9,
                 response_format: { type: 'json_object' } as any,
             });
 

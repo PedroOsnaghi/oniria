@@ -10,6 +10,6 @@ export class TranscriptionService {
             return await this.transcriptionProvider.transcribeAudio(filePath);
         } catch (error) {
             throw new Error("Error transcribing audio: " + (error as Error).message);
-        }   
+        }
     }
 }

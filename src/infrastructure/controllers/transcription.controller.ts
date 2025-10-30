@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { Transcripcion } from "../../domain/models/transcription-audio";
 import { TranscriptionService } from "../../application/services/transcription.service";
 
-
 export class TranscripcionController {
   constructor(
     private readonly transcriptionAudio: TranscriptionService
@@ -15,12 +14,11 @@ export class TranscripcionController {
         return;
       }
 
-      const texto = await this.transcriptionAudio.transcribeAudio(file.path);
-      const transcripcion = new Transcripcion(texto);
+      const text = await this.transcriptionAudio.transcribeAudio(file.path);
+      const transcripcion = new Transcripcion(text);
 
-      res.json({ texto: transcripcion.texto });
+      res.json({ text: transcripcion.text });
     } catch (error) {
-      console.error("Error en controlador:", error);
       res.status(500).json({ error: "Error al transcribir el audio" });
     }
   }
