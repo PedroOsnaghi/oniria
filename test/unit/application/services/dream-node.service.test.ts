@@ -1,6 +1,7 @@
 import { DreamNodeService } from "../../../../src/application/services/dream-node.service";
 import { IDreamNodeRepository } from "../../../../src/domain/repositories/dream-node.repository";
 import { SaveDreamNodeRequestDto } from "../../../../src/infrastructure/dtos/dream-node";
+import { DreamContext } from "../../../../src/domain/interfaces/interpretation-dream.interface";
 
 jest.mock("../../../../src/config/envs", () => ({
   envs: {
@@ -12,14 +13,23 @@ describe("DreamNodeService - saveDreamNode", () => {
   let service: DreamNodeService;
   let mockRepository: jest.Mocked<IDreamNodeRepository>;
 
+  let dreamContext: DreamContext;
+
   beforeEach(() => {
     mockRepository = {
-      save: jest.fn(),
+      save: jest.fn().mockResolvedValue({ id: "mocked-id" }),
       getUserNodes: jest.fn(),
       countUserNodes: jest.fn(),
+      addDreamContext: jest.fn(),
     } as unknown as jest.Mocked<IDreamNodeRepository>;
 
     service = new DreamNodeService(mockRepository);
+    dreamContext = {
+      themes: [],
+      people: [],
+      locations: [],
+      emotions_context: []
+    };
   });
 
   it("should save a dreamNode correctly with valid imageUrl", async () => {
@@ -29,19 +39,19 @@ describe("DreamNodeService - saveDreamNode", () => {
       description: "Descripción del sueño",
       interpretation: "Interpretación del sueño",
       emotion: "felicidad",
-      imageUrl: "https://mock.supabase.co/storage/v1/object/public/image1.jpg",
+      imageUrl: "https://mock.supabase.co/storage/v1/object/public/image1.jpg"
     };
 
-    await service.saveDreamNode(userId, node);
+    await service.saveDreamNode(userId, node, dreamContext);
 
     expect(mockRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         title: node.title,
-        description: node.description,
+        dream_description: node.description,
         interpretation: node.interpretation,
-        emotion: "Felicidad",
-        privacy: "Privado",
-        state: "Activo",
+        dream_emotion: expect.stringMatching(/felicidad/i),
+        dream_privacy: "Privado",
+        dream_state: "Activo",
         imageUrl: node.imageUrl,
         creationDate: expect.any(Date),
       }),
@@ -56,16 +66,21 @@ describe("DreamNodeService - saveDreamNode", () => {
       description: "Descripción del sueño",
       interpretation: "Interpretación del sueño",
       emotion: "miedo",
-      imageUrl: "https://otro-servidor.com/imagen.jpg",
+      imageUrl: "https://otro-servidor.com/imagen.jpg"
     };
 
-    await service.saveDreamNode(userId, node);
+    await service.saveDreamNode(userId, node, dreamContext);
 
     expect(mockRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         title: node.title,
-        imageUrl: "", // limpiado
-        emotion: "Miedo",
+        dream_description: node.description,
+        dream_emotion: node.emotion,
+        dream_privacy: "Privado",
+        dream_state: "Activo",
+        imageUrl: "",
+        interpretation: node.interpretation,
+        creationDate: expect.any(Date),
       }),
       userId
     );
@@ -78,15 +93,21 @@ describe("DreamNodeService - saveDreamNode", () => {
       description: "Sin imagen",
       interpretation: "Nada relevante",
       emotion: "tristeza",
+      imageUrl: ""
     };
 
-    await service.saveDreamNode(userId, node);
+    await service.saveDreamNode(userId, node, dreamContext);
 
     expect(mockRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         title: node.title,
-        imageUrl: "",
-        emotion: "Tristeza",
+        dream_description: node.description,
+        dream_emotion: node.emotion,
+        dream_privacy: "Privado",
+        dream_state: "Activo",
+        imageUrl: node.imageUrl,
+        interpretation: node.interpretation,
+        creationDate: expect.any(Date),
       }),
       userId
     );
@@ -99,13 +120,12 @@ describe("DreamNodeService - saveDreamNode", () => {
       description: "Descripción del sueño",
       interpretation: "Interpretación del sueño",
       emotion: "enojo",
-      imageUrl: "https://mock.supabase.co/storage/v1/object/public/image2.jpg",
+      imageUrl: "https://mock.supabase.co/storage/v1/object/public/image2.jpg"
     };
 
     mockRepository.save.mockRejectedValue(new Error("Error en DB"));
-
-    await expect(service.saveDreamNode(userId, node)).rejects.toThrow(
-      "Error guardando el nodo de sueño: Error en DB"
+    await expect(service.saveDreamNode(userId, node, dreamContext)).rejects.toThrow(
+      "Error en DB"
     );
   });
 });

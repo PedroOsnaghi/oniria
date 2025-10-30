@@ -30,8 +30,7 @@ describe('DreamNodeRepositorySupabase', () => {
     });
 
     it('should correctly insert a dream node', async () => {
-        await expect(repo.save(dreamNodeMock, 'user-1')).resolves.toBeUndefined();
-
+        await repo.save(dreamNodeMock, 'user-1');
         expect(mockSupabase.from).toHaveBeenCalledWith('dream_node');
         expect(mockSupabase.from('dream_node').insert).toHaveBeenCalledWith(expect.objectContaining({
             id: '550e8400-e29b-41d4-a716-446655440001',

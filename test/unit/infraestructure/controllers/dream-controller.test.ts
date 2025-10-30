@@ -1,90 +1,151 @@
-import "reflect-metadata";
-import { DreamNodeController } from "../../../../src/infrastructure/controllers/dream-node.controller";
-import { InterpretationDreamService } from "../../../../src/application/services/interpretation-dream.service";
-import { DreamNodeService } from "../../../../src/application/services/dream-node.service";
-import { IDreamNode } from "../../../../src/domain/models/dream-node.model";
-import { IPaginatedResult } from "../../../../src/domain/interfaces/pagination.interface";
+import 'reflect-metadata';
+import { Request, Response } from 'express';
+import { DreamNodeController } from '../../../../src/infrastructure/controllers/dream-node.controller';
+import { InterpretationDreamService } from '../../../../src/application/services/interpretation-dream.service';
+import { DreamNodeService } from '../../../../src/application/services/dream-node.service';
+import { IllustrationDreamService } from '../../../../src/application/services/illustration-dream.service';
+import { DreamContextService } from '../../../../src/application/services/dream-context.service';
+import { IDreamNode } from '../../../../src/domain/models/dream-node.model';
+import { IPaginatedResult } from '../../../../src/domain/interfaces/pagination.interface';
 
-jest.mock("uuid", () => ({
-  v4: jest.fn(() => "mocked-uuid-123"),
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => 'mocked-uuid-123'),
 }));
-import { Request, Response } from "express";
-import { mockSaveReq } from "../../mocks/mock-save-req";
-import { mockSaveRes } from "../../mocks/mock-save-res";
-import { IllustrationDreamService } from "../../../../src/application/services/illustration-dream.service";
 
-describe("DreamNodeController Integration Tests", () => {
+const mockSession: any = {
+  id: 'mock-session-id',
+  cookie: { path: '/', maxAge: 1000 },
+  regenerate: jest.fn(),
+  destroy: jest.fn(),
+  reload: jest.fn(),
+  save: jest.fn(),
+  touch: jest.fn(),
+  dreamContext: {
+    themes: [],
+    people: [],
+    locations: [],
+    emotions_context: [],
+  },
+};
+
+describe('DreamNodeController Integration Tests', () => {
   let controller: DreamNodeController;
   let mockInterpretationService: jest.Mocked<InterpretationDreamService>;
   let mockDreamNodeService: jest.Mocked<DreamNodeService>;
   let mockIllustrationService: jest.Mocked<IllustrationDreamService>;
+  let mockContextService: jest.Mocked<DreamContextService>;
+  // Common mock implementations
+  const mockDreamContext = {
+    themes: [],
+    people: [],
+    locations: [],
+    emotions_context: []
+  };
 
   beforeEach(() => {
+    // Reset all mocks
+    jest.clearAllMocks();
+    // Mock services
     mockInterpretationService = {
-      interpretDream: jest.fn(),
-      reinterpretDream: jest.fn(),
+      interpretDream: jest.fn().mockResolvedValue({
+        title: 'Test Dream',
+        interpretation: 'Test interpretation',
+        emotion: 'happy',
+        context: { ...mockDreamContext }
+      }),
+      reinterpretDream: jest.fn().mockResolvedValue({
+        title: 'Reinterpreted Dream',
+        interpretation: 'Reinterpreted content',
+        emotion: 'neutral'
+      })
     } as any;
 
     mockDreamNodeService = {
-      saveDreamNode: jest.fn(),
-      getDreamById: jest.fn(),
-      getUserNodes: jest.fn(),
+      saveDreamNode: jest.fn().mockResolvedValue(undefined),
+      getDreamById: jest.fn().mockResolvedValue({
+        id: 'dream-123',
+        title: 'Test Dream',
+        description: 'Test description'
+      }),
+      getUserNodes: jest.fn().mockResolvedValue({
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 10
+      } as unknown as IPaginatedResult<IDreamNode>)
     } as any;
 
     mockIllustrationService = {
-      generateIllustration: jest.fn(),
+      generateIllustration: jest.fn().mockResolvedValue('https://example.com/image.jpg')
+    } as any;
+
+    mockContextService = {
+      getUserDreamContext: jest.fn().mockResolvedValue({ ...mockDreamContext })
     } as any;
 
     controller = new DreamNodeController(
       mockInterpretationService,
       mockDreamNodeService,
-      mockIllustrationService
+      mockIllustrationService,
+      mockContextService
     );
   });
 
-  describe("DreamNodeController.reinterpret", () => {
-    let mockReq: any;
-    let mockRes: any;
+  describe('DreamNodeController.reinterpret', () => {
+    let mockReq: Partial<Request>;
+    let mockRes: Partial<Response>;
 
     beforeEach(() => {
       mockReq = {
         body: {
-          dreamId: "uuid-fake",
-          description: "texto",
-          previousInterpretation: "prev",
+          dreamId: 'test-dream-id',
+          description: 'Test dream description',
+          previousInterpretation: 'Previous interpretation'
         },
+        session: mockSession,
       };
+
       mockRes = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn(),
+        send: jest.fn()
       };
-
-      mockInterpretationService.reinterpretDream.mockResolvedValue({
-        title: "Título mockeado",
-        interpretation: "Interpretación mockeada",
-        emotion: "Emoción mockeada",
-      });
-
-      // Mock the illustration service
-      mockIllustrationService.generateIllustration.mockResolvedValue(
-        "https://mock-illustration-url.com/image.jpg"
-      );
     });
 
-    it("debería reinterpretar un sueño correctamente", async () => {
+    it('should reinterpret a dream successfully', async () => {
+      // Act
       await controller.reinterpret(mockReq as Request, mockRes as Response);
 
+      // Assert
       expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledWith(
-        "texto",
-        "prev"
+        'Test dream description',
+        'Previous interpretation',
+        {
+          themes: [],
+          people: [],
+          locations: [],
+          emotions_context: [],
+        }
       );
-      expect(mockIllustrationService.generateIllustration).toHaveBeenCalledWith("texto");
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Reinterpreted Dream',
+        interpretation: 'Reinterpreted content',
+        emotion: 'neutral'
+      }));
+    });
+
+    it('should handle errors during reinterpretation', async () => {
+      // Arrange
+      const error = new Error('Reinterpretation failed');
+      mockInterpretationService.reinterpretDream.mockRejectedValueOnce(error);
+
+      // Act
+      await controller.reinterpret(mockReq as Request, mockRes as Response);
+
+      // Assert
+      expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
-        description: "texto",
-        imageUrl: "https://mock-illustration-url.com/image.jpg",
-        title: "Título mockeado",
-        interpretation: "Interpretación mockeada",
-        emotion: "Emoción mockeada",
+        errors: 'Error al reinterpretar el sueño'
       });
     });
 
@@ -102,60 +163,111 @@ describe("DreamNodeController Integration Tests", () => {
     });
   });
 
-  describe("DreamNodeController.save", () => {
+  describe('DreamNodeController.save', () => {
+    let mockReq: Partial<Request> & { userId?: string };
+    let mockRes: Partial<Response>;
+    let saveCallback: (err?: any) => void;
+
     beforeEach(() => {
-      mockDreamNodeService.saveDreamNode.mockReset();
-    });
+      // Create a fresh mock for each test
+      const mockSave = jest.fn().mockImplementation((cb) => {
+        saveCallback = cb;
+        return {
+          ...mockSession,
+          save: mockSave
+        };
+      });
 
-    it("should save a dream node and return 201", async () => {
+      mockReq = {
+        userId: 'test-user-id',
+        body: {
+          title: 'Test Dream',
+          description: 'Test description',
+          interpretation: 'Test interpretation',
+          emotion: 'happy',
+          imageUrl: 'https://example.com/image.jpg'
+        },
+        session: {
+          ...mockSession,
+          save: mockSave,
+          dreamContext: null
+        }
+      };
+
+      mockRes = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+        send: jest.fn()
+      };
+
+      // Mock the service method
       mockDreamNodeService.saveDreamNode.mockResolvedValue(undefined);
-      (mockSaveReq as any).userId = "user123";
+    });
 
-      await controller.save(
-        mockSaveReq as Request,
-        mockSaveRes as unknown as Response
+    it('should save a dream node successfully', async () => {
+      // Arrange
+      const expectedDreamNode = {
+        title: 'Test Dream',
+        description: 'Test description',
+        interpretation: 'Test interpretation',
+        emotion: 'happy',
+        imageUrl: 'https://example.com/image.jpg'
+      };
+
+      // Act
+      const savePromise = controller.save(mockReq as Request, mockRes as Response);
+
+      // Simulate session save completion
+      if (saveCallback) {
+        saveCallback();
+      }
+
+      // Wait for the controller to complete
+      await savePromise;
+
+      // Assert
+      expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith(
+        'test-user-id',
+        expect.objectContaining(expectedDreamNode),
+        expect.objectContaining({
+          themes: expect.any(Array),
+          people: expect.any(Array),
+          locations: expect.any(Array),
+          emotions_context: expect.any(Array)
+        })
       );
-
-      expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith("user123", {
-        userId: "user123",
-        title: mockSaveReq.body.title,
-        description: mockSaveReq.body.description,
-        interpretation: mockSaveReq.body.interpretation,
-        emotion: mockSaveReq.body.emotion,
-        imageUrl: mockSaveReq.body.imageUrl ?? "",
-      });
-
-      expect(mockSaveRes.status).toHaveBeenCalledWith(201);
-      expect(mockSaveRes.json).toHaveBeenCalledWith({
-        message: "Nodo de sueño guardado exitosamente",
-        errors: [],
+      expect(mockRes.status).toHaveBeenCalledWith(201);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'Nodo de sueño guardado exitosamente',
+        errors: []
       });
     });
 
-    it("should return 500 when service fails", async () => {
-      mockDreamNodeService.saveDreamNode.mockRejectedValue(
-        new Error("Error simulado")
-      );
-      (mockSaveReq as any).userId = "user123";
+    it('should handle missing session context', async () => {
+      // Arrange
+      delete mockReq.session?.dreamContext;
 
-      await controller.save(
-        mockSaveReq as Request,
-        mockSaveRes as unknown as Response
-      );
+      // Act
+      await controller.save(mockReq as Request, mockRes as Response);
 
-      expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith("user123", {
-        userId: "user123",
-        title: mockSaveReq.body.title,
-        description: mockSaveReq.body.description,
-        interpretation: mockSaveReq.body.interpretation,
-        emotion: mockSaveReq.body.emotion,
-        imageUrl: mockSaveReq.body.imageUrl ?? "",
-      });
+      // Assert
+      expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalled();
+      expect(mockRes.status).toHaveBeenCalledWith(201);
+    });
 
-      expect(mockSaveRes.status).toHaveBeenCalledWith(500);
-      expect(mockSaveRes.json).toHaveBeenCalledWith({
-        message: "Error interno del servidor",
-        errors: ["Error simulado"],
+    it('should handle save errors', async () => {
+      // Arrange
+      const error = new Error('Save failed');
+      mockDreamNodeService.saveDreamNode.mockRejectedValueOnce(error);
+
+      // Act
+      await controller.save(mockReq as Request, mockRes as Response);
+
+      // Assert
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'Error interno del servidor',
+        errors: ['Save failed']
       });
     });
   });
@@ -187,11 +299,11 @@ describe("DreamNodeController Integration Tests", () => {
       const mockDreamNode: IDreamNode = {
         id: "dream-node-id",
         title: "Test Dream",
-        description: "Test Description",
+        dream_description: "Test Description",
         interpretation: "Test Interpretation",
-        privacy: "Publico",
-        state: "Activo",
-        emotion: "Felicidad",
+        dream_privacy: "Publico",
+        dream_state: "Activo",
+        dream_emotion: "Felicidad",
         creationDate: new Date(),
       };
       const expectedResult: IPaginatedResult<IDreamNode> = {
