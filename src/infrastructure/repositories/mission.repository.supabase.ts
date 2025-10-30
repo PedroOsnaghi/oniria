@@ -3,6 +3,8 @@ import { IMissionRepository } from "../../domain/repositories/mission.repository
 import { Mission, UserMissionProgress } from "../../domain/models/mission.model";
 
 export class MissionRepositorySupabase implements IMissionRepository {
+  
+  
   async getAllMissions(): Promise<Mission[]> {
     const { data, error } = await supabase
       .from('mission')
@@ -18,7 +20,7 @@ export class MissionRepositorySupabase implements IMissionRepository {
       target: m.target || undefined,
     }));
 
-    // Resolve badgeIds via badge.mission_id mapping in a single query
+    // mapea mision a badge si existe
     if (missions.length > 0) {
       const missionIds = missions.map(m => m.id);
       const { data: badges, error: bErr } = await supabase
@@ -62,8 +64,9 @@ export class MissionRepositorySupabase implements IMissionRepository {
     };
   }
 
+  //update o insert de mision
   async upsertUserMission(profileId: string, missionCode: string, progress: number, complete: boolean): Promise<UserMissionProgress> {
-    // resolve mission id by code
+
     const { data: missionData, error: missionErr } = await supabase
       .from('mission').select('id, code, title, description, type, target').eq('code', missionCode).single();
     if (missionErr || !missionData) throw new Error(missionErr?.message || 'Mission not found');

@@ -2,12 +2,12 @@ export type MissionType = 'counter' | 'streak' | 'time-window' | 'set-completion
 
 export interface Mission {
   id: number;
-  code: string; // unique
+  code: string; 
   title: string;
   description?: string;
   type: MissionType;
-  target?: number; // e.g., number of actions required
-  badgeId?: string; // badge unlocked when completed
+  target?: number; 
+  badgeId?: string; 
 }
 
 export interface UserMissionProgress {

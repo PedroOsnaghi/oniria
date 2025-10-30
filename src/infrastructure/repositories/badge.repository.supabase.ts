@@ -3,6 +3,8 @@ import { IBadgeRepository } from "../../domain/repositories/badge.repository";
 import { Badge } from "../../domain/models/badge.model";
 
 export class BadgeRepositorySupabase implements IBadgeRepository {
+  
+  
   async getUserBadges(profileId: string): Promise<Badge[]> {
     const { data, error } = await supabase
       .from('user_badge')
@@ -19,7 +21,7 @@ export class BadgeRepositorySupabase implements IBadgeRepository {
   }
 
   async awardBadge(profileId: string, badgeId: string): Promise<void> {
-    // Insert if not exists
+
     const { error } = await supabase
       .from('user_badge')
       .upsert({ profile_id: profileId, badge_id: badgeId }, { onConflict: 'profile_id,badge_id' });
