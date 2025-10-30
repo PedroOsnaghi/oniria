@@ -17,7 +17,7 @@ export class TranscriptionWhisperProvider implements TranscriptionProvider {
                 model: "whisper-1",
                 language: "es",
             });
-            fs.unlinkSync(filePath); // eliminar archivo temporal
+            fs.unlinkSync(filePath);
             return response.text;
         } catch (error) {
             console.error("Error en TranscriptionWhisperProvicer:", error);

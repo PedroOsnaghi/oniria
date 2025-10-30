@@ -1,9 +1,7 @@
-TranscripcionController
 import { TranscriptionService } from "../../../../src/application/services/transcription.service";
 import { TranscripcionController } from "../../../../src/infrastructure/controllers/transcription.controller";
 import { Request, Response } from "express";
 
-// Clase auxiliar para simular la entidad
 class Transcripcion {
   constructor(public text: string) {}
 }
@@ -15,14 +13,12 @@ describe("TranscripcionController", () => {
   let mockRes: Partial<Response>;
 
   beforeEach(() => {
-    // Mock del servicio
     transcriptionService = {
       transcribeAudio: jest.fn(),
     } as unknown as jest.Mocked<TranscriptionService>;
 
     controller = new TranscripcionController(transcriptionService);
 
-    // Mock de req y res
     mockReq = {};
     mockRes = {
       status: jest.fn().mockReturnThis(),
