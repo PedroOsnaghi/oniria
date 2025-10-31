@@ -85,13 +85,13 @@ export class DreamNodeController {
         dreamNode,
         dreamContext
       );
-      
+
       return res
         .status(201)
-        .json({ 
-          message: "Nodo de sueño guardado exitosamente", 
+        .json({
+          message: "Nodo de sueño guardado exitosamente",
           errors: [],
-          unlockedBadges: unlockedBadges 
+          unlockedBadges: unlockedBadges
         });
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);
@@ -118,7 +118,7 @@ export class DreamNodeController {
 
       const illustrationUrl =
         await this.illustrationService.generateIllustration(description);
-  
+
       const unlockedBadges = await this.dreamNodeService.onDreamReinterpreted(userId);
 
       res.json({

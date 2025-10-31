@@ -64,7 +64,7 @@ export class DreamNodeService {
         console.error('MissionService onDreamSaved error:', e);
       }
     }
-    
+
     return unlockedBadges;
   }
 

@@ -3,8 +3,7 @@ import { IMissionRepository } from "../../domain/repositories/mission.repository
 import { Mission, UserMissionProgress } from "../../domain/models/mission.model";
 
 export class MissionRepositorySupabase implements IMissionRepository {
-  
-  
+
   async getAllMissions(): Promise<Mission[]> {
     const { data, error } = await supabase
       .from('mission')
@@ -47,7 +46,6 @@ export class MissionRepositorySupabase implements IMissionRepository {
     const missions = await this.getAllMissions();
     if (missions.length === 0) return [];
 
-
     const missionIds = missions.map(m => m.id);
     const { data: progresses, error: pErr } = await supabase
       .from('user_mission')
@@ -60,7 +58,6 @@ export class MissionRepositorySupabase implements IMissionRepository {
     (progresses || []).forEach((p: any) => {
       byMission[p.mission_id] = { progress: p.progress || 0, completed_at: p.completed_at || null };
     });
-
 
     const result: UserMissionProgress[] = missions.map((m) => {
       const prog = byMission[m.id];

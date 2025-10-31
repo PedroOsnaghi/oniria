@@ -10,11 +10,10 @@ export class MissionService {
     private readonly badgeRepository: IBadgeRepository
   ) {}
 
- 
   async onDreamSaved(profileId: string): Promise<Badge[]> {
     const unlockedBadges: Badge[] = [];
     const isDev = process.env.NODE_ENV !== 'production';
-    
+
     const totalDreams = await this.dreamNodeRepository.countUserNodes(
       profileId,
       {} as any
@@ -51,32 +50,29 @@ export class MissionService {
 
     const progress = Math.min(count, mission.target);
     const completed = progress >= mission.target;
-    
 
     const existing = await this.missionRepository.getUserMission(profileId, missionCode);
     const wasAlreadyCompleted = existing?.completedAt != null;
     const crossedThreshold = previousCount < mission.target && count >= mission.target;
-    
-    const updated = await this.missionRepository.upsertUserMission(profileId, missionCode, progress, completed);
+
+  await this.missionRepository.upsertUserMission(profileId, missionCode, progress, completed);
 
     if (process.env.NODE_ENV !== 'production') console.log('[MissionService] counter mission', { missionCode, target: mission.target, progress, completed, wasAlreadyCompleted, crossedThreshold });
 
     if (completed && crossedThreshold && !wasAlreadyCompleted && mission.badgeId) {
       await this.badgeRepository.awardBadge(profileId, mission.badgeId);
-      
+
       const badge = await this.badgeRepository.getBadgeById(mission.badgeId);
       return badge;
     }
-    
+
     return null;
   }
-
 
   async onDreamReinterpreted(profileId: string): Promise<Badge[]> {
     const badge = await this.incrementalEventMission(profileId, 'reflective_interpreter', 1);
     return badge ? [badge] : [];
   }
-
 
   private async incrementalEventMission(profileId: string, missionCode: string, delta: number): Promise<Badge | null> {
     const missions = await this.missionRepository.getAllMissions();
@@ -86,7 +82,7 @@ export class MissionService {
     const existing = await this.missionRepository.getUserMission(profileId, missionCode);
     const current = existing?.progress ?? 0;
     const wasAlreadyCompleted = existing?.completedAt != null;
-    
+
     const next = Math.min(current + delta, mission.target);
     const completed = next >= mission.target;
     await this.missionRepository.upsertUserMission(profileId, missionCode, next, completed);
@@ -103,18 +99,16 @@ export class MissionService {
         wasAlreadyCompleted
       });
     }
-   
-   
+
     if (completed && !wasAlreadyCompleted && mission.badgeId) {
       await this.badgeRepository.awardBadge(profileId, mission.badgeId);
-      
+
       const badge = await this.badgeRepository.getBadgeById(mission.badgeId);
       return badge;
     }
-    
+
     return null;
   }
-
 
   private async updateStreakMission(profileId: string, missionCode: string, currentStreak: number, previousStreak: number): Promise<Badge | null> {
     const missions = await this.missionRepository.getAllMissions();
@@ -123,22 +117,22 @@ export class MissionService {
 
     const progress = Math.min(currentStreak, mission.target);
     const completed = progress >= mission.target;
-    
+
     const existing = await this.missionRepository.getUserMission(profileId, missionCode);
     const wasAlreadyCompleted = existing?.completedAt != null;
     const crossedThreshold = previousStreak < mission.target && currentStreak >= mission.target;
-    
+
     await this.missionRepository.upsertUserMission(profileId, missionCode, progress, completed);
 
     if (process.env.NODE_ENV !== 'production') console.log('[MissionService] streak mission', { missionCode, target: mission.target, progress, completed, wasAlreadyCompleted, crossedThreshold });
 
     if (completed && crossedThreshold && !wasAlreadyCompleted && mission.badgeId) {
       await this.badgeRepository.awardBadge(profileId, mission.badgeId);
-      
+
       const badge = await this.badgeRepository.getBadgeById(mission.badgeId);
       return badge;
     }
-    
+
     return null;
   }
 
@@ -151,7 +145,6 @@ export class MissionService {
     const isFirstDreamToday = dreamsToday <= 1; // after the save, 1 means first dream of today
     return isFirstDreamToday ? Math.max(0, currentStreak - 1) : currentStreak;
   }
-
 
   private async computeCurrentStreak(profileId: string): Promise<number> {
 
@@ -169,11 +162,11 @@ export class MissionService {
 
    /* daySet contiene el string con las fechas de creacion de sueños de los ultimos 60 dias y esas fehcas les da un formato especifico,
     recorre todos los sueños y si la fecha se normaliza correctamente, la agrega al set.
-   luego se hace un for 60 veces (60 dias), donde se hace una key con la fecha normalizada contando desde hoy hasta 60 dias atras. 
+   luego se hace un for 60 veces (60 dias), donde se hace una key con la fecha normalizada contando desde hoy hasta 60 dias atras.
    Si dayset contiene esa fecha en el set, se suma uno a la racha, si no, se corta*/
     const daySet = new Set<string>();
     for (const d of dreams) {
-    
+
       const dt = new Date((d as any).creationDate);
       if (isNaN(dt.getTime())) continue;
       daySet.add(this.toUTCDateKey(dt));

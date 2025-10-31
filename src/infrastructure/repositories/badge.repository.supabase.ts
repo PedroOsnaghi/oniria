@@ -3,8 +3,7 @@ import { IBadgeRepository } from "../../domain/repositories/badge.repository";
 import { Badge } from "../../domain/models/badge.model";
 
 export class BadgeRepositorySupabase implements IBadgeRepository {
-  
-  
+
   async getUserBadges(profileId: string): Promise<Badge[]> {
     const { data, error } = await supabase
       .from('user_badge')
