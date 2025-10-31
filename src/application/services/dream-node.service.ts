@@ -8,16 +8,18 @@ import {
 import { IDreamNode, Emotion, DreamTypeName } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { SaveDreamNodeRequestDto } from "../../infrastructure/dtos/dream-node";
+import { MissionService } from "./mission.service";
+import { Badge } from "../../domain/models/badge.model";
 
 export class DreamNodeService {
-  constructor(private dreamNodeRepository: IDreamNodeRepository) {
+  constructor(private dreamNodeRepository: IDreamNodeRepository, private missionService?: MissionService) {
     this.dreamNodeRepository = dreamNodeRepository;
   }
    async saveDreamNode(
     userId: string,
     dream: SaveDreamNodeRequestDto,
     dreamContext: DreamContext
-  ): Promise<void> {
+  ): Promise<Badge[]> {
     const {
       title,
       description,
@@ -58,6 +60,28 @@ export class DreamNodeService {
       userId,
       dreamContext
     );
+
+    let unlockedBadges: Badge[] = [];
+    if (this.missionService) {
+      try {
+        unlockedBadges = await this.missionService.onDreamSaved(userId);
+      } catch (e) {
+        console.error('MissionService onDreamSaved error:', e);
+      }
+    }
+
+    return unlockedBadges;
+  }
+
+  async onDreamReinterpreted(userId: string): Promise<Badge[]> {
+    if (!this.missionService) return [];
+    try {
+      const badges = await this.missionService.onDreamReinterpreted(userId);
+      return badges || [];
+    } catch (e) {
+      console.error('MissionService onDreamReinterpreted error:', e);
+      return [];
+    }
   }
 
   async getUserNodes(

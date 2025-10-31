@@ -63,7 +63,7 @@ describe('DreamNodeController Integration Tests', () => {
     } as any;
 
     mockDreamNodeService = {
-      saveDreamNode: jest.fn().mockResolvedValue(undefined),
+      saveDreamNode: jest.fn().mockResolvedValue([]),
       getDreamById: jest.fn().mockResolvedValue({
         id: 'dream-123',
         title: 'Test Dream',
@@ -74,7 +74,9 @@ describe('DreamNodeController Integration Tests', () => {
         total: 0,
         page: 1,
         limit: 10
-      } as unknown as IPaginatedResult<IDreamNode>)
+        } as unknown as IPaginatedResult<IDreamNode>),
+        onDreamSaved: jest.fn().mockResolvedValue([]),
+        onDreamReinterpreted: jest.fn().mockResolvedValue([])
     } as any;
 
     mockIllustrationService = {
@@ -203,7 +205,7 @@ expect(mockRes.json).toHaveBeenCalledWith({
       };
 
       // Mock the service method
-      mockDreamNodeService.saveDreamNode.mockResolvedValue(undefined);
+      mockDreamNodeService.saveDreamNode.mockResolvedValue([]);
     });
 
     it('should save a dream node successfully', async () => {
@@ -241,7 +243,8 @@ expect(mockRes.json).toHaveBeenCalledWith({
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Nodo de sueño guardado exitosamente',
-        errors: []
+        errors: [],
+        unlockedBadges: []
       });
     });
 

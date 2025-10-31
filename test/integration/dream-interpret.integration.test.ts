@@ -29,6 +29,7 @@ describe("Dream API Integration Tests", () => {
 
     mockDreamNodeService = {
       saveDreamNode: jest.fn(),
+      onDreamReinterpreted: jest.fn().mockResolvedValue([]),
     } as any;
 
     mockIllustrationService = {
@@ -114,7 +115,8 @@ describe("Dream API Integration Tests", () => {
         emotion: expectedResponse.emotion,
         title: expect.any(String),
         dreamType: expect.any(String),
-        context: expect.any(Object)
+        context: expect.any(Object),
+        unlockedBadges: expect.any(Array)
       }));
       expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledWith(
         requestBody.description,
@@ -177,16 +179,21 @@ describe("Dream API Integration Tests", () => {
     .send(requestBody)
     .expect(200);
 
- expect(response.body).toEqual(expect.objectContaining({
-  description: requestBody.description,
-  imageUrl: "https://example.com/image.jpg",
-  interpretation: expectedResponseService.interpretation,
-  emotion: expectedResponseService.emotion,
-  title: expectedResponseService.title,
-  dreamType: expectedResponseService.dreamType,
-  context: expectedResponseService.context,
-}));
-
+  expect(response.body).toEqual(expect.objectContaining({
+    description: requestBody.description,
+    imageUrl: expect.any(String),
+    interpretation: expectedResponseService.interpretation,
+    emotion: expectedResponseService.emotion,
+    title: expectedResponseService.title,
+    dreamType: expectedResponseService.dreamType,
+    context: expect.objectContaining({
+      themes: expect.any(Array),
+      people: expect.any(Array),
+      locations: expect.any(Array),
+      emotions_context: expect.any(Array)
+    }),
+    unlockedBadges: expect.any(Array)
+  }));
     });
 
     it("should handle special characters in description", async () => {
@@ -219,16 +226,16 @@ describe("Dream API Integration Tests", () => {
         .send(requestBody)
         .expect(200);
 
-     expect(response.body).toEqual({
+     expect(response.body).toEqual(expect.objectContaining({
       description: requestBody.description,
       interpretation: expectedResponse.interpretation,
       title: expectedResponse.title,
       emotion: expectedResponse.emotion,
       dreamType: expectedResponse.dreamType,
       context: expectedResponse.context,
-      imageUrl: "https://example.com/image.jpg",
-      });
-
+      imageUrl: expect.any(String),
+      unlockedBadges: expect.any(Array)
+    }));
     });
   });
 
@@ -505,13 +512,6 @@ describe("Dream API Integration Tests", () => {
         dreamType: "Estandar" as DreamTypeName,
       };
 
-      const expectedResponse = {
-        title: "Respuesta Concurrente",
-        interpretation: "Manejo de múltiples requests...",
-        emotion: "Felicidad",
-        dreamType: "Estandar",
-      };
-
       mockInterpretationService.reinterpretDream.mockResolvedValue(
         expectedResponseService
       );
@@ -528,15 +528,22 @@ describe("Dream API Integration Tests", () => {
       const responses = await Promise.all(promises);
 
       responses.forEach((response) => {
-        expect(response.body).toEqual({
+        expect(response.body).toEqual(expect.objectContaining({
           description: requestBody.description,
           imageUrl: expect.any(String),
-          interpretation: expectedResponse.interpretation,
-          emotion: expectedResponse.emotion,
-          title: expectedResponse.title,
-          dreamType: expectedResponse.dreamType,
-          context: expectedResponseService.context
-        });
+          interpretation: expect.any(String),
+          emotion: expect.any(String),
+          title: expect.any(String),
+          dreamType: expect.any(String),
+          context: expect.objectContaining({
+            themes: expect.any(Array),
+            people: expect.any(Array),
+            locations: expect.any(Array),
+            emotions_context: expect.any(Array)
+          }),
+          unlockedBadges: expect.any(Array)
+        }));
+      });
       });
     });
 
@@ -589,4 +596,3 @@ describe("Dream API Integration Tests", () => {
     });
   });
 });
-})

@@ -81,14 +81,19 @@ export class DreamNodeController {
         });
       }
 
-      await this.dreamNodeService.saveDreamNode(
+      const unlockedBadges = await this.dreamNodeService.saveDreamNode(
         userId,
         dreamNode,
         dreamContext
       );
+
       return res
         .status(201)
-        .json({ message: "Nodo de sueño guardado exitosamente", errors: [] });
+        .json({
+          message: "Nodo de sueño guardado exitosamente",
+          errors: [],
+          unlockedBadges: unlockedBadges
+        });
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);
       return res.status(500).json({
@@ -101,7 +106,7 @@ export class DreamNodeController {
   async reinterpret(req: Request, res: Response) {
     try {
       const { description, previousInterpretation } = req.body;
-      // moderation handled by middleware
+
       const userId = (req as any).userId;
       const dreamContext = await this.contextService.getUserDreamContext(userId);
 
@@ -115,10 +120,13 @@ export class DreamNodeController {
       const illustrationUrl =
         await this.illustrationService.generateIllustration(description);
 
+      const unlockedBadges = await this.dreamNodeService.onDreamReinterpreted(userId);
+
       res.json({
         description,
         imageUrl: illustrationUrl,
         ...reinterpretedDream,
+        unlockedBadges,
       });
     } catch (error: any) {
       console.error("Error en DreamNodeController reinterpret:", error);
