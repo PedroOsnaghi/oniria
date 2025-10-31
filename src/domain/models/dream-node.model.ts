@@ -1,5 +1,4 @@
-
-import { DreamTypeName } from "./dream_type.model";
+export type DreamTypeName = "Lucido" | "Pesadilla" | "Recurrente" | "Estandar";
 export type DreamPrivacy = "Publico" | "Privado" | "Anonimo";
 export type DreamState = "Activo" | "Archivado";
 export type Emotion = "Felicidad" | "Tristeza" | "Miedo" | "Enojo";
@@ -15,7 +14,6 @@ export interface IDreamNode {
   state: DreamState;
   emotion: Emotion;
   type: DreamTypeName;
-  typeReason: string;
 }
 
 export class DreamNode implements IDreamNode {
@@ -28,28 +26,26 @@ export class DreamNode implements IDreamNode {
   state: DreamState;
   emotion: Emotion;
   type: DreamTypeName;
-  typeReason: string;
-  constructor(
+
+  private constructor(
     creationDate: Date,
     title: string,
-    description: string,
+    dream_description: string,
     interpretation: string,
     privacy: DreamPrivacy,
     state: DreamState,
     emotion: Emotion,
     type: DreamTypeName,
-    typeReason: string,
     imageUrl?: string,
   ) {
     this.creationDate = creationDate;
     this.title = title;
-    this.dream_description = description;
+    this.dream_description = dream_description;
     this.interpretation = interpretation;
     this.imageUrl = imageUrl ?? "";
     this.privacy = privacy;
     this.state = state;
     this.emotion = emotion;
     this.type = type;
-    this.typeReason = typeReason;
   }
 }

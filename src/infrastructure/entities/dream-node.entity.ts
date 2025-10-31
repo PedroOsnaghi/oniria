@@ -8,10 +8,5 @@ export interface IDreamNodeEntity {
     state_id: string;
     emotion_id: string;
     image_url: string;
-}
-
-export interface IDreamTypeEntity {
     dream_type_id: string;
-    dream_node_id: string;
-    dream_type_description: string;
 }

@@ -10,7 +10,7 @@ jest.mock('../../../../src/config/envs', () => ({
 import { DreamNodeRepositorySupabase } from '../../../../src/infrastructure/repositories/dream-node.repository.supabase';
 import { supabase } from '../../../../src/config/supabase';
 import { dreamNodeMock } from '../../mocks/dream-node.mock';
-import { DreamType } from '../../../../src/domain/models/dream_type.model';
+import { DreamTypeName } from '../../../../src/domain/models/dream-node.model';
 
 describe('DreamNodeRepositorySupabase', () => {
     let repo: DreamNodeRepositorySupabase;
@@ -31,7 +31,7 @@ describe('DreamNodeRepositorySupabase', () => {
     });
 
     it('should correctly insert a dream node', async () => {
-        const dreamType = new DreamType('Estandar', 'Sueño normal');
+        const dreamType: DreamTypeName = 'Estandar';
         await repo.save(dreamNodeMock, 'user-1', dreamType);
         expect(mockSupabase.from).toHaveBeenCalledWith('dream_node');
         expect(mockSupabase.from('dream_node').insert).toHaveBeenCalledWith(expect.objectContaining({
@@ -50,7 +50,7 @@ describe('DreamNodeRepositorySupabase', () => {
             error: { message: errorMessage }
         });
 
-        const dreamType = new DreamType('Estandar', 'Sueño normal');
+        const dreamType: DreamTypeName = 'Estandar';
         const result = await repo.save(dreamNodeMock, 'user-1', dreamType);
         expect(result.data).toBeNull();
         expect(result.error).toBeDefined();

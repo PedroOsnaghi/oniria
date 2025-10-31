@@ -1,5 +1,4 @@
-import { DreamPrivacy, DreamState, Emotion, IDreamNode } from '../../../src/domain/models/dream-node.model';
-import { DreamTypeName } from '../../../src/domain/models/dream_type.model';
+import { DreamPrivacy, DreamState, DreamTypeName, Emotion, IDreamNode } from '../../../src/domain/models/dream-node.model';
 
 export const dreamNodeMock: IDreamNode = {
     id: '550e8400-e29b-41d4-a716-446655440001',
@@ -10,8 +9,7 @@ export const dreamNodeMock: IDreamNode = {
     privacy: 'Publico' as DreamPrivacy,
     state: 'Activo' as DreamState,
     emotion: 'Felicidad' as Emotion,
-    type: 'Lúcido' as DreamTypeName,
-    typeReason: 'El soñador era consciente de que estaba soñando'
+    type: 'Lúcido' as DreamTypeName
 };
 
 export const dreamNodeMockTwo: IDreamNode = {
@@ -23,6 +21,5 @@ export const dreamNodeMockTwo: IDreamNode = {
     privacy: 'Privado' as DreamPrivacy,
     state: 'Archivado' as DreamState,
     emotion: 'Tristeza' as Emotion,
-    type: 'Común' as DreamTypeName,
-    typeReason: 'Sueño recurrente sobre el océano'
+    type: 'Estandar' as DreamTypeName
 };

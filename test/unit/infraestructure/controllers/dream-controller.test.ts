@@ -52,15 +52,13 @@ describe('DreamNodeController Integration Tests', () => {
         interpretation: 'Test interpretation',
         emotion: 'happy',
         dreamType: 'Estandar',
-        dreamTypeReason: '',
         context: { ...mockDreamContext }
       }),
       reinterpretDream: jest.fn().mockResolvedValue({
         title: 'Reinterpreted Dream',
         interpretation: 'Reinterpreted content',
         emotion: 'neutral',
-        dreamType: 'Estandar',
-        dreamTypeReason: ''
+        dreamType: 'Estandar'
       })
     } as any;
 
@@ -325,8 +323,7 @@ expect(mockRes.json).toHaveBeenCalledWith({
         state: "Activo",
         emotion: "Felicidad",
         creationDate: new Date(),
-        type: "Estandar",
-        typeReason: ""
+        type: "Estandar"
       };
       const expectedResult: IPaginatedResult<IDreamNode> = {
         data: [mockDreamNode],

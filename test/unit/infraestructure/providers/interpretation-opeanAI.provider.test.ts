@@ -86,7 +86,6 @@ describe("InterpretationOpenAIProvider", () => {
           "Este sueño representa tu deseo de libertad y superación personal.",
         emotion: "Felicidad",
         dreamType: "Estandar",
-        dreamTypeReason: "",
         context: {
           emotions_context: [],
           people: [],
@@ -148,7 +147,6 @@ describe("InterpretationOpenAIProvider", () => {
         interpretation: "Invalid JSON response from OpenAI",
         emotion: "Tristeza",
         dreamType: "Estandar",
-        dreamTypeReason: "",
         context: {
           emotions_context: [],
           people: [],
@@ -181,7 +179,6 @@ describe("InterpretationOpenAIProvider", () => {
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
         dreamType: "Estandar",
-        dreamTypeReason: "",
         context: {
           emotions_context: [],
           people: [],
@@ -211,7 +208,6 @@ describe("InterpretationOpenAIProvider", () => {
         },
         emotion: "Tristeza",
         dreamType: "Estandar",
-        dreamTypeReason: "",
       });
     });
 
@@ -266,7 +262,6 @@ describe("InterpretationOpenAIProvider", () => {
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
         dreamType: "Estandar",
-        dreamTypeReason: "",
         context: {
           emotions_context: [],
           people: [],
@@ -340,7 +335,6 @@ describe("InterpretationOpenAIProvider", () => {
         },
         emotion: "Miedo",
         dreamType: "Estandar",
-        dreamTypeReason: "",
       });
 
       expect(mockChatCompletions).toHaveBeenCalledWith({
@@ -447,7 +441,6 @@ describe("InterpretationOpenAIProvider", () => {
         interpretation: "Invalid JSON for reinterpretation",
         emotion: "Tristeza",
         dreamType: "Estandar",
-        dreamTypeReason: "",
         context: {
           emotions_context: [],
           people: [],
@@ -531,7 +524,6 @@ describe("InterpretationOpenAIProvider", () => {
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
         dreamType: "Estandar",
-        dreamTypeReason: "",
         context: {
           emotions_context: [],
           people: [],
@@ -562,7 +554,6 @@ describe("InterpretationOpenAIProvider", () => {
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
         dreamType: "Estandar",
-        dreamTypeReason: "",
         context: {
           emotions_context: [],
           people: [],

@@ -5,8 +5,7 @@ import {
   IPaginationOptions,
   IPaginatedResult,
 } from "../../domain/interfaces/pagination.interface";
-import { IDreamNode, Emotion } from "../../domain/models/dream-node.model";
-import { DreamType, DreamTypeName } from "../../domain/models/dream_type.model";
+import { IDreamNode, Emotion, DreamTypeName } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { SaveDreamNodeRequestDto } from "../../infrastructure/dtos/dream-node";
 
@@ -39,15 +38,12 @@ export class DreamNodeService {
       state: "Activo",
       emotion: emotion as Emotion,
       type: dream.dreamType as DreamTypeName,
-      typeReason: dream.dreamTypeDescription,
     };
-
-    const dreamType = new DreamType(dream.dreamType as DreamTypeName, dream.dreamTypeDescription);
 
     const { data, error } = await this.dreamNodeRepository.save(
       dreamNode,
       userId,
-      dreamType,
+      dream.dreamType as DreamTypeName,
     );
 
     if (error) {

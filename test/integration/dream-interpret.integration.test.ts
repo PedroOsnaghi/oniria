@@ -8,7 +8,7 @@ import { DreamNodeService } from "../../src/application/services/dream-node.serv
 import { IllustrationDreamService } from "../../src/application/services/illustration-dream.service";
 import { DreamContextService } from "../../src/application/services/dream-context.service";
 import { IDreamContext } from "../../src/domain/interfaces/dream-context.interface";
-import { DreamTypeName } from "../../src/domain/models/dream_type.model";
+import { DreamTypeName } from "../../src/domain/models/dream-node.model";
 
 jest.mock("uuid", () => ({
   v4: jest.fn(() => "mocked-uuid-123"),
@@ -97,7 +97,6 @@ describe("Dream API Integration Tests", () => {
           emotions_context: []
         },
         dreamType: "Lúcido" as DreamTypeName,
-        dreamTypeReason: "El soñador muestra signos de conciencia"
       };
 
       mockInterpretationService.reinterpretDream.mockResolvedValue(
@@ -115,7 +114,6 @@ describe("Dream API Integration Tests", () => {
         emotion: expectedResponse.emotion,
         title: expect.any(String),
         dreamType: expect.any(String),
-        dreamTypeReason: expect.any(String),
         context: expect.any(Object)
       }));
       expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledWith(
@@ -164,7 +162,6 @@ describe("Dream API Integration Tests", () => {
       emotions_context: [],
     },
     dreamType: "Estandar" as DreamTypeName,
-    dreamTypeReason: "",
   };
 
   mockInterpretationService.reinterpretDream.mockResolvedValue(
@@ -187,7 +184,6 @@ describe("Dream API Integration Tests", () => {
   emotion: expectedResponseService.emotion,
   title: expectedResponseService.title,
   dreamType: expectedResponseService.dreamType,
-  dreamTypeReason: expectedResponseService.dreamTypeReason,
   context: expectedResponseService.context,
 }));
 
@@ -212,7 +208,6 @@ describe("Dream API Integration Tests", () => {
           emotions_context: []
         },
         dreamType: "Lucido" as DreamTypeName,
-        dreamTypeReason: ""
       };
 
       mockInterpretationService.reinterpretDream.mockResolvedValue(
@@ -230,7 +225,6 @@ describe("Dream API Integration Tests", () => {
       title: expectedResponse.title,
       emotion: expectedResponse.emotion,
       dreamType: expectedResponse.dreamType,
-      dreamTypeReason: expectedResponse.dreamTypeReason,
       context: expectedResponse.context,
       imageUrl: "https://example.com/image.jpg",
       });
@@ -256,7 +250,6 @@ describe("Dream API Integration Tests", () => {
           emotions_context: []
         },
         dreamType: "Estandar" as DreamTypeName,
-        dreamTypeReason: ""
       };
 
       const expectedResponse = {
@@ -265,7 +258,6 @@ describe("Dream API Integration Tests", () => {
           "Volar en los sueños generalmente representa el deseo de libertad...",
         emotion: "Felicidad",
         dreamType: "Estandar" as DreamTypeName,
-        dreamTypeReason: ""
       };
 
       const mockImageUrl = "https://example.com/dream-illustration.png";
@@ -323,7 +315,6 @@ describe("Dream API Integration Tests", () => {
           emotions_context: []
         },
         dreamType: "Estandar" as DreamTypeName,
-        dreamTypeReason: ""
       };
 
       mockInterpretationService.interpretDream.mockResolvedValue(
@@ -361,7 +352,6 @@ describe("Dream API Integration Tests", () => {
           emotions_context: []
         },
         dreamType: "Estandar" as DreamTypeName,
-        dreamTypeReason: ""
       };
 
       const mockImageUrl = "https://example.com/forest-dream.png";
@@ -386,7 +376,6 @@ describe("Dream API Integration Tests", () => {
       emotion: expectedResponse.emotion,
       title: "Viaje Interior Profundo",
       dreamType: expectedResponse.dreamType,
-      dreamTypeReason: expectedResponse.dreamTypeReason,
       });
     });
 
@@ -408,7 +397,6 @@ describe("Dream API Integration Tests", () => {
           emotions_context: []
         },
         dreamType: "Estandar" as DreamTypeName,
-        dreamTypeReason: ""
       };
 
       const mockImageUrl = "https://example.com/mystical-dream.png";
@@ -433,7 +421,6 @@ describe("Dream API Integration Tests", () => {
       emotion: expectedResponse.emotion,
       title: "Mundo Fantástico Interior", // Add the expected title
       dreamType: "Estandar",
-      dreamTypeReason: "",
     });
     });
 
@@ -449,7 +436,6 @@ describe("Dream API Integration Tests", () => {
             emotions_context: []
           },
           dreamType: "Estandar" as DreamTypeName,
-          dreamTypeReason: ""
         },
         {
           description: "Soñé que hablaba con un ser querido fallecido",
@@ -461,7 +447,6 @@ describe("Dream API Integration Tests", () => {
             emotions_context: []
           },
           dreamType: "Estandar" as DreamTypeName,
-          dreamTypeReason: ""
         }
       ];
 
@@ -476,7 +461,6 @@ describe("Dream API Integration Tests", () => {
           interpretation: `Este sueño refleja sentimientos de ${testCase.expectedEmotion.toLowerCase()}.`,
           context: testCase.context,
           dreamType: "Estandar" as DreamTypeName,
-          dreamTypeReason: ""
         };
 
         mockInterpretationService.interpretDream.mockResolvedValueOnce(
@@ -498,7 +482,6 @@ describe("Dream API Integration Tests", () => {
           emotion: expectedResponse.emotion,
           title: expectedResponse.title,
           dreamType: "Estandar",
-          dreamTypeReason: ""
         });
       }
     });
@@ -520,7 +503,6 @@ describe("Dream API Integration Tests", () => {
           emotions_context: []
         },
         dreamType: "Estandar" as DreamTypeName,
-        dreamTypeReason: ""
       };
 
       const expectedResponse = {
@@ -528,7 +510,6 @@ describe("Dream API Integration Tests", () => {
         interpretation: "Manejo de múltiples requests...",
         emotion: "Felicidad",
         dreamType: "Estandar",
-        dreamTypeReason: ""
       };
 
       mockInterpretationService.reinterpretDream.mockResolvedValue(
@@ -554,7 +535,6 @@ describe("Dream API Integration Tests", () => {
           emotion: expectedResponse.emotion,
           title: expectedResponse.title,
           dreamType: expectedResponse.dreamType,
-          dreamTypeReason: expectedResponse.dreamTypeReason,
           context: expectedResponseService.context
         });
       });

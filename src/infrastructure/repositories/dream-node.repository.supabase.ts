@@ -1,18 +1,17 @@
-import { IDreamNode } from "../../domain/models/dream-node.model";
+import { DreamTypeName, IDreamNode } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { supabase } from "../../config/supabase";
-import { IDreamNodeEntity, IDreamTypeEntity } from "../entities/dream-node.entity";
+import { IDreamNodeEntity } from "../entities/dream-node.entity";
 import { privacyMap, stateMap, emotionMap, dreamTypeMap } from "../../config/mappings";
 import { IDreamNodeFilters } from "../../domain/interfaces/dream-node-filters.interface";
 import { IPaginationOptions } from "../../domain/interfaces/pagination.interface";
 import { IDreamContext } from "../../domain/interfaces/dream-context.interface";
-import { DreamType } from "../../domain/models/dream_type.model";
 
 export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
   async save(
     dreamNode: IDreamNode,
     userId: string,
-    dreamType: DreamType
+    dreamType: DreamTypeName
   ): Promise<{ data: any; error: Error | null }> {
     const dreamNodeEntity: IDreamNodeEntity = {
       ...(dreamNode.id ? { id: dreamNode.id } : {}),
@@ -25,6 +24,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       state_id: stateMap[dreamNode.state]!,
       emotion_id: emotionMap[dreamNode.emotion]!,
       image_url: dreamNode.imageUrl ?? '',
+      dream_type_id: dreamTypeMap[dreamType]!,
     };
     const { data,  error  } = await supabase
       .from("dream_node")
@@ -35,28 +35,7 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       return { data: null, error };
     }
 
-    if (!data) {
-      return { data: null, error: new Error('No data returned from insert') };
-    }
-
-    if (!data || !data.id) {
-      return { data: null, error: new Error('Failed to create dream node') };
-    }
-
-    const dreamTypeEntity: IDreamTypeEntity = {
-      dream_type_id: dreamTypeMap[dreamType.name]!,
-      dream_node_id: data.id,
-      dream_type_description: dreamType.dreamTypeDescription,
-    };
-
-    const { error: typeError } = await supabase
-      .from('dream_type_info')
-      .insert(dreamTypeEntity);
-
-    if (typeError) {
-      return { data: null, error: typeError };
-    }
-
+  
     return { data, error: null };
   }
 
