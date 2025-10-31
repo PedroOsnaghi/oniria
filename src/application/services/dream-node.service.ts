@@ -38,11 +38,11 @@ export class DreamNodeService {
       privacy: "Privado",
       state: "Activo",
       emotion: emotion as Emotion,
-      type: dream.type as DreamTypeName,
-      typeReason: dream.typeReason,
+      type: dream.dreamType as DreamTypeName,
+      typeReason: dream.dreamTypeDescription,
     };
 
-    const dreamType = new DreamType(dream.type as DreamTypeName, dream.typeReason);
+    const dreamType = new DreamType(dream.dreamType as DreamTypeName, dream.dreamTypeDescription);
 
     const { data, error } = await this.dreamNodeRepository.save(
       dreamNode,

@@ -1,13 +1,12 @@
 import { IDreamNode } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { supabase } from "../../config/supabase";
-import { IDreamNodeEntity } from "../entities/dream-node.entity";
+import { IDreamNodeEntity, IDreamTypeEntity } from "../entities/dream-node.entity";
 import { privacyMap, stateMap, emotionMap, dreamTypeMap } from "../../config/mappings";
 import { IDreamNodeFilters } from "../../domain/interfaces/dream-node-filters.interface";
 import { IPaginationOptions } from "../../domain/interfaces/pagination.interface";
 import { IDreamContext } from "../../domain/interfaces/dream-context.interface";
 import { DreamType } from "../../domain/models/dream_type.model";
-import { IDreamTypeEntity } from "../entities/dream-node.entity";
 
 export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
   async save(
@@ -40,14 +39,14 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       return { data: null, error: new Error('No data returned from insert') };
     }
 
-    if (!dreamNode.id) {
-      return { data: null, error: new Error('Dream node ID is required') };
+    if (!data || !data.id) {
+      return { data: null, error: new Error('Failed to create dream node') };
     }
 
     const dreamTypeEntity: IDreamTypeEntity = {
       dream_type_id: dreamTypeMap[dreamType.name]!,
-      dream_node_id: dreamNode.id,
-      dream_type_reason: dreamType.dreamTypeReason,
+      dream_node_id: data.id,
+      dream_type_description: dreamType.dreamTypeDescription,
     };
 
     const { error: typeError } = await supabase

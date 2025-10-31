@@ -30,8 +30,8 @@ export class SaveDreamNodeRequestDto {
   @IsNotEmpty({ message: 'El tipo no puede estar vacío.' })
   @IsIn(['Lucido', 'Pesadilla', 'Recurrente', 'Premonitorio', 'Estandar'],
     { message: 'El tipo debe ser: Lucido, Pesadilla, Recurrente, Premonitorio, Estandar' })
-  type!: string;
+  dreamType!: string;
   @IsString({ message: 'El motivo debe ser una cadena válida.' })
   @Length(10, 2000, { message: 'El motivo debe tener entre 10 y 2000 caracteres.' })
-  typeReason!: string;
+  dreamTypeDescription!: string;
 }

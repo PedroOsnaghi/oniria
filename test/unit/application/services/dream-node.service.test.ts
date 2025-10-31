@@ -43,8 +43,8 @@ describe("DreamNodeService - saveDreamNode", () => {
       interpretation: "Interpretación del sueño",
       emotion: "felicidad",
       imageUrl: "https://mock.supabase.co/storage/v1/object/public/image1.jpg",
-      type: "Estandar",
-      typeReason: ""
+      dreamType: "Estandar",
+      dreamTypeDescription: ""
     };
 
     await service.saveDreamNode(userId, node, dreamContext);
@@ -65,7 +65,7 @@ describe("DreamNodeService - saveDreamNode", () => {
       userId,
       expect.objectContaining({
         name: "Estandar",
-        dreamTypeReason: ""
+        dreamTypeDescription: ""
       })
     );
   });
@@ -78,8 +78,8 @@ describe("DreamNodeService - saveDreamNode", () => {
       interpretation: "Interpretación del sueño",
       emotion: "miedo",
       imageUrl: "https://otro-servidor.com/imagen.jpg",
-      type: "Estandar",
-      typeReason: ""
+      dreamType: "Estandar",
+      dreamTypeDescription: ""
     };
 
     await service.saveDreamNode(userId, node, dreamContext);
@@ -98,7 +98,7 @@ describe("DreamNodeService - saveDreamNode", () => {
         typeReason: ""
       }),
       userId,
-      expect.any(Object) // For the dreamType parameter
+      expect.any(Object)
     );
   });
 
@@ -110,8 +110,8 @@ describe("DreamNodeService - saveDreamNode", () => {
       interpretation: "Nada relevante",
       emotion: "tristeza",
       imageUrl: "",
-      type: "Estandar",
-      typeReason: ""
+      dreamType: "Estandar",
+      dreamTypeDescription: ""
     };
 
     await service.saveDreamNode(userId, node, dreamContext);
@@ -142,8 +142,8 @@ describe("DreamNodeService - saveDreamNode", () => {
       interpretation: "Interpretación del sueño",
       emotion: "enojo",
       imageUrl: "https://mock.supabase.co/storage/v1/object/public/image2.jpg",
-      type: "Estandar",
-      typeReason: ""
+      dreamType: "Estandar",
+      dreamTypeDescription: ""
     };
 
     mockRepository.save.mockRejectedValue(new Error("Error en DB"));

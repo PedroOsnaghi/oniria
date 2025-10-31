@@ -2,9 +2,9 @@ export type DreamTypeName = "Lucido" | "Pesadilla" | "Recurrente" | "Premonitori
 
 export class DreamType {
     name: DreamTypeName;
-    dreamTypeReason: string;
-    constructor(name: DreamTypeName, dreamTypeReason: string) {
+    dreamTypeDescription: string;
+    constructor(name: DreamTypeName, dreamTypeDescription: string) {
         this.name = name;
-        this.dreamTypeReason = dreamTypeReason;
+        this.dreamTypeDescription = dreamTypeDescription;
     }
 }

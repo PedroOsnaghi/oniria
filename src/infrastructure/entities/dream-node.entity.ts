@@ -13,5 +13,5 @@ export interface IDreamNodeEntity {
 export interface IDreamTypeEntity {
     dream_type_id: string;
     dream_node_id: string;
-    dream_type_reason: string;
+    dream_type_description: string;
 }
