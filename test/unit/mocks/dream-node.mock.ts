@@ -1,4 +1,5 @@
 import { DreamPrivacy, DreamState, Emotion, IDreamNode } from '../../../src/domain/models/dream-node.model';
+import { DreamTypeName } from '../../../src/domain/models/dream_type.model';
 
 export const dreamNodeMock: IDreamNode = {
     id: '550e8400-e29b-41d4-a716-446655440001',
@@ -6,9 +7,11 @@ export const dreamNodeMock: IDreamNode = {
     title: 'Mi primer sueño en Oniria',
     dream_description: 'Soñé que estaba volando sobre una ciudad mágica llena de luces brillantes.',
     interpretation: 'Este sueño representa tu deseo de libertad y creatividad.',
-    dream_privacy: 'Publico' as DreamPrivacy,
-    dream_state: 'Activo' as DreamState,
-    dream_emotion: 'Felicidad' as Emotion
+    privacy: 'Publico' as DreamPrivacy,
+    state: 'Activo' as DreamState,
+    emotion: 'Felicidad' as Emotion,
+    type: 'Lúcido' as DreamTypeName,
+    typeReason: 'El soñador era consciente de que estaba soñando'
 };
 
 export const dreamNodeMockTwo: IDreamNode = {
@@ -17,7 +20,9 @@ export const dreamNodeMockTwo: IDreamNode = {
     title: 'Sueño en el océano profundo',
     dream_description: 'Un sueño donde nadaba en las profundidades del océano con criaturas luminosas.',
     interpretation: 'El océano representa tu subconsciente profundo.',
-    dream_privacy: 'Privado' as DreamPrivacy,
-    dream_state: 'Archivado' as DreamState,
-    dream_emotion: 'Tristeza' as Emotion
+    privacy: 'Privado' as DreamPrivacy,
+    state: 'Archivado' as DreamState,
+    emotion: 'Tristeza' as Emotion,
+    type: 'Común' as DreamTypeName,
+    typeReason: 'Sueño recurrente sobre el océano'
 };

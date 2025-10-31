@@ -1,7 +1,7 @@
 import { InterpretationDreamService } from '../../../../src/application/services/interpretation-dream.service';
 import { InterpretationProvider } from '../../../../src/domain/providers/interpretation.provider';
-import { Interpretation } from '../../../../src/domain/interfaces/interpretation-dream.interface';
-import { IDreamContext } from '../../../../src/domain/interfaces/dream-context.interface';
+import { Interpretation, DreamContext as IDreamContext } from '../../../../src/domain/interfaces/interpretation-dream.interface';
+import { DreamTypeName } from '../../../../src/domain/models/dream_type.model';
 
 describe('InterpretationDreamService', () => {
   let service: InterpretationDreamService;
@@ -32,6 +32,8 @@ describe('InterpretationDreamService', () => {
         title: 'Freedom and Liberation',
         interpretation: 'Flying in dreams often represents a desire for freedom and the ability to rise above challenges...',
         emotion: 'positive',
+        dreamType: 'Estandar',
+        dreamTypeReason: '',
         context: dreamContext
       };
 
@@ -77,7 +79,9 @@ describe('InterpretationDreamService', () => {
         title: 'Descripción vacía',
         interpretation: 'No se puede interpretar un sueño sin descripción',
         emotion: 'neutral',
-        context: dreamContext
+        context: dreamContext,
+        dreamType: 'Estandar',
+        dreamTypeReason: ''
       };
 
       mockInterpretationProvider.interpretDream.mockResolvedValue(expectedResult);
@@ -106,7 +110,9 @@ describe('InterpretationDreamService', () => {
         title: 'Transformation and Change',
         interpretation: 'Falling dreams can also symbolize letting go and embracing change, representing a transition to new opportunities...',
         emotion: 'neutral',
-        context: dreamContext
+        context: dreamContext,
+        dreamType: 'Estandar',
+        dreamTypeReason: ''
       };
 
       mockInterpretationProvider.reinterpretDream.mockResolvedValue(expectedResult);
@@ -164,7 +170,9 @@ describe('InterpretationDreamService', () => {
         title: 'Desafío y Turbulencia',
         interpretation: 'Las tormentas en los sueños a menudo representan períodos de desafío o cambio emocional...',
         emotion: 'negative',
-        context: dreamContext
+        context: dreamContext,
+        dreamType: 'Estandar',
+        dreamTypeReason: ''
       };
 
       mockInterpretationProvider.reinterpretDream.mockResolvedValue(expectedResult);
@@ -195,7 +203,9 @@ describe('InterpretationDreamService', () => {
         title: 'Información insuficiente',
         interpretation: 'No se puede reinterpretar sin información suficiente sobre el sueño',
         emotion: 'neutral',
-        context: dreamContext
+        context: dreamContext,
+        dreamType: 'Estandar',
+        dreamTypeReason: ''
       };
 
       mockInterpretationProvider.reinterpretDream.mockResolvedValue(expectedResult);
@@ -206,6 +216,82 @@ describe('InterpretationDreamService', () => {
       // Assert
       expect(mockInterpretationProvider.reinterpretDream).toHaveBeenCalledWith('', '', dreamContext);
       expect(result).toEqual(expectedResult);
+    });
+  });
+
+  describe('dream types', () => {
+    const dreamContext: IDreamContext = {
+      themes: [],
+      people: [],
+      locations: [],
+      emotions_context: []
+    };
+
+    interface DreamExample {
+      description: string;
+      type: DreamTypeName;
+      reason: string;
+      validReasons?: string[];
+    }
+
+    const dreamExamples: DreamExample[] = [
+      {
+        description: 'Soñé que volaba sobre un bosque verde mientras el sol salía en el horizonte.',
+        type: 'Estandar',
+        reason: 'Sueño típico sin características especiales'
+      },
+      {
+        description: 'Soñé que estaba dentro de un sueño y podía controlar todo, desde el clima hasta mis movimientos.',
+        type: 'Lucido',
+        reason: 'El soñador es consciente de que está soñando y puede controlar el sueño'
+      },
+      {
+        description: 'Soñé otra vez que corría por un pasillo infinito sin poder encontrar la salida.',
+        type: 'Recurrente',
+        reason: 'Sueño que se repite con poca o ninguna variación'
+      },
+      {
+        description: 'Soñé con un accidente de auto, y al día siguiente escuché que realmente había ocurrido uno en el mismo lugar.',
+        type: 'Premonitorio' as DreamTypeName,
+        reason: 'alta',
+        validReasons: ['alta', 'media', 'baja']
+      },
+      {
+        description: 'Soñé que me perseguía una sombra oscura por una ciudad vacía y no podía escapar.',
+        type: 'Pesadilla',
+        reason: 'Sueño que causa miedo intenso o angustia'
+      }
+    ];
+
+    dreamExamples.forEach(({ description, type, reason }) => {
+      const dreamType = type as DreamTypeName; // Ensure type safety
+      it(`should handle ${type} dream type correctly`, async () => {
+        // Arrange
+        const expectedResult: Interpretation = {
+          title: `Título para sueño ${type}`,
+          interpretation: `Interpretación del sueño ${type}`,
+          emotion: type === 'Pesadilla' ? 'negative' : 'neutral',
+          dreamType: dreamType,
+          dreamTypeReason: reason,
+          context: dreamContext
+        };
+
+        mockInterpretationProvider.interpretDream.mockResolvedValue(expectedResult);
+
+        // Act
+        const result = await service.interpretDream(description, dreamContext);
+
+        // Assert
+        expect(mockInterpretationProvider.interpretDream).toHaveBeenCalledWith(description, dreamContext);
+        expect(result.dreamType).toBe(dreamType);
+        // For Premonitorio type, check if the reason is one of the valid values
+        if (type === 'Premonitorio') {
+          expect(['alta', 'media', 'baja']).toContain(result.dreamTypeReason);
+        } else {
+          expect(result.dreamTypeReason).toBe(reason);
+        }
+        expect(result.emotion).toBe(dreamType === 'Pesadilla' ? 'negative' : 'neutral');
+      });
     });
   });
 

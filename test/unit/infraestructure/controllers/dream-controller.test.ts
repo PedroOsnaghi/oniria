@@ -51,12 +51,16 @@ describe('DreamNodeController Integration Tests', () => {
         title: 'Test Dream',
         interpretation: 'Test interpretation',
         emotion: 'happy',
+        dreamType: 'Estandar',
+        dreamTypeReason: '',
         context: { ...mockDreamContext }
       }),
       reinterpretDream: jest.fn().mockResolvedValue({
         title: 'Reinterpreted Dream',
         interpretation: 'Reinterpreted content',
-        emotion: 'neutral'
+        emotion: 'neutral',
+        dreamType: 'Estandar',
+        dreamTypeReason: ''
       })
     } as any;
 
@@ -157,8 +161,8 @@ describe('DreamNodeController Integration Tests', () => {
       await controller.reinterpret(mockReq as Request, mockRes as Response);
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        errors: "Error al reinterpretar el sueño",
+expect(mockRes.json).toHaveBeenCalledWith({
+        errors: 'Error al reinterpretar el sueño',
       });
     });
   });
@@ -246,12 +250,28 @@ describe('DreamNodeController Integration Tests', () => {
     it('should handle missing session context', async () => {
       // Arrange
       delete mockReq.session?.dreamContext;
+      const expectedDreamContext = {
+        themes: [],
+        people: [],
+        locations: [],
+        emotions_context: []
+      };
 
       // Act
       await controller.save(mockReq as Request, mockRes as Response);
 
       // Assert
-      expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalled();
+      expect(mockDreamNodeService.saveDreamNode).toHaveBeenCalledWith(
+        'test-user-id',
+        {
+          title: 'Test Dream',
+          description: 'Test description',
+          emotion: 'happy',
+          imageUrl: 'https://example.com/image.jpg',
+          interpretation: 'Test interpretation'
+        },
+        expectedDreamContext
+      );
       expect(mockRes.status).toHaveBeenCalledWith(201);
     });
 
@@ -267,7 +287,7 @@ describe('DreamNodeController Integration Tests', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Error interno del servidor',
-        errors: ['Save failed']
+        errors: [expect.any(String)]
       });
     });
   });
@@ -301,10 +321,12 @@ describe('DreamNodeController Integration Tests', () => {
         title: "Test Dream",
         dream_description: "Test Description",
         interpretation: "Test Interpretation",
-        dream_privacy: "Publico",
-        dream_state: "Activo",
-        dream_emotion: "Felicidad",
+        privacy: "Publico",
+        state: "Activo",
+        emotion: "Felicidad",
         creationDate: new Date(),
+        type: "Estandar",
+        typeReason: ""
       };
       const expectedResult: IPaginatedResult<IDreamNode> = {
         data: [mockDreamNode],

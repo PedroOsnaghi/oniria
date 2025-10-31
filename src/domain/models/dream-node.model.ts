@@ -1,3 +1,5 @@
+
+import { DreamTypeName } from "./dream_type.model";
 export type DreamPrivacy = "Publico" | "Privado" | "Anonimo";
 export type DreamState = "Activo" | "Archivado";
 export type Emotion = "Felicidad" | "Tristeza" | "Miedo" | "Enojo";
@@ -9,9 +11,11 @@ export interface IDreamNode {
   dream_description: string;
   interpretation: string;
   imageUrl?: string | undefined;
-  dream_privacy: DreamPrivacy;
-  dream_state: DreamState;
-  dream_emotion: Emotion;
+  privacy: DreamPrivacy;
+  state: DreamState;
+  emotion: Emotion;
+  type: DreamTypeName;
+  typeReason: string;
 }
 
 export class DreamNode implements IDreamNode {
@@ -20,9 +24,11 @@ export class DreamNode implements IDreamNode {
   dream_description: string;
   interpretation: string;
   imageUrl?: string;
-  dream_privacy: DreamPrivacy;
-  dream_state: DreamState;
-  dream_emotion: Emotion;
+  privacy: DreamPrivacy;
+  state: DreamState;
+  emotion: Emotion;
+  type: DreamTypeName;
+  typeReason: string;
   constructor(
     creationDate: Date,
     title: string,
@@ -31,15 +37,19 @@ export class DreamNode implements IDreamNode {
     privacy: DreamPrivacy,
     state: DreamState,
     emotion: Emotion,
-    imageUrl?: string
+    type: DreamTypeName,
+    typeReason: string,
+    imageUrl?: string,
   ) {
     this.creationDate = creationDate;
     this.title = title;
     this.dream_description = description;
     this.interpretation = interpretation;
     this.imageUrl = imageUrl ?? "";
-    this.dream_privacy = privacy;
-    this.dream_state = state;
-    this.dream_emotion = emotion;
+    this.privacy = privacy;
+    this.state = state;
+    this.emotion = emotion;
+    this.type = type;
+    this.typeReason = typeReason;
   }
 }

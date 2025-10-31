@@ -17,10 +17,13 @@ describe("DreamNodeService - saveDreamNode", () => {
 
   beforeEach(() => {
     mockRepository = {
-      save: jest.fn().mockResolvedValue({ id: "mocked-id" }),
+      save: jest.fn().mockResolvedValue({ 
+        data: { id: "mocked-id" }, 
+        error: null 
+      }),
       getUserNodes: jest.fn(),
       countUserNodes: jest.fn(),
-      addDreamContext: jest.fn(),
+      addDreamContext: jest.fn().mockResolvedValue({}),
     } as unknown as jest.Mocked<IDreamNodeRepository>;
 
     service = new DreamNodeService(mockRepository);
@@ -39,7 +42,9 @@ describe("DreamNodeService - saveDreamNode", () => {
       description: "Descripción del sueño",
       interpretation: "Interpretación del sueño",
       emotion: "felicidad",
-      imageUrl: "https://mock.supabase.co/storage/v1/object/public/image1.jpg"
+      imageUrl: "https://mock.supabase.co/storage/v1/object/public/image1.jpg",
+      type: "Estandar",
+      typeReason: ""
     };
 
     await service.saveDreamNode(userId, node, dreamContext);
@@ -49,13 +54,19 @@ describe("DreamNodeService - saveDreamNode", () => {
         title: node.title,
         dream_description: node.description,
         interpretation: node.interpretation,
-        dream_emotion: expect.stringMatching(/felicidad/i),
-        dream_privacy: "Privado",
-        dream_state: "Activo",
+        emotion: expect.stringMatching(/felicidad/i),
+        privacy: "Privado",
+        state: "Activo",
         imageUrl: node.imageUrl,
         creationDate: expect.any(Date),
+        type: "Estandar",
+        typeReason: ""
       }),
-      userId
+      userId,
+      expect.objectContaining({
+        name: "Estandar",
+        dreamTypeReason: ""
+      })
     );
   });
 
@@ -66,7 +77,9 @@ describe("DreamNodeService - saveDreamNode", () => {
       description: "Descripción del sueño",
       interpretation: "Interpretación del sueño",
       emotion: "miedo",
-      imageUrl: "https://otro-servidor.com/imagen.jpg"
+      imageUrl: "https://otro-servidor.com/imagen.jpg",
+      type: "Estandar",
+      typeReason: ""
     };
 
     await service.saveDreamNode(userId, node, dreamContext);
@@ -75,14 +88,17 @@ describe("DreamNodeService - saveDreamNode", () => {
       expect.objectContaining({
         title: node.title,
         dream_description: node.description,
-        dream_emotion: node.emotion,
-        dream_privacy: "Privado",
-        dream_state: "Activo",
+        emotion: node.emotion,
+        privacy: "Privado",
+        state: "Activo",
         imageUrl: "",
         interpretation: node.interpretation,
         creationDate: expect.any(Date),
+        type: "Estandar",
+        typeReason: ""
       }),
-      userId
+      userId,
+      expect.any(Object) // For the dreamType parameter
     );
   });
 
@@ -93,7 +109,9 @@ describe("DreamNodeService - saveDreamNode", () => {
       description: "Sin imagen",
       interpretation: "Nada relevante",
       emotion: "tristeza",
-      imageUrl: ""
+      imageUrl: "",
+      type: "Estandar",
+      typeReason: ""
     };
 
     await service.saveDreamNode(userId, node, dreamContext);
@@ -102,14 +120,17 @@ describe("DreamNodeService - saveDreamNode", () => {
       expect.objectContaining({
         title: node.title,
         dream_description: node.description,
-        dream_emotion: node.emotion,
-        dream_privacy: "Privado",
-        dream_state: "Activo",
+        emotion: node.emotion,
+        privacy: "Privado",
+        state: "Activo",
         imageUrl: node.imageUrl,
         interpretation: node.interpretation,
         creationDate: expect.any(Date),
+        type: "Estandar",
+        typeReason: ""
       }),
-      userId
+      userId,
+      expect.any(Object) // For the dreamType parameter
     );
   });
 
@@ -120,7 +141,9 @@ describe("DreamNodeService - saveDreamNode", () => {
       description: "Descripción del sueño",
       interpretation: "Interpretación del sueño",
       emotion: "enojo",
-      imageUrl: "https://mock.supabase.co/storage/v1/object/public/image2.jpg"
+      imageUrl: "https://mock.supabase.co/storage/v1/object/public/image2.jpg",
+      type: "Estandar",
+      typeReason: ""
     };
 
     mockRepository.save.mockRejectedValue(new Error("Error en DB"));

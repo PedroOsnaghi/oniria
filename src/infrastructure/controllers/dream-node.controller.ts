@@ -51,6 +51,8 @@ export class DreamNodeController {
         interpretation: interpretation.interpretation,
         emotion: interpretation.emotion,
         title: interpretation.title,
+        dreamType: interpretation.dreamType,
+        dreamTypeReason: interpretation.dreamTypeReason
       });
     } catch (error: any) {
       console.error("Error en DreamNodeController:", error);

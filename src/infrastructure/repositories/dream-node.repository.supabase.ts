@@ -2,16 +2,19 @@ import { IDreamNode } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { supabase } from "../../config/supabase";
 import { IDreamNodeEntity } from "../entities/dream-node.entity";
-import { privacyMap, stateMap, emotionMap } from "../../config/mappings";
+import { privacyMap, stateMap, emotionMap, dreamTypeMap } from "../../config/mappings";
 import { IDreamNodeFilters } from "../../domain/interfaces/dream-node-filters.interface";
 import { IPaginationOptions } from "../../domain/interfaces/pagination.interface";
 import { IDreamContext } from "../../domain/interfaces/dream-context.interface";
+import { DreamType } from "../../domain/models/dream_type.model";
+import { IDreamTypeEntity } from "../entities/dream-node.entity";
 
 export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
   async save(
     dreamNode: IDreamNode,
     userId: string,
-  ): Promise<IDreamNode | undefined> {
+    dreamType: DreamType
+  ): Promise<{ data: any; error: Error | null }> {
     const dreamNodeEntity: IDreamNodeEntity = {
       ...(dreamNode.id ? { id: dreamNode.id } : {}),
       profile_id: userId,
@@ -19,9 +22,9 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       dream_description: dreamNode.dream_description,
       interpretation: dreamNode.interpretation,
       creation_date: dreamNode.creationDate,
-      privacy_id: privacyMap[dreamNode.dream_privacy]!,
-      state_id: stateMap[dreamNode.dream_state]!,
-      emotion_id: emotionMap[dreamNode.dream_emotion]!,
+      privacy_id: privacyMap[dreamNode.privacy]!,
+      state_id: stateMap[dreamNode.state]!,
+      emotion_id: emotionMap[dreamNode.emotion]!,
       image_url: dreamNode.imageUrl ?? '',
     };
     const { data,  error  } = await supabase
@@ -29,15 +32,36 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       .insert(dreamNodeEntity)
       .select()
       .single();
-    if (data) return data;
-
-        console.log(error)
     if (error) {
-      throw new Error(error!.message);
+      return { data: null, error };
     }
+
+    if (!data) {
+      return { data: null, error: new Error('No data returned from insert') };
+    }
+
+    if (!dreamNode.id) {
+      return { data: null, error: new Error('Dream node ID is required') };
+    }
+
+    const dreamTypeEntity: IDreamTypeEntity = {
+      dream_type_id: dreamTypeMap[dreamType.name]!,
+      dream_node_id: dreamNode.id,
+      dream_type_reason: dreamType.dreamTypeReason,
+    };
+
+    const { error: typeError } = await supabase
+      .from('dream_type_info')
+      .insert(dreamTypeEntity);
+
+    if (typeError) {
+      return { data: null, error: typeError };
+    }
+
+    return { data, error: null };
   }
 
-  async getUserNodes(
+ async getUserNodes(
     userId: string,
     filters?: IDreamNodeFilters,
     pagination?: IPaginationOptions
@@ -92,12 +116,14 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       title: node.title,
       dream_description: node.description,
       interpretation: node.interpretation,
-            imageUrl: node.image_url,
+      imageUrl: node.image_url,
       creationDate: new Date(node.creation_date),
-      dream_privacy: node.privacy,
-      dream_state: node.state,
-      dream_emotion: node.emotion,
-    }));
+      privacy: node.privacy,
+      state: node.state,
+      emotion: node.emotion,
+      type: node.type,
+      typeReason: node.type_reason,
+        }));
 
     return dreamNodes;
   }

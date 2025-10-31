@@ -6,6 +6,7 @@ import {
   IPaginatedResult,
 } from "../../domain/interfaces/pagination.interface";
 import { IDreamNode, Emotion } from "../../domain/models/dream-node.model";
+import { DreamType, DreamTypeName } from "../../domain/models/dream_type.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { SaveDreamNodeRequestDto } from "../../infrastructure/dtos/dream-node";
 
@@ -13,7 +14,7 @@ export class DreamNodeService {
   constructor(private dreamNodeRepository: IDreamNodeRepository) {
     this.dreamNodeRepository = dreamNodeRepository;
   }
-  async saveDreamNode(
+   async saveDreamNode(
     userId: string,
     dream: SaveDreamNodeRequestDto,
     dreamContext: DreamContext
@@ -34,22 +35,30 @@ export class DreamNodeService {
       dream_description: description,
       interpretation,
       imageUrl: finalImageUrl,
-      dream_privacy: "Privado",
-      dream_state: "Activo",
-      dream_emotion: emotion as Emotion,
+      privacy: "Privado",
+      state: "Activo",
+      emotion: emotion as Emotion,
+      type: dream.type as DreamTypeName,
+      typeReason: dream.typeReason,
     };
 
-    const dreamNodeCreated = await this.dreamNodeRepository.save(
+    const dreamType = new DreamType(dream.type as DreamTypeName, dream.typeReason);
+
+    const { data, error } = await this.dreamNodeRepository.save(
       dreamNode,
-      userId
+      userId,
+      dreamType,
     );
 
-    if (!dreamNodeCreated?.id) {
-      throw new Error("No se pudo crear el nodo de sueño");
+    if (error) {
+      throw new Error(error.message);
     }
 
+    if (!data?.id) {
+    throw new Error("No se pudo crear el nodo de sueño");
+  }
     await this.dreamNodeRepository.addDreamContext(
-      dreamNodeCreated.id,
+      data.id,
       userId,
       dreamContext
     );

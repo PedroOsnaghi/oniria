@@ -26,5 +26,12 @@ export class SaveDreamNodeRequestDto {
   @IsString({message: 'La imagen debe ser una cadena válida.' })
   @IsNotEmpty({ message: 'La imagen no puede estar vacía.' })
   imageUrl?: string;
-
+  @IsString({ message: 'El tipo debe ser una cadena válida.' })
+  @IsNotEmpty({ message: 'El tipo no puede estar vacío.' })
+  @IsIn(['Lucido', 'Pesadilla', 'Recurrente', 'Premonitorio', 'Estandar'],
+    { message: 'El tipo debe ser: Lucido, Pesadilla, Recurrente, Premonitorio, Estandar' })
+  type!: string;
+  @IsString({ message: 'El motivo debe ser una cadena válida.' })
+  @Length(10, 2000, { message: 'El motivo debe tener entre 10 y 2000 caracteres.' })
+  typeReason!: string;
 }

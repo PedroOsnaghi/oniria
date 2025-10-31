@@ -1,3 +1,4 @@
+import { DreamTypeName } from '../models/dream_type.model';
 import { ContextItem } from './dream-context-item.interface';
 
 export interface DreamContext {
@@ -12,4 +13,6 @@ export interface Interpretation {
   interpretation: string;
   emotion: string;
   context: DreamContext;
+  dreamType: DreamTypeName;
+  dreamTypeReason: string;
 }

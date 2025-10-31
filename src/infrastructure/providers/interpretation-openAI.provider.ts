@@ -3,6 +3,7 @@ import { OpenAI } from "openai";
 import { envs } from "../../config/envs";
 import { Interpretation } from "../../domain/interfaces/interpretation-dream.interface";
 import { IDreamContext } from "../../domain/interfaces/dream-context.interface";
+import { DreamTypeName } from "../../domain/models/dream_type.model";
 
 export class InterpretationOpenAIProvider implements InterpretationProvider {
   private openai: OpenAI;
@@ -34,35 +35,65 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
       const contextSection = this.buildContextSection(dreamContext);
       console.log('Context Section:', contextSection);
 
-      const prompt = `${contextSection}Analiza este sueño y proporciona:
-1. Un título creativo y descriptivo (3-6 palabras)
-2. Una interpretación psicológica concisa pero profunda que incluya:
-   - Significado simbólico de los elementos principales
-   - Posibles emociones o conflictos internos
-   - Reflexión sobre el estado emocional del soñante
-   (3-4 oraciones completas y sustanciales)
-3. La emoción dominante que transmite el sueño
-4. Temas principales mencionados (máximo 3)
-5. Personas mencionadas (si las hay)
-6. Ubicaciones mencionadas (si las hay)
-7. Emociones contextuales presentes (máximo 3)
+            const prompt = `${contextSection}Analiza este sueño y proporciona:
+      1. Un título creativo y descriptivo (3-6 palabras)
+      2. Una interpretación psicológica concisa pero profunda que incluya:
+        - Significado simbólico de los elementos principales
+        - Posibles emociones o conflictos internos
+        - Reflexión sobre el estado emocional del soñante
+        (3-4 oraciones completas y sustanciales)
+      3. La emoción dominante que transmite el sueño
+      4. Temas principales mencionados (máximo 3)
+      5. Personas mencionadas (si las hay)
+      6. Ubicaciones mencionadas (si las hay)
+      7. Emociones contextuales presentes (máximo 3)
+      8. El tipo de sueño y una breve descripción del porqué relacionado al sueño (1-2 oraciones)
 
-Sueño: ${dreamText}
 
-IMPORTANTE: Sé conciso pero profundo. Evita repeticiones innecesarias.
+      Sueño: ${dreamText}
 
-Responde EXACTAMENTE en este formato JSON:
-{
-  "title": "Título Creativo del Sueño",
-  "interpretation": "tu interpretación clara y profunda (3-4 oraciones)",
-  "emotion": "felicidad|tristeza|miedo|enojo",
-  "themes": ["tema1", "tema2"],
-  "people": ["persona1"],
-  "locations": ["ubicación1"],
-  "emotions_context": ["emoción1", "emoción2"]
-}`;
+      CRÍTICO PARA CLASIFICAR EL TIPO DE SUEÑO:
 
-      const modelUsed =
+      1. SUEÑO RECURRENTE (prioridad alta):
+      - Si el sueño menciona a alguna persona, lugar o emoción del contexto (${contextSection})
+      - Si repite elementos de sueños anteriores, aunque los detalles varíen
+
+      2. SUEÑO PREMONITORIO (alta prioridad si aplica):
+      Un sueño es PREMONITORIO SI Y SOLO SI:
+      - Contiene una visión clara de un evento futuro específico
+      - Incluye detalles concretos y verificables (fechas, lugares, personas específicas)
+      - Genera una fuerte sensación de premonición o certeza
+      - El campo 'dreamTypeReason' debe ser EXACTAMENTE 'baja', 'media' o 'alta' (sin el prefijo 'Probabilidad:')
+      - NO es vago ni simbólico, sino que describe eventos específicos
+
+      Tipos de sueños posibles:
+      - **Lúcido:** el soñante es consciente de que está soñando o controla parcialmente el sueño.
+      - **Pesadilla:** provoca miedo, angustia o ansiedad intensa, a menudo con sensación de peligro o persecución.
+      - **Recurrente:** el sueño repite elementos significativos de sueños anteriores.
+      - **Premonitorio:** anticipa un evento futuro específico y verificable. El campo 'dreamTypeReason' DEBE ser EXACTAMENTE 'baja', 'media' o 'alta' (sin el prefijo 'Probabilidad:').
+      - **Estándar:** solo si no encaja en ninguna de las categorías anteriores.
+
+      IMPORTANTE: 
+      - Los sueños premonitorios son MUY RAROS. La mayoría de los sueños que parecen premonitorios son coincidencias.
+      - "dreamTypeReason": "Si el tipo es 'Premonitorio', este campo debe ser exactamente 'baja', 'media' o 'alta' (sin texto adicional). 
+      - Para cualquier otro tipo, proporciona solo una frase breve explicando el motivo, sin incluir el nombre del tipo."
+      - Sé conciso pero profundo. Evita repeticiones innecesarias.
+
+
+      Responde EXACTAMENTE en este formato JSON (sin comentarios ni texto adicional):
+      {
+        "title": "Título Creativo del Sueño",
+        "interpretation": "tu interpretación clara y profunda (3-4 oraciones)",
+        "emotion": "felicidad|tristeza|miedo|enojo",
+        "themes": ["tema1", "tema2"],
+        "people": ["persona1"],
+        "locations": ["ubicación1"],
+        "emotions_context": ["emoción1", "emoción2"],
+        "dreamType": "Recurrente|Premonitorio|Lucido|Pesadilla|Estándar",
+        "dreamTypeReason": "Si el tipo es 'Premonitorio', debe ser 'baja', 'media' o 'alta' (sin prefijo). Para otros tipos, descripción breve."
+      }`;
+
+            const modelUsed =
         envs.OPENAI_FINE_TUNED_MODEL || envs.OPENAI_MODEL || "gpt-3.5-turbo";
       console.log(
         "[InterpretationOpenAIProvider] Modelo usado para interpretación:",
@@ -87,30 +118,56 @@ Responde EXACTAMENTE en este formato JSON:
       });
 
       const responseContent = response.choices[0]?.message?.content || "{}";
+      
       let title = "Interpretación de Sueño";
       let interpretation = "No se pudo interpretar el sueño.";
       let emotion = "Tristeza";
-      const aiResult = JSON.parse(responseContent);
+      let dreamType: DreamTypeName = 'Estandar';
+      let dreamTypeReason = '';
+      let themes: string[] = [];
+      let people: string[] = [];
+      let locations: string[] = [];
+      let emotionsContext: string[] = [];
+      
+      try {
+        const aiResult = JSON.parse(responseContent);
 
-      title = this.sanitizeText(aiResult.title || title);
-      interpretation = this.sanitizeText(
-        aiResult.interpretation || interpretation
-      );
-      interpretation = this.limitSentences(interpretation, 4);
-      emotion = (aiResult.emotion || emotion || "").toString().toLowerCase();
-      const allowed = new Set(["felicidad", "tristeza", "miedo", "enojo"]);
-      if (!allowed.has(emotion)) emotion = "tristeza";
-      emotion = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+        title = this.sanitizeText(aiResult.title || title);
+        interpretation = this.sanitizeText(aiResult.interpretation || interpretation);
+        interpretation = this.limitSentences(interpretation, 4);
+        
+        emotion = (aiResult.emotion || emotion || "").toString().toLowerCase();
+        const allowedEmotions = new Set(["felicidad", "tristeza", "miedo", "enojo"]);
+        if (!allowedEmotions.has(emotion)) emotion = "tristeza";
+        emotion = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+        
+        const allowedDreamTypes = new Set(["Lucido", "Pesadilla", "Recurrente", "Premonitorio", "Estandar"]);
+        let rawDreamType = aiResult.dreamType || 'Estandar';
+        rawDreamType = rawDreamType.charAt(0).toUpperCase() + rawDreamType.slice(1).toLowerCase();
+        dreamType = allowedDreamTypes.has(rawDreamType) ? rawDreamType as DreamTypeName : 'Estandar';
+        
+        dreamTypeReason = aiResult.dreamTypeReason || '';
+        
+        themes = Array.isArray(aiResult.themes) ? aiResult.themes : [];
+        people = Array.isArray(aiResult.people) ? aiResult.people : [];
+        locations = Array.isArray(aiResult.locations) ? aiResult.locations : [];
+        emotionsContext = Array.isArray(aiResult.emotions_context) ? aiResult.emotions_context : [];
+        
+      } catch (error) {
+        console.error('Error al procesar la respuesta del modelo:', error);
+      }
 
       return {
         title,
         interpretation,
         emotion,
+        dreamType,
+        dreamTypeReason,
         context: {
-          themes: (aiResult.themes || []).map((theme: string) => ({ label: theme, count: 1 })),
-          people: (aiResult.people || []).map((person: string) => ({ label: person, count: 1 })),
-          locations: (aiResult.locations || []).map((location: string) => ({ label: location, count: 1 })),
-          emotions_context: (aiResult.emotions_context || []).map((emotion: string) => ({ label: emotion, count: 1 }))
+          themes: themes.map((theme: string) => ({ label: theme, count: 1 })),
+          people: people.map((person: string) => ({ label: person, count: 1 })),
+          locations: locations.map((location: string) => ({ label: location, count: 1 })),
+          emotions_context: emotionsContext.map((emotion: string) => ({ label: emotion, count: 1 }))
         }
       };
     } catch (error: any) {
@@ -192,6 +249,35 @@ INSTRUCCIONES ESTRICTAS:
 - Usa una escuela psicológica DIFERENTE (Freud vs Jung vs Gestalt vs Cognitivo)
 - La emoción debe ser OPUESTA a lo que podría sugerir la anterior
 - Sé conciso pero profundo (3-4 oraciones sustanciales)
+- El tipo de sueño y una breve descripción del porqué relacionado al sueño (1-2 oraciones)
+
+  CRÍTICO PARA CLASIFICAR EL TIPO DE SUEÑO:
+
+      1. SUEÑO RECURRENTE (prioridad alta):
+      - Si el sueño menciona a alguna persona, lugar o emoción del contexto (${contextSection})
+      - Si repite elementos de sueños anteriores, aunque los detalles varíen
+
+      2. SUEÑO PREMONITORIO (alta prioridad si aplica):
+      Un sueño es PREMONITORIO SI Y SOLO SI:
+      - Contiene una visión clara de un evento futuro específico
+      - Incluye detalles concretos y verificables (fechas, lugares, personas específicas)
+      - Genera una fuerte sensación de premonición o certeza
+      - El campo 'dreamTypeReason' debe ser EXACTAMENTE 'baja', 'media' o 'alta' (sin el prefijo 'Probabilidad:')
+      - NO es vago ni simbólico, sino que describe eventos específicos
+
+      Tipos de sueños posibles:
+      - **Lúcido:** el soñante es consciente de que está soñando o controla parcialmente el sueño.
+      - **Pesadilla:** provoca miedo, angustia o ansiedad intensa, a menudo con sensación de peligro o persecución.
+      - **Recurrente:** el sueño repite elementos significativos de sueños anteriores.
+      - **Premonitorio:** anticipa un evento futuro específico y verificable. El campo 'dreamTypeReason' DEBE ser EXACTAMENTE 'baja', 'media' o 'alta' (sin el prefijo 'Probabilidad:').
+      - **Estándar:** solo si no encaja en ninguna de las categorías anteriores.
+
+      IMPORTANTE: 
+      - Los sueños premonitorios son MUY RAROS. La mayoría de los sueños que parecen premonitorios son coincidencias.
+      - "dreamTypeReason": "Si el tipo es 'Premonitorio', este campo debe ser exactamente 'baja', 'media' o 'alta' (sin texto adicional). 
+      - Para cualquier otro tipo, proporciona solo una frase breve explicando el motivo, sin incluir el nombre del tipo."
+      - Sé conciso pero profundo. Evita repeticiones innecesarias.
+
 
 Responde EXACTAMENTE en este formato JSON:
 {
@@ -202,6 +288,8 @@ Responde EXACTAMENTE en este formato JSON:
   "people": ["persona1"],
   "locations": ["ubicación1"],
   "emotions_context": ["emoción1", "emoción2"]
+  "dreamType": "Lucido|Pesadilla|Recurrente|Premonitorio|Estandar"
+  "dreamTypeReason": "Breve descripción del porqué relacionado al sueño"
 }`;
 
       const modelUsed =
@@ -236,10 +324,13 @@ Responde EXACTAMENTE en este formato JSON:
       let people: string[] = [];
       let locations: string[] = [];
       let emotions_context: string[] = [];
-
+      let dreamType:DreamTypeName = 'Estandar';
+      let dreamTypeReason = '';
       try {
         const aiResult = JSON.parse(responseContent);
         title = aiResult.title || title;
+        dreamType = aiResult.dreamType || 'Estandar';
+        dreamTypeReason = aiResult.dreamTypeReason || '';
         interpretation = aiResult.interpretation || interpretation;
         emotion = aiResult.emotion || emotion;
         emotion = emotion.charAt(0).toUpperCase() + emotion.slice(1);
@@ -258,6 +349,8 @@ Responde EXACTAMENTE en este formato JSON:
       return {
         title,
         interpretation,
+        dreamType,
+        dreamTypeReason,
         emotion,
         context: {
           themes: (themes || []).map(theme => ({
