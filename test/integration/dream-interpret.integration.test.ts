@@ -28,6 +28,7 @@ describe("Dream API Integration Tests", () => {
 
     mockDreamNodeService = {
       saveDreamNode: jest.fn(),
+      onDreamReinterpreted: jest.fn().mockResolvedValue([]),
     } as any;
 
     mockIllustrationService = {
@@ -106,10 +107,11 @@ describe("Dream API Integration Tests", () => {
         .send(requestBody)
         .expect(200);
 
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         description: requestBody.description,
         ...expectedResponse,
       });
+      expect(response.body).toHaveProperty('unlockedBadges');
       expect(mockInterpretationService.reinterpretDream).toHaveBeenCalledWith(
         requestBody.description,
         requestBody.previousInterpretation,
@@ -165,10 +167,11 @@ describe("Dream API Integration Tests", () => {
         .send(requestBody)
         .expect(200);
 
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         description: requestBody.description,
         ...expectedResponse,
       });
+      expect(response.body).toHaveProperty('unlockedBadges');
     });
 
     it("should handle special characters in description", async () => {
@@ -200,10 +203,11 @@ describe("Dream API Integration Tests", () => {
         .send(requestBody)
         .expect(200);
 
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         description: requestBody.description,
         ...expectedResponse,
       });
+      expect(response.body).toHaveProperty('unlockedBadges');
     });
   });
 
@@ -490,7 +494,7 @@ describe("Dream API Integration Tests", () => {
       const responses = await Promise.all(promises);
 
     responses.forEach((response) => {
-    expect(response.body).toEqual({
+    expect(response.body).toMatchObject({
       description: requestBody.description,
       interpretation: expectedResponse.interpretation,
       emotion: expectedResponse.emotion,
@@ -498,6 +502,7 @@ describe("Dream API Integration Tests", () => {
       context: expectedResponseService.context,
       imageUrl: "https://example.com/mystical-dream.png"
   });
+      expect(response.body).toHaveProperty('unlockedBadges');
       });
     });
 

@@ -72,7 +72,9 @@ describe('DreamNodeController Integration Tests', () => {
         total: 0,
         page: 1,
         limit: 10
-      } as unknown as IPaginatedResult<IDreamNode>)
+        } as unknown as IPaginatedResult<IDreamNode>),
+        onDreamSaved: jest.fn().mockResolvedValue([]),
+        onDreamReinterpreted: jest.fn().mockResolvedValue([])
     } as any;
 
     mockIllustrationService = {
