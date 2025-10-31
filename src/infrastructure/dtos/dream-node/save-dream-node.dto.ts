@@ -24,7 +24,6 @@ export class SaveDreamNodeRequestDto {
 
   @IsOptional()
   @IsString({message: 'La imagen debe ser una cadena válida.' })
-  @IsNotEmpty({ message: 'La imagen no puede estar vacía.' })
   imageUrl?: string;
   @IsString({ message: 'El tipo debe ser una cadena válida.' })
   @IsNotEmpty({ message: 'El tipo no puede estar vacío.' })

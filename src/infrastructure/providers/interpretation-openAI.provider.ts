@@ -138,8 +138,10 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
         } else {
           const allowedDreamTypes = new Set(["Lucido", "Pesadilla", "Recurrente", "Estandar"]);
           let rawDreamType = aiResult.dreamType || 'Estandar';
-          rawDreamType = rawDreamType.charAt(0).toUpperCase() + rawDreamType.slice(1).toLowerCase();
-          dreamType = allowedDreamTypes.has(rawDreamType) ? rawDreamType as DreamTypeName : 'Estandar';
+          rawDreamType = rawDreamType
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .charAt(0).toUpperCase() + rawDreamType.slice(1).toLowerCase();
+          dreamType = (allowedDreamTypes.has(rawDreamType) ? rawDreamType : 'Estandar') as DreamTypeName;
         }
 
         themes = Array.isArray(aiResult.themes) ? aiResult.themes : [];
@@ -300,7 +302,6 @@ Responde EXACTAMENTE en este formato JSON:
       try {
         const aiResult = JSON.parse(responseContent);
         title = aiResult.title || title;
-        dreamType = aiResult.dreamType || 'Estandar';
         interpretation = aiResult.interpretation || interpretation;
         emotion = aiResult.emotion || emotion;
         emotion = emotion.charAt(0).toUpperCase() + emotion.slice(1);
@@ -308,6 +309,19 @@ Responde EXACTAMENTE en este formato JSON:
         people = aiResult.people || [];
         locations = aiResult.locations || [];
         emotions_context = aiResult.emotions_context || [];
+
+        const rawDreamType = (aiResult.dreamType || 'Estandar')
+          .toString()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase();
+
+        dreamType = (
+          rawDreamType === 'lucido' ? 'Lucido' :
+          rawDreamType === 'pesadilla' ? 'Pesadilla' :
+          rawDreamType === 'recurrente' ? 'Recurrente' :
+          'Estandar'
+        ) as DreamTypeName;
       } catch (parseError) {
         console.error(
           "Error parseando JSON de OpenAI en reinterpretación:",

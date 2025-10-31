@@ -105,33 +105,51 @@ export class DreamNodeController {
 
   async reinterpret(req: Request, res: Response) {
     try {
-      const { description, previousInterpretation } = req.body;
-
       const userId = (req as any).userId;
-      const dreamContext = await this.contextService.getUserDreamContext(userId);
+      const { description, previousInterpretation } = req.body;
+      
+      const userDreamContext = await this.contextService.getUserDreamContext(userId);
+      const reinterpretedDream = await this.interpretationDreamService.reinterpretDream(
+        description,
+        previousInterpretation,
+        userDreamContext
+      );
 
-      const reinterpretedDream =
-        await this.interpretationDreamService.reinterpretDream(
-          description,
-          previousInterpretation,
-          dreamContext
-        );
+      if (reinterpretedDream.context && req.session) {
+        try {
+          (req.session as any).dreamContext = JSON.parse(JSON.stringify(reinterpretedDream.context));
 
-      const illustrationUrl =
-        await this.illustrationService.generateIllustration(description);
+          await new Promise<void>((resolve, reject) => {
+            req.session?.save((err: Error | null) => {
+              if (err) {
+                console.error('Error saving session:', err);
+                reject(err);
+              } else {
+                resolve();
+              }
+            });
+          });
+        } catch (error) {
+          console.error('Error handling session:', error);
+        }
+      }
 
+      const illustrationUrl = await this.illustrationService.generateIllustration(description);
       const unlockedBadges = await this.dreamNodeService.onDreamReinterpreted(userId);
 
       res.json({
         description,
         imageUrl: illustrationUrl,
-        ...reinterpretedDream,
-        unlockedBadges,
+        interpretation: reinterpretedDream.interpretation,
+        emotion: reinterpretedDream.emotion,
+        title: reinterpretedDream.title,
+        dreamType: reinterpretedDream.dreamType,
+        unlockedBadges
       });
     } catch (error: any) {
       console.error("Error en DreamNodeController reinterpret:", error);
       res.status(500).json({
-        errors: "Error al reinterpretar el sueño",
+        errors: "Error al reinterpretar el sueño"
       });
     }
   }
