@@ -20,6 +20,23 @@ export class BadgeRepositorySupabase implements IBadgeRepository {
     }));
   }
 
+  async getBadgeById(badgeId: string): Promise<Badge | null> {
+    const { data, error } = await supabase
+      .from('badge')
+      .select('id, badge_description, badge_image')
+      .eq('id', badgeId)
+      .single();
+
+    if (error) return null;
+    if (!data) return null;
+
+    return {
+      id: data.id,
+      description: data.badge_description || undefined,
+      imageUrl: data.badge_image || undefined,
+    };
+  }
+
   async awardBadge(profileId: string, badgeId: string): Promise<void> {
 
     const { error } = await supabase

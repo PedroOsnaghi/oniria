@@ -42,6 +42,43 @@ export class MissionRepositorySupabase implements IMissionRepository {
     return missions as Mission[];
   }
 
+  async getUserMissions(profileId: string): Promise<UserMissionProgress[]> {
+
+    const missions = await this.getAllMissions();
+    if (missions.length === 0) return [];
+
+
+    const missionIds = missions.map(m => m.id);
+    const { data: progresses, error: pErr } = await supabase
+      .from('user_mission')
+      .select('mission_id, progress, completed_at')
+      .in('mission_id', missionIds as any)
+      .eq('profile_id', profileId);
+    if (pErr) throw new Error(pErr.message);
+
+    const byMission: Record<number, { progress: number; completed_at: string | null }> = {};
+    (progresses || []).forEach((p: any) => {
+      byMission[p.mission_id] = { progress: p.progress || 0, completed_at: p.completed_at || null };
+    });
+
+
+    const result: UserMissionProgress[] = missions.map((m) => {
+      const prog = byMission[m.id];
+      return {
+        missionId: m.id,
+        code: m.code,
+        title: m.title,
+        description: m.description,
+        type: m.type,
+        target: m.target,
+        progress: prog ? prog.progress : 0,
+        completedAt: prog && prog.completed_at ? new Date(prog.completed_at) : null,
+      } as UserMissionProgress;
+    });
+
+    return result;
+  }
+
   async getUserMission(profileId: string, missionCode: string): Promise<UserMissionProgress | null> {
     const { data, error } = await supabase
       .from('user_mission')
@@ -50,7 +87,7 @@ export class MissionRepositorySupabase implements IMissionRepository {
       .eq('mission.code', missionCode)
       .single();
 
-    if (error) return null;
+    if (error || !data || !(data as any).mission) return null;
     const m = data as any;
     return {
       missionId: m.mission.id,

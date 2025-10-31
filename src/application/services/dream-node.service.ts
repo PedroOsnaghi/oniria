@@ -9,6 +9,7 @@ import { IDreamNode, Emotion } from "../../domain/models/dream-node.model";
 import { IDreamNodeRepository } from "../../domain/repositories/dream-node.repository";
 import { SaveDreamNodeRequestDto } from "../../infrastructure/dtos/dream-node";
 import { MissionService } from "./mission.service";
+import { Badge } from "../../domain/models/badge.model";
 
 export class DreamNodeService {
   constructor(private dreamNodeRepository: IDreamNodeRepository, private missionService?: MissionService) {
@@ -18,7 +19,7 @@ export class DreamNodeService {
     userId: string,
     dream: SaveDreamNodeRequestDto,
     dreamContext: DreamContext
-  ): Promise<void> {
+  ): Promise<Badge[]> {
     const {
       title,
       description,
@@ -55,11 +56,26 @@ export class DreamNodeService {
       dreamContext
     );
 
-    // Fire-and-forget mission updates; do not block save on badges logic
+    let unlockedBadges: Badge[] = [];
     if (this.missionService) {
-      this.missionService.onDreamSaved(userId).catch((e) => {
+      try {
+        unlockedBadges = await this.missionService.onDreamSaved(userId);
+      } catch (e) {
         console.error('MissionService onDreamSaved error:', e);
-      });
+      }
+    }
+    
+    return unlockedBadges;
+  }
+
+  async onDreamReinterpreted(userId: string): Promise<Badge[]> {
+    if (!this.missionService) return [];
+    try {
+      const badges = await this.missionService.onDreamReinterpreted(userId);
+      return badges || [];
+    } catch (e) {
+      console.error('MissionService onDreamReinterpreted error:', e);
+      return [];
     }
   }
 

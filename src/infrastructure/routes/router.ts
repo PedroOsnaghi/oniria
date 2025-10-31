@@ -2,6 +2,7 @@ import { Router } from "express";
 import { dreamNodeRouter } from "./modules/dream-node.routes";
 import { badgeRouter } from "./modules/badge.routes";
 import { userRouter } from "./modules/user.routes";
+import { missionRouter } from "./modules/mission.routes";
 
 export class AppRoutes {
   static get routes(): Router {
@@ -10,6 +11,7 @@ export class AppRoutes {
     router.get("/", (req, res) => res.send("Oniria API"));
     router.use("/api/dreams", dreamNodeRouter);
     router.use("/api/badges", badgeRouter);
+  router.use("/api/missions", missionRouter);
     router.use("/api/users", userRouter);
     return router;
   }
