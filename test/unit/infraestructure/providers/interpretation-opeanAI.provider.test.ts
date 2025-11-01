@@ -85,6 +85,7 @@ describe("InterpretationOpenAIProvider", () => {
         interpretation:
           "Este sueño representa tu deseo de libertad y superación personal.",
         emotion: "Felicidad",
+        dreamType: "Estandar",
         context: {
           emotions_context: [],
           people: [],
@@ -145,6 +146,7 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Interpretación de Sueño",
         interpretation: "Invalid JSON response from OpenAI",
         emotion: "Tristeza",
+        dreamType: "Estandar",
         context: {
           emotions_context: [],
           people: [],
@@ -176,6 +178,7 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Interpretación de Sueño",
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
+        dreamType: "Estandar",
         context: {
           emotions_context: [],
           people: [],
@@ -204,6 +207,7 @@ describe("InterpretationOpenAIProvider", () => {
           themes: [],
         },
         emotion: "Tristeza",
+        dreamType: "Estandar",
       });
     });
 
@@ -257,6 +261,7 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Partial Response",
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
+        dreamType: "Estandar",
         context: {
           emotions_context: [],
           people: [],
@@ -329,6 +334,7 @@ describe("InterpretationOpenAIProvider", () => {
           themes: [],
         },
         emotion: "Miedo",
+        dreamType: "Estandar",
       });
 
       expect(mockChatCompletions).toHaveBeenCalledWith({
@@ -434,6 +440,7 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Nueva Perspectiva",
         interpretation: "Invalid JSON for reinterpretation",
         emotion: "Tristeza",
+        dreamType: "Estandar",
         context: {
           emotions_context: [],
           people: [],
@@ -524,6 +531,7 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Interpretación de Sueño",
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
+        dreamType: "Estandar",
         context: {
           emotions_context: [],
           people: [],
@@ -553,6 +561,7 @@ describe("InterpretationOpenAIProvider", () => {
         title: "Interpretación de Sueño",
         interpretation: "No se pudo interpretar el sueño.",
         emotion: "Tristeza",
+        dreamType: "Estandar",
         context: {
           emotions_context: [],
           people: [],
@@ -801,5 +810,6 @@ describe("InterpretationOpenAIProvider", () => {
 
       consoleSpy.mockRestore();
     });
+
   });
 });

@@ -15,3 +15,10 @@ export const emotionMap: Record<string, string> = {
   Miedo: "968e4082-b886-47cc-a19f-bd934de66d4a",
   Enojo: "889e4b20-3e43-4b4a-b6f0-22733ca0f43d",
 };
+
+export const dreamTypeMap: Record<string, string> = {
+  Lucido: "57dcaad0-ac51-40c1-a2ad-8a9207564e3b",
+  Pesadilla: "3ef3b451-9a82-4cab-9fd4-ca6f9769e3f4",
+  Recurrente: "0531e25e-4b15-46f6-b02b-43cd66020e30",
+  Estandar: "e2d8f9d0-0d03-4ea3-82b1-0bbb85b098c3",
+};
