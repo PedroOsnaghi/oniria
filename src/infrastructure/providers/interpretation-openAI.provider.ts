@@ -171,7 +171,7 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
     }
   }
 
-  private buildContextSection(userContext?: IDreamContext | null,isDefiningType: boolean = false): string {
+  private buildContextSection(userContext?: IDreamContext | null): string {
     if (!userContext) return '';
 
     let contextText = '\n\nContexto del usuario (para enriquecer la interpretación):\n';
@@ -214,10 +214,6 @@ export class InterpretationOpenAIProvider implements InterpretationProvider {
       if (locationsList) {
         contextText += `- Lugares recurrentes: ${locationsList}`;
       }
-    }
-
-    if (isDefiningType) {
-      contextText += "\nConsidera estos patrones para definir el tipo de sueño.\n";
     }
     contextText += "\nConsidera estos patrones al interpretar el nuevo sueño.\n";
     return contextText;

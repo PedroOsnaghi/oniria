@@ -61,9 +61,10 @@ export class StatisticsService {
   }
 
   private getContextStatistics(context: IDreamContext): ContextStatistics {
+    const emotions = (context as any).emotions || context.emotions_context || [];
     return {
       topPlaces: this.getTopItems(context.locations, 3),
-      topEmotions: this.getTopItems(context.emotions_context, 3),
+      topEmotions: this.getTopItems(emotions, 3),
       topPeople: this.getTopItems(context.people, 3),
       topThemes: this.getTopItems(context.themes, 3)
     };
@@ -71,7 +72,6 @@ export class StatisticsService {
 
   private getTopItems(items: Array<{ label: string; count: number }> = [], limit: number): TopItem[] {
     if (!items || !Array.isArray(items)) return [];
-
     return [...items]
       .sort((a, b) => b.count - a.count)
       .slice(0, limit)
@@ -83,7 +83,8 @@ export class StatisticsService {
 
   private async getUserDreamContext(userId: string): Promise<IDreamContext> {
     try {
-      return await this.dreamContextService.getUserDreamContext(userId);
+      const context = await this.dreamContextService.getUserDreamContext(userId);
+      return context;
     } catch (error) {
       console.error('Error getting user dream context:', error);
       return {
