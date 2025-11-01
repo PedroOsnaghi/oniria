@@ -36,11 +36,7 @@ export class PaymentMercadoPagoProvider implements PaymentProvider {
         statement_descriptor: "Oniria",
       };
 
-      console.log("Creating payment with body:", JSON.stringify(body, null, 2)); // DEBUG
-
       const payment = await this.paymentApi.create({ body });
-
-      console.log("Payment response:", JSON.stringify(payment, null, 2)); // DEBUG
 
       return {
         id: payment.id?.toString() ?? "",
@@ -51,7 +47,7 @@ export class PaymentMercadoPagoProvider implements PaymentProvider {
       };
     } catch (error: any) {
       console.error("Error en PaymentMercadoPagoProvider:", error);
-      console.error("Error details:", error.response?.data || error.message); // IMPORTANT DEBUG LINE
+      console.error("Error details:", error.response?.data || error.message);
       throw new Error(
         error.response?.data?.message ||
           "Error al procesar el pago con Mercado Pago"

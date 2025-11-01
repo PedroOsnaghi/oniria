@@ -38,7 +38,6 @@ export class UserService {
     let endDate = new Date(now);
 
     endDate.setMonth(endDate.getMonth() + 1);
-
     if (currentEnd && currentEnd > now && user.membership === newTier) {
       startDate = new Date(user.membership_start_date!);
       endDate = new Date(currentEnd);
