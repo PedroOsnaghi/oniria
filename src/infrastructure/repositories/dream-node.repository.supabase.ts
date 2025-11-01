@@ -35,7 +35,6 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       return { data: null, error };
     }
 
-  
     return { data, error: null };
   }
 
@@ -303,4 +302,49 @@ export class DreamNodeRepositorySupabase implements IDreamNodeRepository {
       }
     }
   }
+
+  async updateDreamNode(
+  nodeId: string,
+  userId: string,
+  updates: Partial<Pick<IDreamNode, 'state' | 'privacy'>>
+): Promise<{ data: any; error: Error | null }> {
+  try {
+    const updateData: any = {};
+
+    if (updates.state !== undefined) {
+      updateData.state_id = stateMap[updates.state];
+    }
+
+    if (updates.privacy !== undefined) {
+      updateData.privacy_id = privacyMap[updates.privacy];
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return { data: null, error: new Error('No fields to update') };
+    }
+
+    const { data, error } = await supabase
+      .from('dream_node')
+      .update(updateData)
+      .eq('id', nodeId)
+      .eq('profile_id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return {
+      data: {
+        id: data.id,
+        state: Object.keys(stateMap).find(key => stateMap[key] === data.state_id),
+        privacy: Object.keys(privacyMap).find(key => privacyMap[key] === data.privacy_id),
+      },
+      error: null
+    };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+}
 }

@@ -17,9 +17,9 @@ describe("DreamNodeService - saveDreamNode", () => {
 
   beforeEach(() => {
     mockRepository = {
-      save: jest.fn().mockResolvedValue({ 
-        data: { id: "mocked-id" }, 
-        error: null 
+      save: jest.fn().mockResolvedValue({
+        data: { id: "mocked-id" },
+        error: null
       }),
       getUserNodes: jest.fn(),
       countUserNodes: jest.fn(),

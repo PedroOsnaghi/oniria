@@ -126,4 +126,43 @@ export class DreamNodeService {
       );
     }
   }
+
+  async updateDreamNode(
+    userId: string,
+    nodeId: string,
+    updates: {
+      state?: 'Activo' | 'Archivado' | undefined;
+      privacy?: "Publico" | "Privado" | "Anonimo" | undefined;
+    }
+  ): Promise<IDreamNode> {
+    try {
+      const updateData: Partial<Pick<IDreamNode, 'state' | 'privacy'>> = {};
+
+      if (updates.state !== undefined) {
+        updateData.state = updates.state;
+      }
+
+      if (updates.privacy !== undefined) {
+        updateData.privacy = updates.privacy;
+      }
+
+      const { data, error } = await this.dreamNodeRepository.updateDreamNode(
+        nodeId,
+        userId,
+        updateData
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error('No se encontró el nodo de sueño o no se pudo actualizar');
+      }
+
+      return data;
+    } catch (error: any) {
+      throw new Error(`Error al actualizar el nodo de sueño: ${error.message}`);
+    }
+  }
 }

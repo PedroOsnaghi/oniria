@@ -4,6 +4,7 @@ import { DreamNodeService } from "../../application/services/dream-node.service"
 import { IllustrationDreamService } from "../../application/services/illustration-dream.service";
 import { SaveDreamNodeRequestDto } from "../dtos/dream-node";
 import { DreamContextService } from "../../application/services/dream-context.service";
+import { UpdateDreamNodeRequestDto } from "../dtos/dream-node/update-dream-node.dto";
 
 export class DreamNodeController {
   constructor(
@@ -185,4 +186,33 @@ export class DreamNodeController {
       });
     }
   }
+
+  async update(req: Request, res: Response) {
+    try {
+      const userId = (req as any).userId;
+      const { id, state, privacy } = req.body as UpdateDreamNodeRequestDto;
+
+      const updates: { state?: 'Activo' | 'Archivado'; privacy?: "Publico" | "Privado" | "Anonimo" } = {};
+      if (state !== undefined) updates.state = state as 'Activo' | 'Archivado';
+      if (privacy !== undefined) updates.privacy = privacy as "Publico" | "Privado" | "Anonimo";
+
+      const updatedDreamNode = await this.dreamNodeService.updateDreamNode(
+        userId,
+        id,
+        updates
+      );
+
+      res.json({
+        message: "Nodo de sueño actualizado exitosamente",
+        data: updatedDreamNode,
+        errors: []
+      });
+    } catch (error: any) {
+      console.error("Error en DreamNodeController update:", error);
+      res.status(500).json({
+        message: "Error interno del servidor",
+        errors: [error.message || "Error al actualizar el nodo de sueño"]
+      });
+    }
+}
 }
