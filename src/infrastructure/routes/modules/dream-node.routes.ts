@@ -19,6 +19,7 @@ import { validateAudio } from "../../middlewares/upload";
 import { TranscripcionController } from "../../controllers/transcription.controller";
 import { TranscriptionWhisperProvider } from "../../providers/transcription-whisper.provider";
 import { TranscriptionService } from "../../../application/services/transcription.service";
+import { UpdateDreamNodeRequestDto } from "../../dtos/dream-node/update-dream-node.dto";
 
 export const dreamNodeRouter = Router();
 
@@ -44,3 +45,4 @@ dreamNodeRouter.post("/save", authenticateToken, validateBody(SaveDreamNodeReque
 dreamNodeRouter.post("/transcribe", authenticateToken, validateAudio, (req, res) => transcriptionController.transcribeAudio(req, res));
 dreamNodeRouter.get("/history", authenticateToken, validateQuery(GetUserNodesRequestDto), (req, res) => dreamNodeController.getUserNodes(req, res));
 dreamNodeRouter.get("/user", authenticateToken, (req, res) => dreamNodeController.showUser(req, res));
+dreamNodeRouter.put("/update", authenticateToken, validateBody(UpdateDreamNodeRequestDto), (req, res) => dreamNodeController.update(req, res));

@@ -1,8 +1,6 @@
 import { supabase } from "../../config/supabase";
-import {
-  IRepositoryUser,
-  IUser
-} from "../../domain/interfaces/user.interface";
+import { IMembership } from "../../domain/interfaces/membership.interface";
+import { IRepositoryUser, IUser } from "../../domain/interfaces/user.interface";
 import { IUserRepository } from "../../domain/repositories/user.repository";
 import { LoginDTO } from "../dtos/user/login.dto";
 
@@ -69,4 +67,62 @@ export class UserRepository implements IUserRepository {
     };
   }
 
+  async findById(id: string): Promise<IUser | null> {
+    const { data, error } = await supabase
+      .from("profile")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Error buscando usuario:", error);
+      return null;
+    }
+
+    return data as IUser;
+  }
+
+  async updateMembership(
+    userId: string,
+    membership: IMembership
+  ): Promise<void> {
+    const {error} = await supabase
+      .from("profile")
+      .update({
+        membership: membership.membership,
+        membership_start_date: membership.membership_start_date,
+        membership_end_date: membership.membership_end_date,
+      })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error actualizando membresía:", error);
+      throw new Error("No se pudo actualizar la membresía");
+    }
+  }
+
+  async addCoins(userId: string, amount: number): Promise<void> {
+    const { data, error } = await supabase
+      .from("profile")
+      .select("coins")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Error obteniendo monedas:", error);
+      throw new Error("No se pudieron obtener las monedas del usuario");
+    }
+
+    const newBalance = (data?.coins ?? 0) + amount;
+
+    const { error: updateError } = await supabase
+      .from("profile")
+      .update({ coins: newBalance })
+      .eq("id", userId);
+
+    if (updateError) {
+      console.error("Error actualizando monedas:", updateError);
+      throw new Error("No se pudieron actualizar las monedas");
+    }
+  }
 }
