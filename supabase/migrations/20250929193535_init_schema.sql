@@ -173,29 +173,70 @@ create table if not exists public.user_badge (
 );
 
 -- ============================================================
--- ROOM & SKIN
+-- ROOMS AND SKINS
 -- ============================================================
-create table if not exists public.room (
-    id uuid primary key default gen_random_uuid(),
-    room_url text not null
+create table if not exists public.rooms (
+    id              VARCHAR(100) PRIMARY KEY,
+    name            VARCHAR(255) NOT NULL,
+    description     TEXT,
+    
+    image_url       VARCHAR(500),
+    preview_light   VARCHAR(500),
+    preview_dark    VARCHAR(500),
+    model_url       VARCHAR(500),
+    
+    is_default      BOOLEAN NOT NULL DEFAULT FALSE,
+    
+    price           NUMERIC(10,2),
+    included_in_plan VARCHAR(50),
+    ownership_status VARCHAR(50) NOT NULL,
+    
+    compatible_skins TEXT[],  
+    
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-create table if not exists public.user_room (
-    profile_id uuid references public.profile(id) on delete cascade,
-    room_id uuid references public.room(id) on delete cascade,
-    primary key (profile_id, room_id)
+create table if not exists public.skins (
+    id              VARCHAR(100) PRIMARY KEY,
+    name            VARCHAR(255) NOT NULL,
+    description     TEXT,
+    
+    image_url       VARCHAR(500),
+    preview_light   VARCHAR(500),
+    preview_dark    VARCHAR(500),
+    
+    supports_themes BOOLEAN NOT NULL,
+    
+    objects_light   VARCHAR(500),
+    objects_dark    VARCHAR(500),
+    walls_light     VARCHAR(500),
+    walls_dark      VARCHAR(500),
+    
+    is_default      BOOLEAN NOT NULL DEFAULT FALSE,
+    price           NUMERIC(10,2),
+    included_in_plan VARCHAR(50),
+    ownership_status VARCHAR(50) NOT NULL,
+    
+    compatible_rooms TEXT[],  
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-create table if not exists public.skin (
-    id uuid primary key default gen_random_uuid(),
-    skin_url text not null
+create table if not exists public.user_items (
+    user_id         UUID REFERENCES public.profile(id) ON DELETE CASCADE,
+    item_id         VARCHAR(100) NOT NULL,
+    item_type       VARCHAR(10) NOT NULL CHECK (item_type IN ('room', 'skin')),
+    ownership_type  VARCHAR(50) NOT NULL,
+    purchased_at    TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (user_id, item_id)
 );
 
-create table if not exists public.user_skin (
-    profile_id uuid references public.profile(id) on delete cascade,
-    skin_id uuid references public.skin(id) on delete cascade,
-    primary key (profile_id, skin_id)
-);
+create index if not exists idx_rooms_is_default on public.rooms(is_default);
+create index if not exists idx_rooms_included_in_plan on public.rooms(included_in_plan);
+create index if not exists idx_skins_is_default on public.skins(is_default);
+create index if not exists idx_skins_included_in_plan on public.skins(included_in_plan);
+create index if not exists idx_user_items_item_type on public.user_items(item_type);
+create index if not exists idx_user_items_ownership on public.user_items(ownership_type);
+
 
 -- ============================================================
 -- SETTINGS

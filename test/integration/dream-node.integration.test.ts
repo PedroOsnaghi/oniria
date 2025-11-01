@@ -54,19 +54,19 @@ describe("DreamNodeController Integration Tests", () => {
       // Aplicar filtros
       if (state) {
         allDreams = allDreams.filter(dream =>
-          dream.dream_state.toLowerCase() === String(state).toLowerCase()
+          dream.state.toLowerCase() === String(state).toLowerCase()
         );
       }
 
       if (privacy) {
         allDreams = allDreams.filter(dream =>
-          dream.dream_privacy.toLowerCase() === String(privacy).toLowerCase()
+          dream.privacy.toLowerCase() === String(privacy).toLowerCase()
         );
       }
 
       if (emotion) {
         allDreams = allDreams.filter(dream =>
-          dream.dream_emotion.toLowerCase() === String(emotion).toLowerCase()
+          dream.emotion.toLowerCase() === String(emotion).toLowerCase()
         );
       }
 
@@ -151,7 +151,7 @@ describe("DreamNodeController Integration Tests", () => {
 
         expect(response.body.success).toBe(true);
         expect(response.body.data).toHaveLength(1);
-        expect(response.body.data[0].dream_state).toBe("Activo");
+        expect(response.body.data[0].state).toBe("Activo");
         expect(response.body.data[0].title).toBe("Mi primer sueño en Oniria");
       });
 
@@ -163,7 +163,7 @@ describe("DreamNodeController Integration Tests", () => {
 
         expect(response.body.success).toBe(true);
         expect(response.body.data).toHaveLength(1);
-        expect(response.body.data[0].dream_state).toBe("Archivado");
+        expect(response.body.data[0].state).toBe("Archivado");
         expect(response.body.data[0].title).toBe("Sueño en el océano profundo");
       });
 
@@ -175,7 +175,7 @@ describe("DreamNodeController Integration Tests", () => {
 
         expect(response.body.success).toBe(true);
         expect(response.body.data).toHaveLength(1);
-        expect(response.body.data[0].dream_privacy).toBe("Publico");
+        expect(response.body.data[0].privacy).toBe("Publico");
         expect(response.body.data[0].title).toBe("Mi primer sueño en Oniria");
       });
 
@@ -187,7 +187,7 @@ describe("DreamNodeController Integration Tests", () => {
 
         expect(response.body.success).toBe(true);
         expect(response.body.data).toHaveLength(1);
-        expect(response.body.data[0].dream_privacy).toBe("Privado");
+        expect(response.body.data[0].privacy).toBe("Privado");
         expect(response.body.data[0].title).toBe("Sueño en el océano profundo");
       });
 
@@ -199,7 +199,7 @@ describe("DreamNodeController Integration Tests", () => {
 
         expect(response.body.success).toBe(true);
         expect(response.body.data).toHaveLength(1);
-        expect(response.body.data[0].dream_emotion).toBe("Felicidad");
+        expect(response.body.data[0].emotion).toBe("Felicidad");
         expect(response.body.data[0].title).toBe("Mi primer sueño en Oniria");
       });
 
@@ -211,7 +211,7 @@ describe("DreamNodeController Integration Tests", () => {
 
         expect(response.body.success).toBe(true);
         expect(response.body.data).toHaveLength(1);
-        expect(response.body.data[0].dream_emotion).toBe("Tristeza");
+        expect(response.body.data[0].emotion).toBe("Tristeza");
         expect(response.body.data[0].title).toBe("Sueño en el océano profundo");
       });
 
@@ -274,8 +274,8 @@ describe("DreamNodeController Integration Tests", () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].dream_state).toBe("Activo");
-      expect(response.body.data[0].dream_privacy).toBe("Publico");
+      expect(response.body.data[0].state).toBe("Activo");
+      expect(response.body.data[0].privacy).toBe("Publico");
       expect(response.body.data[0].title).toBe("Mi primer sueño en Oniria");
     });
 
@@ -287,7 +287,7 @@ describe("DreamNodeController Integration Tests", () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].dream_emotion).toBe("Tristeza");
+      expect(response.body.data[0].emotion).toBe("Tristeza");
       expect(response.body.data[0].dream_description).toContain("océano");
     });
 
@@ -351,7 +351,7 @@ describe("DreamNodeController Integration Tests", () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].dream_state).toBe("Activo");
+      expect(response.body.data[0].state).toBe("Activo");
       expect(response.body.pagination).toEqual({
         currentPage: 1,
         limit: 1,
@@ -374,9 +374,9 @@ describe("DreamNodeController Integration Tests", () => {
       expect(response.body.data).toHaveLength(1);
 
       const dream = response.body.data[0];
-      expect(dream.dream_state).toBe("Activo");
-      expect(dream.dream_privacy).toBe("Publico");
-      expect(dream.dream_emotion).toBe("Felicidad");
+      expect(dream.state).toBe("Activo");
+      expect(dream.privacy).toBe("Publico");
+      expect(dream.emotion).toBe("Felicidad");
       expect(dream.title).toContain("primer");
       expect(new Date(dream.creationDate).getTime()).toBeGreaterThanOrEqual(
         new Date("2024-01-01").getTime()

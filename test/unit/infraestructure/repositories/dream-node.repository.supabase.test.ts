@@ -10,6 +10,7 @@ jest.mock('../../../../src/config/envs', () => ({
 import { DreamNodeRepositorySupabase } from '../../../../src/infrastructure/repositories/dream-node.repository.supabase';
 import { supabase } from '../../../../src/config/supabase';
 import { dreamNodeMock } from '../../mocks/dream-node.mock';
+import { DreamTypeName } from '../../../../src/domain/models/dream-node.model';
 
 describe('DreamNodeRepositorySupabase', () => {
     let repo: DreamNodeRepositorySupabase;
@@ -30,7 +31,8 @@ describe('DreamNodeRepositorySupabase', () => {
     });
 
     it('should correctly insert a dream node', async () => {
-        await repo.save(dreamNodeMock, 'user-1');
+        const dreamType: DreamTypeName = 'Estandar';
+        await repo.save(dreamNodeMock, 'user-1', dreamType);
         expect(mockSupabase.from).toHaveBeenCalledWith('dream_node');
         expect(mockSupabase.from('dream_node').insert).toHaveBeenCalledWith(expect.objectContaining({
             id: '550e8400-e29b-41d4-a716-446655440001',
@@ -41,13 +43,18 @@ describe('DreamNodeRepositorySupabase', () => {
         expect(mockSupabase.from('dream_node').insert(expect.any(Object)).select().single).toHaveBeenCalled();
     });
 
-    it('should throw error if Supabase returns error', async () => {
+    it('should return error if Supabase returns error', async () => {
+        const errorMessage = 'Error al insertar';
         (mockSupabase.from('dream_node').insert(expect.any(Object)).select().single as jest.Mock).mockResolvedValueOnce({
             data: null,
-            error: { message: 'Error al insertar' }
+            error: { message: errorMessage }
         });
 
-        await expect(repo.save(dreamNodeMock, 'user-1')).rejects.toThrow('Error al insertar');
+        const dreamType: DreamTypeName = 'Estandar';
+        const result = await repo.save(dreamNodeMock, 'user-1', dreamType);
+        expect(result.data).toBeNull();
+        expect(result.error).toBeDefined();
+        expect(result.error?.message).toBe(errorMessage);
     });
 
 });
