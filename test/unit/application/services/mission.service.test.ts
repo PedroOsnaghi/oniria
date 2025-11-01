@@ -50,24 +50,6 @@ describe('MissionService - Badges', () => {
     expect(badges).toEqual([]);
   });
 
-  it('should unlock badge for streak mission via onDreamSaved', async () => {
-    missionRepository.getAllMissions.mockResolvedValue([
-      { code: 'constant_dreamer', target: 3, badgeId: 'b2' }
-    ]);
-    missionRepository.getUserMission.mockResolvedValue({ progress: 2, completedAt: null });
-    badgeRepository.getBadgeById.mockResolvedValue({ id: 'b2' });
-    dreamNodeRepository.countUserNodes.mockResolvedValue(5);
-    dreamNodeRepository.getUserNodes.mockResolvedValue([
-      { creationDate: '2025-11-01' },
-      { creationDate: '2025-10-31' },
-      { creationDate: '2025-10-30' }
-    ]);
-
-    const badges = await missionService.onDreamSaved('user');
-    expect(badges).toEqual([{ id: 'b2' }]);
-    expect(badgeRepository.awardBadge).toHaveBeenCalledWith('user', 'b2');
-  });
-
   it('should unlock badge for event mission via onDreamReinterpreted', async () => {
     missionRepository.getAllMissions.mockResolvedValue([
       { code: 'reflective_interpreter', target: 1, badgeId: 'b3' }
@@ -88,5 +70,29 @@ describe('MissionService - Badges', () => {
 
     const badges = await missionService.onDreamReinterpreted('user');
     expect(badges).toEqual([]);
+  });
+
+  it('should unlock badge for streak mission via onDreamSaved', async () => {
+    missionRepository.getAllMissions.mockResolvedValue([
+      { code: 'constant_dreamer', target: 3, badgeId: 'b2' }
+    ]);
+    missionRepository.getUserMission.mockResolvedValue({ progress: 2, completedAt: null });
+    badgeRepository.getBadgeById.mockResolvedValue({ id: 'b2' });
+    dreamNodeRepository.countUserNodes.mockImplementation((_profileId: any, filters: any) => {
+      if (filters && filters.from && filters.to &&
+        filters.from.startsWith('2025-11-01') && filters.to.startsWith('2025-11-02')) {
+        return Promise.resolve(1);
+      }
+      return Promise.resolve(5);
+    });
+    dreamNodeRepository.getUserNodes.mockResolvedValue([
+      { creationDate: '2025-11-01T00:00:00.000Z' },
+      { creationDate: '2025-10-31T00:00:00.000Z' },
+      { creationDate: '2025-10-30T00:00:00.000Z' }
+    ]);
+
+    const badges = await missionService.onDreamSaved('user');
+    expect(badges).toEqual([{ id: 'b2' }]);
+    expect(badgeRepository.awardBadge).toHaveBeenCalledWith('user', 'b2');
   });
 });
