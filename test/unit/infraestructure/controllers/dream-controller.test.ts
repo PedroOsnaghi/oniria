@@ -203,7 +203,7 @@ describe('DreamNodeController Integration Tests', () => {
       };
 
       // Mock the service method
-      mockDreamNodeService.saveDreamNode.mockResolvedValue(undefined);
+  mockDreamNodeService.saveDreamNode.mockResolvedValue([]);
     });
 
     it('should save a dream node successfully', async () => {
